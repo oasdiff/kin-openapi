@@ -100,8 +100,10 @@ type Schema struct {
 	// Array-related, here for struct compactness
 	UniqueItems bool `json:"uniqueItems,omitempty" yaml:"uniqueItems,omitempty"`
 	// Number-related, here for struct compactness
-	ExclusiveMin bool `json:"exclusiveMinimum,omitempty" yaml:"exclusiveMinimum,omitempty"`
-	ExclusiveMax bool `json:"exclusiveMaximum,omitempty" yaml:"exclusiveMaximum,omitempty"`
+	// In OpenAPI 3.0: boolean modifier for minimum/maximum
+	// In OpenAPI 3.1: number representing the actual exclusive bound
+	ExclusiveMin ExclusiveBound `json:"exclusiveMinimum,omitempty" yaml:"exclusiveMinimum,omitempty"`
+	ExclusiveMax ExclusiveBound `json:"exclusiveMaximum,omitempty" yaml:"exclusiveMaximum,omitempty"`
 	// Properties
 	Nullable        bool `json:"nullable,omitempty" yaml:"nullable,omitempty"`
 	ReadOnly        bool `json:"readOnly,omitempty" yaml:"readOnly,omitempty"`
@@ -385,6 +387,66 @@ func (addProps *AdditionalProperties) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// ExclusiveBound represents exclusiveMinimum/exclusiveMaximum which changed type between OpenAPI versions.
+// In OpenAPI 3.0 (JSON Schema draft-04): boolean that modifies minimum/maximum
+// In OpenAPI 3.1 (JSON Schema 2020-12): number representing the actual exclusive bound
+type ExclusiveBound struct {
+	Bool  *bool    // For OpenAPI 3.0 style (modifier for min/max)
+	Value *float64 // For OpenAPI 3.1 style (actual bound value)
+}
+
+// IsSet returns true if either Bool or Value is set.
+func (eb ExclusiveBound) IsSet() bool {
+	return eb.Bool != nil || eb.Value != nil
+}
+
+// IsTrue returns true if the bound is set as a boolean true (OpenAPI 3.0 style).
+func (eb ExclusiveBound) IsTrue() bool {
+	return eb.Bool != nil && *eb.Bool
+}
+
+// MarshalYAML returns the YAML encoding of ExclusiveBound.
+func (eb ExclusiveBound) MarshalYAML() (any, error) {
+	if eb.Value != nil {
+		return *eb.Value, nil
+	}
+	if eb.Bool != nil {
+		return *eb.Bool, nil
+	}
+	return nil, nil
+}
+
+// MarshalJSON returns the JSON encoding of ExclusiveBound.
+func (eb ExclusiveBound) MarshalJSON() ([]byte, error) {
+	x, err := eb.MarshalYAML()
+	if err != nil {
+		return nil, err
+	}
+	if x == nil {
+		return nil, nil
+	}
+	return json.Marshal(x)
+}
+
+// UnmarshalJSON sets ExclusiveBound to a copy of data.
+func (eb *ExclusiveBound) UnmarshalJSON(data []byte) error {
+	var x any
+	if err := json.Unmarshal(data, &x); err != nil {
+		return unmarshalError(err)
+	}
+	switch y := x.(type) {
+	case nil:
+		// nothing to do
+	case bool:
+		eb.Bool = &y
+	case float64:
+		eb.Value = &y
+	default:
+		return errors.New("cannot unmarshal exclusiveMinimum/exclusiveMaximum: value must be either a number or a boolean")
+	}
+	return nil
+}
+
 var _ jsonpointer.JSONPointable = (*Schema)(nil)
 
 func NewSchema() *Schema {
@@ -450,11 +512,15 @@ func (schema Schema) MarshalYAML() (any, error) {
 		m["uniqueItems"] = x
 	}
 	// Number-related
-	if x := schema.ExclusiveMin; x {
-		m["exclusiveMinimum"] = x
+	if schema.ExclusiveMin.IsSet() {
+		if v, _ := schema.ExclusiveMin.MarshalYAML(); v != nil {
+			m["exclusiveMinimum"] = v
+		}
 	}
-	if x := schema.ExclusiveMax; x {
-		m["exclusiveMaximum"] = x
+	if schema.ExclusiveMax.IsSet() {
+		if v, _ := schema.ExclusiveMax.MarshalYAML(); v != nil {
+			m["exclusiveMaximum"] = v
+		}
 	}
 	// Properties
 	if x := schema.Nullable; x {
@@ -876,13 +942,27 @@ func (schema *Schema) WithMax(value float64) *Schema {
 	return schema
 }
 
+// WithExclusiveMin sets exclusiveMinimum as a boolean (OpenAPI 3.0 style).
 func (schema *Schema) WithExclusiveMin(value bool) *Schema {
-	schema.ExclusiveMin = value
+	schema.ExclusiveMin = ExclusiveBound{Bool: &value}
 	return schema
 }
 
+// WithExclusiveMax sets exclusiveMaximum as a boolean (OpenAPI 3.0 style).
 func (schema *Schema) WithExclusiveMax(value bool) *Schema {
-	schema.ExclusiveMax = value
+	schema.ExclusiveMax = ExclusiveBound{Bool: &value}
+	return schema
+}
+
+// WithExclusiveMinValue sets exclusiveMinimum as a number (OpenAPI 3.1 style).
+func (schema *Schema) WithExclusiveMinValue(value float64) *Schema {
+	schema.ExclusiveMin = ExclusiveBound{Value: &value}
+	return schema
+}
+
+// WithExclusiveMaxValue sets exclusiveMaximum as a number (OpenAPI 3.1 style).
+func (schema *Schema) WithExclusiveMaxValue(value float64) *Schema {
+	schema.ExclusiveMax = ExclusiveBound{Value: &value}
 	return schema
 }
 
@@ -1038,7 +1118,7 @@ func (schema *Schema) PermitsNull() bool {
 // IsEmpty tells whether schema is equivalent to the empty schema `{}`.
 func (schema *Schema) IsEmpty() bool {
 	if schema.Type != nil || schema.Format != "" || len(schema.Enum) != 0 ||
-		schema.UniqueItems || schema.ExclusiveMin || schema.ExclusiveMax ||
+		schema.UniqueItems || schema.ExclusiveMin.IsSet() || schema.ExclusiveMax.IsSet() ||
 		schema.Nullable || schema.ReadOnly || schema.WriteOnly || schema.AllowEmptyValue ||
 		schema.Min != nil || schema.Max != nil || schema.MultipleOf != nil ||
 		schema.MinLength != 0 || schema.MaxLength != nil || schema.Pattern != "" ||
@@ -1766,39 +1846,73 @@ func (schema *Schema) visitJSONNumber(settings *schemaValidationSettings, value 
 	}
 
 	// "exclusiveMinimum"
-	if v := schema.ExclusiveMin; v && !(*schema.Min < value) {
-		if settings.failfast {
-			return errSchema
+	// OpenAPI 3.0: boolean modifier for minimum
+	// OpenAPI 3.1: number representing the actual exclusive bound
+	if eb := schema.ExclusiveMin; eb.IsSet() {
+		var exclusiveMinBound float64
+		var valid bool
+		if eb.Value != nil {
+			// OpenAPI 3.1 style: exclusiveMinimum is the bound itself
+			exclusiveMinBound = *eb.Value
+			valid = value > exclusiveMinBound
+		} else if eb.Bool != nil && *eb.Bool && schema.Min != nil {
+			// OpenAPI 3.0 style: exclusiveMinimum modifies minimum
+			exclusiveMinBound = *schema.Min
+			valid = value > exclusiveMinBound
+		} else {
+			valid = true
 		}
-		err := &SchemaError{
-			Value:                 value,
-			Schema:                schema,
-			SchemaField:           "exclusiveMinimum",
-			Reason:                fmt.Sprintf("number must be more than %g", *schema.Min),
-			customizeMessageError: settings.customizeMessageError,
+		if !valid {
+			if settings.failfast {
+				return errSchema
+			}
+			err := &SchemaError{
+				Value:                 value,
+				Schema:                schema,
+				SchemaField:           "exclusiveMinimum",
+				Reason:                fmt.Sprintf("number must be more than %g", exclusiveMinBound),
+				customizeMessageError: settings.customizeMessageError,
+			}
+			if !settings.multiError {
+				return err
+			}
+			me = append(me, err)
 		}
-		if !settings.multiError {
-			return err
-		}
-		me = append(me, err)
 	}
 
 	// "exclusiveMaximum"
-	if v := schema.ExclusiveMax; v && !(*schema.Max > value) {
-		if settings.failfast {
-			return errSchema
+	// OpenAPI 3.0: boolean modifier for maximum
+	// OpenAPI 3.1: number representing the actual exclusive bound
+	if eb := schema.ExclusiveMax; eb.IsSet() {
+		var exclusiveMaxBound float64
+		var valid bool
+		if eb.Value != nil {
+			// OpenAPI 3.1 style: exclusiveMaximum is the bound itself
+			exclusiveMaxBound = *eb.Value
+			valid = value < exclusiveMaxBound
+		} else if eb.Bool != nil && *eb.Bool && schema.Max != nil {
+			// OpenAPI 3.0 style: exclusiveMaximum modifies maximum
+			exclusiveMaxBound = *schema.Max
+			valid = value < exclusiveMaxBound
+		} else {
+			valid = true
 		}
-		err := &SchemaError{
-			Value:                 value,
-			Schema:                schema,
-			SchemaField:           "exclusiveMaximum",
-			Reason:                fmt.Sprintf("number must be less than %g", *schema.Max),
-			customizeMessageError: settings.customizeMessageError,
+		if !valid {
+			if settings.failfast {
+				return errSchema
+			}
+			err := &SchemaError{
+				Value:                 value,
+				Schema:                schema,
+				SchemaField:           "exclusiveMaximum",
+				Reason:                fmt.Sprintf("number must be less than %g", exclusiveMaxBound),
+				customizeMessageError: settings.customizeMessageError,
+			}
+			if !settings.multiError {
+				return err
+			}
+			me = append(me, err)
 		}
-		if !settings.multiError {
-			return err
-		}
-		me = append(me, err)
 	}
 
 	// "minimum"

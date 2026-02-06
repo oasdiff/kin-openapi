@@ -135,10 +135,11 @@ func TestJSONSchema2020Validator_OpenAPI31Features(t *testing.T) {
 func TestJSONSchema2020Validator_ExclusiveMinMax(t *testing.T) {
 	t.Run("exclusive minimum as boolean (OpenAPI 3.0 style)", func(t *testing.T) {
 		min := 0.0
+		boolTrue := true
 		schema := &Schema{
 			Type:         &Types{"number"},
 			Min:          &min,
-			ExclusiveMin: true,
+			ExclusiveMin: ExclusiveBound{Bool: &boolTrue},
 		}
 
 		err := schema.VisitJSON(0.1, EnableJSONSchema2020())
@@ -150,10 +151,11 @@ func TestJSONSchema2020Validator_ExclusiveMinMax(t *testing.T) {
 
 	t.Run("exclusive maximum as boolean (OpenAPI 3.0 style)", func(t *testing.T) {
 		max := 100.0
+		boolTrue := true
 		schema := &Schema{
 			Type:         &Types{"number"},
 			Max:          &max,
-			ExclusiveMax: true,
+			ExclusiveMax: ExclusiveBound{Bool: &boolTrue},
 		}
 
 		err := schema.VisitJSON(99.9, EnableJSONSchema2020())
