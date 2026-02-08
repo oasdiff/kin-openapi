@@ -17,7 +17,7 @@ func TestSchemaConst_BuiltInValidator(t *testing.T) {
 
 		err = schema.VisitJSON("development")
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "const")
+		require.ErrorContains(t, err, "const")
 	})
 
 	t.Run("number const", func(t *testing.T) {
