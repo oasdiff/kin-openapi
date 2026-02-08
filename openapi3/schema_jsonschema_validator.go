@@ -88,7 +88,7 @@ func transformOpenAPIToJSONSchema(schema map[string]any) {
 	delete(schema, "example") // Use "examples" in 2020-12
 
 	// Recursively transform nested schemas
-	for _, key := range []string{"properties", "additionalProperties", "items", "not"} {
+	for _, key := range []string{"properties", "additionalProperties", "items", "not", "if", "then", "else"} {
 		if val, ok := schema[key]; ok {
 			if nestedSchema, ok := val.(map[string]any); ok {
 				transformOpenAPIToJSONSchema(nestedSchema)

@@ -981,6 +981,24 @@ func (loader *Loader) resolveSchemaRef(doc *T, component *SchemaRef, documentPat
 			return err
 		}
 	}
+
+	// OpenAPI 3.1 / JSON Schema 2020-12: conditional keywords
+	if v := value.If; v != nil {
+		if err := loader.resolveSchemaRef(doc, v, documentPath, visited); err != nil {
+			return err
+		}
+	}
+	if v := value.Then; v != nil {
+		if err := loader.resolveSchemaRef(doc, v, documentPath, visited); err != nil {
+			return err
+		}
+	}
+	if v := value.Else; v != nil {
+		if err := loader.resolveSchemaRef(doc, v, documentPath, visited); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

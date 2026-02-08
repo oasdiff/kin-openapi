@@ -147,6 +147,14 @@ type Schema struct {
 	PropertyNames         *SchemaRef   `json:"propertyNames,omitempty" yaml:"propertyNames,omitempty"`
 	UnevaluatedItems      *SchemaRef   `json:"unevaluatedItems,omitempty" yaml:"unevaluatedItems,omitempty"`
 	UnevaluatedProperties *SchemaRef   `json:"unevaluatedProperties,omitempty" yaml:"unevaluatedProperties,omitempty"`
+
+	// JSON Schema 2020-12 conditional keywords
+	If   *SchemaRef `json:"if,omitempty" yaml:"if,omitempty"`
+	Then *SchemaRef `json:"then,omitempty" yaml:"then,omitempty"`
+	Else *SchemaRef `json:"else,omitempty" yaml:"else,omitempty"`
+
+	// JSON Schema 2020-12 dependent requirements
+	DependentRequired map[string][]string `json:"dependentRequired,omitempty" yaml:"dependentRequired,omitempty"`
 }
 
 // Types represents the type(s) of a schema.
@@ -629,6 +637,18 @@ func (schema Schema) MarshalYAML() (any, error) {
 	if x := schema.UnevaluatedProperties; x != nil {
 		m["unevaluatedProperties"] = x
 	}
+	if x := schema.If; x != nil {
+		m["if"] = x
+	}
+	if x := schema.Then; x != nil {
+		m["then"] = x
+	}
+	if x := schema.Else; x != nil {
+		m["else"] = x
+	}
+	if x := schema.DependentRequired; len(x) != 0 {
+		m["dependentRequired"] = x
+	}
 
 	return m, nil
 }
@@ -704,6 +724,10 @@ func (schema *Schema) UnmarshalJSON(data []byte) error {
 	delete(x.Extensions, "propertyNames")
 	delete(x.Extensions, "unevaluatedItems")
 	delete(x.Extensions, "unevaluatedProperties")
+	delete(x.Extensions, "if")
+	delete(x.Extensions, "then")
+	delete(x.Extensions, "else")
+	delete(x.Extensions, "dependentRequired")
 
 	if len(x.Extensions) == 0 {
 		x.Extensions = nil
@@ -1159,6 +1183,18 @@ func (schema *Schema) IsEmpty() bool {
 			return false
 		}
 	}
+	if f := schema.If; f != nil && f.Value != nil && !f.Value.IsEmpty() {
+		return false
+	}
+	if t := schema.Then; t != nil && t.Value != nil && !t.Value.IsEmpty() {
+		return false
+	}
+	if e := schema.Else; e != nil && e.Value != nil && !e.Value.IsEmpty() {
+		return false
+	}
+	if len(schema.DependentRequired) != 0 {
+		return false
+	}
 	return true
 }
 
@@ -1229,6 +1265,37 @@ func (schema *Schema) validate(ctx context.Context, stack []*Schema) ([]*Schema,
 			return stack, foundUnresolvedRef(ref.Ref)
 		}
 
+		var err error
+		if stack, err = v.validate(ctx, stack); err != nil {
+			return stack, err
+		}
+	}
+
+	if ref := schema.If; ref != nil {
+		v := ref.Value
+		if v == nil {
+			return stack, foundUnresolvedRef(ref.Ref)
+		}
+		var err error
+		if stack, err = v.validate(ctx, stack); err != nil {
+			return stack, err
+		}
+	}
+	if ref := schema.Then; ref != nil {
+		v := ref.Value
+		if v == nil {
+			return stack, foundUnresolvedRef(ref.Ref)
+		}
+		var err error
+		if stack, err = v.validate(ctx, stack); err != nil {
+			return stack, err
+		}
+	}
+	if ref := schema.Else; ref != nil {
+		v := ref.Value
+		if v == nil {
+			return stack, foundUnresolvedRef(ref.Ref)
+		}
 		var err error
 		if stack, err = v.validate(ctx, stack); err != nil {
 			return stack, err
