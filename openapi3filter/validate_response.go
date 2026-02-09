@@ -73,6 +73,9 @@ func ValidateResponse(ctx context.Context, input *ResponseValidationInput) error
 	if options.ExcludeWriteOnlyValidations {
 		opts = append(opts, openapi3.DisableWriteOnlyValidation())
 	}
+	if route.Spec != nil && route.Spec.IsOpenAPI3_1() {
+		opts = append(opts, openapi3.EnableJSONSchema2020())
+	}
 
 	headers := make([]string, 0, len(response.Headers))
 	for k := range response.Headers {
