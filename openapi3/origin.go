@@ -12,6 +12,7 @@ type Origin struct {
 
 // Location is a struct that contains the location of a field.
 type Location struct {
-	Line   int `json:"line,omitempty" yaml:"line,omitempty"`
-	Column int `json:"column,omitempty" yaml:"column,omitempty"`
+	File   string `json:"file,omitempty" yaml:"file,omitempty"`
+	Line   int    `json:"line,omitempty" yaml:"line,omitempty"`
+	Column int    `json:"column,omitempty" yaml:"column,omitempty"`
 }
