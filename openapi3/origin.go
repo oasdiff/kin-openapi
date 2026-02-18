@@ -17,4 +17,5 @@ type Location struct {
 	File   string `json:"file,omitempty" yaml:"file,omitempty"`
 	Line   int    `json:"line,omitempty" yaml:"line,omitempty"`
 	Column int    `json:"column,omitempty" yaml:"column,omitempty"`
+	Name   string `json:"name,omitempty" yaml:"name,omitempty"`
 }
