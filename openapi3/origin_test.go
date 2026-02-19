@@ -29,6 +29,7 @@ func TestOrigin_Info(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   2,
 			Column: 1,
+			Name:   "info",
 		},
 		doc.Info.Origin.Key)
 
@@ -37,6 +38,7 @@ func TestOrigin_Info(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   3,
 			Column: 3,
+			Name:   "title",
 		},
 		doc.Info.Origin.Fields["title"])
 
@@ -45,6 +47,7 @@ func TestOrigin_Info(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   4,
 			Column: 3,
+			Name:   "version",
 		},
 		doc.Info.Origin.Fields["version"])
 }
@@ -67,6 +70,7 @@ func TestOrigin_Paths(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   5,
 			Column: 1,
+			Name:   "paths",
 		},
 		doc.Paths.Origin.Key)
 
@@ -78,6 +82,7 @@ func TestOrigin_Paths(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   13,
 			Column: 3,
+			Name:   "/partner-api/test/another-method",
 		},
 		base.Origin.Key)
 
@@ -87,6 +92,7 @@ func TestOrigin_Paths(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   14,
 			Column: 5,
+			Name:   "get",
 		},
 		base.Get.Origin.Key)
 }
@@ -110,6 +116,7 @@ func TestOrigin_RequestBody(t *testing.T) {
 			File:   "testdata/origin/request_body.yaml",
 			Line:   8,
 			Column: 7,
+			Name:   "requestBody",
 		},
 		base.Origin.Key)
 
@@ -119,6 +126,7 @@ func TestOrigin_RequestBody(t *testing.T) {
 			File:   "testdata/origin/request_body.yaml",
 			Line:   10,
 			Column: 11,
+			Name:   "application/json",
 		},
 		base.Content["application/json"].Origin.Key)
 }
@@ -142,6 +150,7 @@ func TestOrigin_Responses(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   17,
 			Column: 7,
+			Name:   "responses",
 		},
 		base.Origin.Key)
 
@@ -152,6 +161,7 @@ func TestOrigin_Responses(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   18,
 			Column: 9,
+			Name:   "200",
 		},
 		base.Value("200").Value.Origin.Key)
 
@@ -160,6 +170,7 @@ func TestOrigin_Responses(t *testing.T) {
 			File:   "testdata/origin/simple.yaml",
 			Line:   19,
 			Column: 11,
+			Name:   "description",
 		},
 		base.Value("200").Value.Origin.Fields["description"])
 }
@@ -183,6 +194,7 @@ func TestOrigin_Parameters(t *testing.T) {
 			File:   "testdata/origin/parameters.yaml",
 			Line:   9,
 			Column: 11,
+			Name:   "name",
 		},
 		base.Origin.Key)
 
@@ -191,6 +203,7 @@ func TestOrigin_Parameters(t *testing.T) {
 			File:   "testdata/origin/parameters.yaml",
 			Line:   10,
 			Column: 11,
+			Name:   "in",
 		},
 		base.Origin.Fields["in"])
 
@@ -199,6 +212,7 @@ func TestOrigin_Parameters(t *testing.T) {
 			File:   "testdata/origin/parameters.yaml",
 			Line:   9,
 			Column: 11,
+			Name:   "name",
 		},
 		base.Origin.Fields["name"])
 }
@@ -224,6 +238,7 @@ func TestOrigin_SchemaInAdditionalProperties(t *testing.T) {
 			File:   "testdata/origin/additional_properties.yaml",
 			Line:   14,
 			Column: 17,
+			Name:   "additionalProperties",
 		},
 		base.Schema.Value.Origin.Key)
 
@@ -232,6 +247,7 @@ func TestOrigin_SchemaInAdditionalProperties(t *testing.T) {
 			File:   "testdata/origin/additional_properties.yaml",
 			Line:   15,
 			Column: 19,
+			Name:   "type",
 		},
 		base.Schema.Value.Origin.Fields["type"])
 }
@@ -256,6 +272,7 @@ func TestOrigin_ExternalDocs(t *testing.T) {
 			File:   "testdata/origin/external_docs.yaml",
 			Line:   13,
 			Column: 1,
+			Name:   "externalDocs",
 		},
 		base.Origin.Key)
 
@@ -264,6 +281,7 @@ func TestOrigin_ExternalDocs(t *testing.T) {
 			File:   "testdata/origin/external_docs.yaml",
 			Line:   14,
 			Column: 3,
+			Name:   "description",
 		},
 		base.Origin.Fields["description"])
 
@@ -272,6 +290,7 @@ func TestOrigin_ExternalDocs(t *testing.T) {
 			File:   "testdata/origin/external_docs.yaml",
 			Line:   15,
 			Column: 3,
+			Name:   "url",
 		},
 		base.Origin.Fields["url"])
 }
@@ -296,6 +315,7 @@ func TestOrigin_Security(t *testing.T) {
 			File:   "testdata/origin/security.yaml",
 			Line:   29,
 			Column: 5,
+			Name:   "petstore_auth",
 		},
 		base.Origin.Key)
 
@@ -304,6 +324,7 @@ func TestOrigin_Security(t *testing.T) {
 			File:   "testdata/origin/security.yaml",
 			Line:   30,
 			Column: 7,
+			Name:   "type",
 		},
 		base.Origin.Fields["type"])
 
@@ -312,6 +333,7 @@ func TestOrigin_Security(t *testing.T) {
 			File:   "testdata/origin/security.yaml",
 			Line:   31,
 			Column: 7,
+			Name:   "flows",
 		},
 		base.Flows.Origin.Key)
 
@@ -320,6 +342,7 @@ func TestOrigin_Security(t *testing.T) {
 			File:   "testdata/origin/security.yaml",
 			Line:   32,
 			Column: 9,
+			Name:   "implicit",
 		},
 		base.Flows.Implicit.Origin.Key)
 
@@ -328,6 +351,7 @@ func TestOrigin_Security(t *testing.T) {
 			File:   "testdata/origin/security.yaml",
 			Line:   33,
 			Column: 11,
+			Name:   "authorizationUrl",
 		},
 		base.Flows.Implicit.Origin.Fields["authorizationUrl"])
 }
@@ -351,6 +375,7 @@ func TestOrigin_Example(t *testing.T) {
 			File:   "testdata/origin/example.yaml",
 			Line:   14,
 			Column: 15,
+			Name:   "bar",
 		},
 		base.Origin.Key)
 
@@ -359,6 +384,7 @@ func TestOrigin_Example(t *testing.T) {
 			File:   "testdata/origin/example.yaml",
 			Line:   15,
 			Column: 17,
+			Name:   "summary",
 		},
 		base.Origin.Fields["summary"])
 
@@ -392,6 +418,7 @@ func TestOrigin_XML(t *testing.T) {
 			File:   "testdata/origin/xml.yaml",
 			Line:   21,
 			Column: 19,
+			Name:   "xml",
 		},
 		base.Origin.Key)
 
@@ -400,6 +427,7 @@ func TestOrigin_XML(t *testing.T) {
 			File:   "testdata/origin/xml.yaml",
 			Line:   22,
 			Column: 21,
+			Name:   "namespace",
 		},
 		base.Origin.Fields["namespace"])
 
@@ -408,6 +436,7 @@ func TestOrigin_XML(t *testing.T) {
 			File:   "testdata/origin/xml.yaml",
 			Line:   23,
 			Column: 21,
+			Name:   "prefix",
 		},
 		base.Origin.Fields["prefix"])
 }

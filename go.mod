@@ -6,8 +6,8 @@ require (
 	github.com/go-openapi/jsonpointer v0.21.0
 	github.com/gorilla/mux v1.8.0
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
-	github.com/oasdiff/yaml v0.0.0-20260217201108-4f1c3d02ddd4
-	github.com/oasdiff/yaml3 v0.0.0-20260217201013-8a620da6102a
+	github.com/oasdiff/yaml v0.0.0-20260219140331-2c8a4d8a2666
+	github.com/oasdiff/yaml3 v0.0.0-20260218210655-d948faea3f9a
 	github.com/perimeterx/marshmallow v1.1.5
 	github.com/stretchr/testify v1.9.0
 	github.com/woodsbury/decimal128 v1.3.0
