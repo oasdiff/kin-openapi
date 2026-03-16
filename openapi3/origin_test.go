@@ -482,9 +482,7 @@ components:
         - {y: value}
 `
 	loader := NewLoader()
-
-	IncludeOrigin = true
-	defer unsetIncludeOrigin()
+	loader.IncludeOrigin = true
 
 	doc, err := loader.LoadFromData([]byte(data))
 	require.NoError(t, err)
