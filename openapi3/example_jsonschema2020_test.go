@@ -3,7 +3,7 @@ package openapi3_test
 import (
 	"fmt"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // Example demonstrates how to enable and use the JSON Schema 2020-12 validator
