@@ -2097,7 +2097,7 @@ func (schema *Schema) visitXOFOperations(settings *schemaValidationSettings, val
 				return foundUnresolvedRef(item.Ref), false
 			}
 
-			if discriminatorRef.Ref != "" && discriminatorRef.Ref != item.Ref {
+			if discriminatorRef != "" && discriminatorRef != item.Ref {
 				continue
 			}
 
