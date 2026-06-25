@@ -413,7 +413,7 @@ func TestOrigin_Example(t *testing.T) {
 			Column:    15,
 			Name:      "bar",
 			EndLine:   16,
-			EndColumn: 37,
+			EndColumn: 38, // just past the closing `}` of the flow map `{"bar": "baz"}`
 		},
 		base.Origin.Key)
 
