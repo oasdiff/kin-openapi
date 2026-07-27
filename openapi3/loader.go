@@ -149,8 +149,14 @@ func (loader *Loader) loadSingleElementFromURI(ref string, rootPath *url.URL, el
 
 // rememberOriginTree retains doc's origin tree for attachOriginToResolved.
 // tree is nil when IncludeOrigin is off or the data took the json path.
+//
+// Only a document carrying arbitrary top-level keys needs it: the tree is read
+// solely by attachOriginToResolved, and that runs only for a $ref resolving
+// through a generic map, which is what an arbitrary key lands in. Without such
+// keys the tree could never be read, and it is not small -- on a large spec it
+// was a third of everything the loader retained -- so it is not kept.
 func (loader *Loader) rememberOriginTree(doc *T, tree *originTree) {
-	if tree == nil {
+	if tree == nil || len(doc.Extensions) == 0 {
 		return
 	}
 	if loader.originTrees == nil {
