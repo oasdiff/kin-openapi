@@ -1,6 +1,7 @@
 package openapi3
 
 import (
+	"encoding/json"
 	"reflect"
 	"sort"
 	"strings"
@@ -12,12 +13,70 @@ var originPtrType = reflect.TypeFor[*Origin]()
 
 // Origin contains the origin of a collection.
 // Key is the location of the collection itself.
-// Fields is a map of the location of each scalar field in the collection.
+// Fields holds the location of each scalar field in the collection.
 // Sequences is a map of the location of each item in sequence-valued fields.
 type Origin struct {
 	Key       *Location             `json:"key,omitempty" yaml:"key,omitempty"`
-	Fields    map[string]Location   `json:"fields,omitempty" yaml:"fields,omitempty"`
+	Fields    FieldLocations        `json:"fields,omitempty" yaml:"fields,omitempty"`
 	Sequences map[string][]Location `json:"sequences,omitempty" yaml:"sequences,omitempty"`
+}
+
+// FieldLocations holds the locations of a collection's scalar fields, in the
+// order they appear in the document.
+//
+// It is a slice rather than a map[string]Location because a collection carries
+// only a handful of fields, while a Go map allocates a whole bucket per
+// collection whatever it holds. On a large document that overhead dominated
+// the retained size of a parsed spec. Each Location already carries its Name,
+// so the lookup key costs nothing extra here.
+type FieldLocations []Location
+
+// Get returns the location of the named field, or the zero Location when the
+// field has none. Use Lookup to tell an absent field from a zero location.
+func (f FieldLocations) Get(name string) Location {
+	loc, _ := f.Lookup(name)
+	return loc
+}
+
+// Lookup returns the location of the named field and whether it was found.
+// The scan is linear: collections have few fields, and a linear scan over a
+// contiguous slice beats a map lookup at these sizes.
+func (f FieldLocations) Lookup(name string) (Location, bool) {
+	for i := range f {
+		if f[i].Name == name {
+			return f[i], true
+		}
+	}
+	return Location{}, false
+}
+
+// MarshalJSON keeps the serialized shape a name-keyed object, as it was when
+// this was a map, so the change is invisible to anything reading the output.
+func (f FieldLocations) MarshalJSON() ([]byte, error) {
+	m := make(map[string]Location, len(f))
+	for _, loc := range f {
+		m[loc.Name] = loc
+	}
+	return json.Marshal(m)
+}
+
+// UnmarshalJSON reads the name-keyed object written by MarshalJSON. Entries are
+// sorted by name, since a JSON object carries no order to restore.
+func (f *FieldLocations) UnmarshalJSON(data []byte) error {
+	var m map[string]Location
+	if err := json.Unmarshal(data, &m); err != nil {
+		return err
+	}
+	out := make(FieldLocations, 0, len(m))
+	for name, loc := range m {
+		if loc.Name == "" {
+			loc.Name = name
+		}
+		out = append(out, loc)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	*f = out
+	return nil
 }
 
 // Location is a struct that contains the location of a field.
@@ -61,17 +120,17 @@ func originFromSeq(s []any) *Origin {
 	nf := toInt(s[idx])
 	idx++
 	if nf > 0 && idx+nf*3 <= len(s) {
-		o.Fields = make(map[string]Location, nf)
+		o.Fields = make(FieldLocations, 0, nf)
 		for range nf {
 			fname, _ := s[idx].(string)
 			delta := toInt(s[idx+1])
 			col := toInt(s[idx+2])
-			o.Fields[fname] = Location{
+			o.Fields = append(o.Fields, Location{
 				File:   file,
 				Line:   keyLine + delta,
 				Column: col,
 				Name:   fname,
-			}
+			})
 			idx += 3
 		}
 	}

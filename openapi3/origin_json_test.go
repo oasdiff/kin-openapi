@@ -26,7 +26,7 @@ func TestOrigin_JSONSpec(t *testing.T) {
 			Column: 3,
 			Name:   "openapi",
 		},
-		doc.Origin.Fields["openapi"])
+		doc.Origin.Fields.Get("openapi"))
 
 	require.NotNil(t, doc.Info.Origin)
 	require.Equal(t,
@@ -74,7 +74,7 @@ func TestOrigin_JSONSpec(t *testing.T) {
 			Column: 13,
 			Name:   "description",
 		},
-		response.Value.Origin.Fields["description"])
+		response.Value.Origin.Fields.Get("description"))
 }
 
 // Origins are off, so the json fast path runs first and no positions are
