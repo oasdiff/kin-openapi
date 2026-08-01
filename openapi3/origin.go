@@ -207,10 +207,13 @@ func isScalarValuedMapField(v reflect.Value) bool {
 	return false
 }
 
-// recordMapKeyLocations copies the map-key locations from a scalar-valued map's
+// recordMapKeyLocations moves the map-key locations from a scalar-valued map's
 // own subtree onto parentOrigin.Sequences[field], so each key is addressable by
 // name (the same shape used for sequence items). It is a no-op when the child
 // carries no origin data. Keys are sorted for deterministic output.
+//
+// childOrigin is discarded here, and nothing else holds its Fields, so the
+// slice is sorted and handed over in place rather than copied.
 func recordMapKeyLocations(parentOrigin *Origin, field string, childTree *yaml.OriginTree) {
 	s, ok := childTree.Origin.([]any)
 	if !ok {
@@ -220,10 +223,7 @@ func recordMapKeyLocations(parentOrigin *Origin, field string, childTree *yaml.O
 	if childOrigin == nil || len(childOrigin.Fields) == 0 {
 		return
 	}
-	locs := make([]Location, 0, len(childOrigin.Fields))
-	for _, loc := range childOrigin.Fields {
-		locs = append(locs, loc)
-	}
+	locs := childOrigin.Fields
 	sort.Slice(locs, func(i, j int) bool { return locs[i].Name < locs[j].Name })
 	if parentOrigin.Sequences == nil {
 		parentOrigin.Sequences = make(map[string][]Location)
