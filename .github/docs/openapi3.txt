@@ -1010,6 +1010,11 @@ func (f FieldLocations) Lookup(name string) (Location, bool)
     The scan is linear: collections have few fields, and a linear scan over a
     contiguous slice beats a map lookup at these sizes.
 
+    Deliberately a hand-written loop rather than slices.IndexFunc: the closure
+    does not inline, so IndexFunc pays a call per element. Measured on 3/6/12
+    fields it is 5-100% slower on a hit and 2-3x slower on a miss, and misses
+    are the common case here (most fields carry no recorded location).
+
 func (f FieldLocations) MarshalJSON() ([]byte, error)
     MarshalJSON keeps the serialized shape a name-keyed object, as it was when
     this was a map, so the change is invisible to anything reading the output.
