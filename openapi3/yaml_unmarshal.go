@@ -100,7 +100,9 @@ func (response *Response) UnmarshalYAML(node *yaml.Node) error {
 		return err
 	}
 	x.Extensions = ext
+	x.Origin = originFromNode(node, yamlOriginFile)
 	*response = Response(x)
+	setChildOriginKeys(node, response, yamlOriginFile)
 	return nil
 }
 
@@ -112,7 +114,9 @@ func (mediaType *MediaType) UnmarshalYAML(node *yaml.Node) error {
 		return err
 	}
 	x.Extensions = ext
+	x.Origin = originFromNode(node, yamlOriginFile)
 	*mediaType = MediaType(x)
+	setChildOriginKeys(node, mediaType, yamlOriginFile)
 	return nil
 }
 
@@ -166,6 +170,7 @@ func (x *ResponseRef) UnmarshalYAML(node *yaml.Node) error {
 	if err != nil {
 		return err
 	}
+	x.Origin = originFromNode(node, yamlOriginFile)
 	if isRef {
 		return nil
 	}
@@ -200,6 +205,10 @@ func (responses *Responses) UnmarshalYAML(node *yaml.Node) error {
 			return err
 		}
 		x.m[k] = &vv
+		// This parent has the key node in hand, so no reflection is needed
+		// here: stamp directly. setChildOriginKeys exists for the parents that
+		// delegate to the generic decoder instead of iterating.
+		setOriginKey(reflect.ValueOf(&vv), node.Content[i], v, yamlOriginFile)
 	}
 	*responses = x
 	return nil

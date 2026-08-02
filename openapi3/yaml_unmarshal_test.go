@@ -193,3 +193,79 @@ func BenchmarkResponsesDecode(b *testing.B) {
 		}
 	})
 }
+
+// --- origins ------------------------------------------------------------------
+
+// The migration's real question: can positions be read off the node instead of
+// smuggled through __origin__ nodes and reapplied by a reflection walk? This
+// decodes the same document both ways and compares the Origins.
+//
+// Origin.Key is the interesting one. It is the location of the key heading a
+// mapping in its *parent* -- the `"200":` line above a response, not the
+// response's own first line -- which is what lets a consumer slice a whole
+// block out of source. A node does not know its own key, so this is the one
+// piece the parent has to stamp.
+func TestNativeYAML_OriginsMatchAppliedOrigins(t *testing.T) {
+	const src = `"200":
+  description: ok
+  content:
+    application/json:
+      example: {a: 1}
+`
+	// Current path: origins ride through the round trip as data, then get
+	// reapplied to the struct tree.
+	var viaTree Responses
+	tree, err := kinyaml.Unmarshal([]byte(src), &viaTree, kinyaml.DecodeOpts{
+		Origin: kinyaml.OriginOpt{Enabled: true},
+	})
+	require.NoError(t, err)
+	require.NotNil(t, tree)
+	applyOrigins(&viaTree, tree)
+
+	// Native path: origins read off the node during decode.
+	var viaNode Responses
+	require.NoError(t, yaml.Unmarshal([]byte(src), &viaNode))
+
+	respTree := viaTree.Value("200").Value
+	respNode := viaNode.Value("200").Value
+	require.NotNil(t, respTree.Origin, "the current path should produce an origin to compare against")
+	require.NotNil(t, respNode.Origin)
+
+	// Key: the `"200":` line, stamped by the parent in both designs.
+	require.NotNil(t, respTree.Origin.Key)
+	require.NotNil(t, respNode.Origin.Key)
+	require.Equal(t, respTree.Origin.Key.Line, respNode.Origin.Key.Line, "Key.Line")
+	require.Equal(t, respTree.Origin.Key.Column, respNode.Origin.Key.Column, "Key.Column")
+	require.Equal(t, respTree.Origin.Key.EndLine, respNode.Origin.Key.EndLine, "Key.EndLine")
+	require.Equal(t, respTree.Origin.Key.Name, respNode.Origin.Key.Name, "Key.Name")
+
+	// Fields: each field key's own position.
+	for name, want := range respTree.Origin.Fields {
+		got, ok := respNode.Origin.Fields[name]
+		require.True(t, ok, "field %q missing from the native origin", name)
+		require.Equal(t, want.Line, got.Line, "field %q line", name)
+		require.Equal(t, want.Column, got.Column, "field %q column", name)
+	}
+	require.Equal(t, len(respTree.Origin.Fields), len(respNode.Origin.Fields), "field count")
+}
+
+// The block span is what review tooling actually consumes: start at the key
+// line, end past the last content. Assert it directly rather than trusting the
+// field-by-field comparison to imply it.
+func TestNativeYAML_OriginKeySpansTheBlock(t *testing.T) {
+	const src = `"200":
+  description: ok
+  content:
+    application/json:
+      example: {a: 1}
+"404":
+  description: gone
+`
+	var r Responses
+	require.NoError(t, yaml.Unmarshal([]byte(src), &r))
+
+	k := r.Value("200").Value.Origin.Key
+	require.NotNil(t, k)
+	require.Equal(t, 1, k.Line, "block starts at its own key line, not its first content line")
+	require.Equal(t, 5, k.EndLine, "block ends at its last content line, not at the next sibling")
+}
