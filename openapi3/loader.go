@@ -591,6 +591,8 @@ func (loader *Loader) attachOriginToResolved(resolved any, componentDoc *T, frag
 	}
 	// Stamp against the file this tree came from, not the document being
 	// loaded, which is what originFileVar still names here.
+	originMu.Lock()
+	defer originMu.Unlock()
 	prevFile, prevEnds := originFileVar, originEndsVar
 	originFileVar, originEndsVar = tree.file, tree.ends
 	defer func() { originFileVar, originEndsVar = prevFile, prevEnds }()

@@ -14,6 +14,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"sync"
 
 	yaml "go.yaml.in/yaml/v3"
 )
@@ -127,15 +128,22 @@ type originTree struct {
 	ends *endIndex
 }
 
+// originMu guards the three package-level variables below for the length of a
+// decode. They exist because UnmarshalYAML receives a node and nothing else,
+// with no way to carry per-decode state through the call, and a lock is what
+// makes them safe to hold that way.
+//
+// The cost is that decodes serialise even when each has its own Loader, which
+// TestIssue741 does. Correctness first: without this the three race, and the
+// path this replaces passed the file as an argument and did not.
+//
+// A file recorded on the node itself would remove the need, since the callback
+// already receives the node, but go-yaml's Node has no field for it.
+var originMu sync.Mutex
+
 // originFileVar is the file stamped into origins for the decode in progress.
 // UnmarshalYAML receives a node and nothing else, so the file cannot be passed
 // through the call.
-//
-// Being package-level, this makes concurrent decodes unsafe even when each has
-// its own Loader. That is stricter than Loader.IncludeOrigin, which is
-// per-Loader precisely because the deprecated package-level IncludeOrigin was
-// not safe to share. Serialising decodes, or carrying the state per decode,
-// would remove the restriction; neither is done here.
 var originFileVar string
 
 // originEnabledVar mirrors the includeOrigin argument unmarshal receives, which
