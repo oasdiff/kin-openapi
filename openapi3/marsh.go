@@ -32,8 +32,13 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 	// with origins read off the nodes. No JSON round trip, no __origin__
 	// channel, and JSON documents get origins too since JSON parses as YAML.
 	originFileVar, originEnabledVar = file, includeOrigin
-	if err := goyaml.Unmarshal(data, v); err == nil {
-		return nil, nil
+	var root goyaml.Node
+	if err := goyaml.Unmarshal(data, &root); err == nil {
+		stripTimestamps(&root)
+		if err = root.Decode(v); err == nil {
+			return nil, nil
+		}
+		yamlErr = err
 	} else {
 		yamlErr = err
 	}

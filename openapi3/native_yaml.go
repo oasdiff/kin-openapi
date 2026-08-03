@@ -283,3 +283,25 @@ func setOriginKey(child reflect.Value, keyNode *yaml.Node, file string) {
 		setOriginKey(inner, keyNode, file)
 	}
 }
+
+// stripTimestamps retags date-shaped scalars as strings.
+//
+// YAML 1.1 resolves an untagged scalar like 2020-06-11T16:32:50-03:00 to a
+// timestamp, so an OpenAPI `example` of that shape decodes to a time.Time and
+// then fails validation as an unhandled type. The previous decode path avoided
+// this with a DisableTimestamps option on our yaml fork; stock go-yaml has no
+// such option, so the same effect is had by retagging before decoding.
+//
+// Explicit !!timestamp tags in the source are left alone: those are a
+// deliberate request for a time.Time, which is what the fork's option did too.
+func stripTimestamps(n *yaml.Node) {
+	if n == nil {
+		return
+	}
+	if n.Kind == yaml.ScalarNode && n.Tag == "!!timestamp" && n.Style != yaml.TaggedStyle {
+		n.Tag = "!!str"
+	}
+	for _, c := range n.Content {
+		stripTimestamps(c)
+	}
+}
