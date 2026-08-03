@@ -1,9 +1,0 @@
-invalid paths: invalid path /v2/bitcoin/webhooks/notifications/failed: invalid operation GET: invalid example: unhandled value of type time.Time
-Schema:
-  {
-    "example": "2020-09-19T14:33:01Z",
-    "type": "string"
-  }
-
-Value:
-  "2020-09-19T14:33:01Z"

@@ -1,10 +1,8 @@
 package openapi3
 
-// UnmarshalYAML for the $ref wrappers.
-//
-// The JSON versions parse the same bytes up to four times -- once for the ref,
-// once for the extra keys, once for a sibling schema, once for the value.
-// Here each is read from the node that is already parsed.
+// UnmarshalYAML for the $ref wrappers. A node holding a $ref carries the
+// reference, and may carry summary, description and extensions alongside it;
+// anything else is the value.
 
 import (
 	"strings"
@@ -112,8 +110,9 @@ func (x *SecuritySchemeRef) UnmarshalYAML(node *yaml.Node) error {
 	return node.Decode(&x.Value)
 }
 
-// SchemaRef differs: no summary/description, and OAS 3.1 allows keyword
-// siblings alongside a $ref, which are held until the reference resolves.
+// SchemaRef takes no summary or description. OAS 3.1 allows schema keywords
+// alongside a $ref, which are held on sibling until the reference resolves and
+// they can be merged into the resolved value.
 func (x *SchemaRef) UnmarshalYAML(node *yaml.Node) error {
 	x.Origin = originFromNode(node, nativeOriginFile())
 	if !unmarshalRefYAML(node, &x.Ref, nil, nil, &x.Extensions) {

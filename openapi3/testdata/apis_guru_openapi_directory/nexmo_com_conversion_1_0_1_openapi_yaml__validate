@@ -1,8 +1,0 @@
-invalid components: parameter "timestamp": invalid example: unhandled value of type time.Time
-Schema:
-  {
-    "type": "string"
-  }
-
-Value:
-  "2020-01-01T12:00:00Z"

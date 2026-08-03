@@ -1,8 +1,0 @@
-invalid paths: invalid path /api/v1/groundhogs/{slug}: invalid operation GET: invalid example: example /groundhogs/punxsutawney-paul: Error at "/error/timestamp": unhandled value of type time.Time
-Schema:
-  {
-    "type": "string"
-  }
-
-Value:
-  "2022-10-03T03:37:51.567Z"

@@ -1,7 +1,7 @@
 package openapi3
 
-// UnmarshalYAML for the maplike collections and the union-typed scalars, which
-// do not follow the shadow-struct shape.
+// UnmarshalYAML for the maplike collections, whose entries are components
+// rather than declared fields, and for the union-typed values.
 
 import (
 	"reflect"
@@ -10,10 +10,9 @@ import (
 	yaml "go.yaml.in/yaml/v3"
 )
 
-// unmarshalMaplikeYAML decodes a mapping whose entries are components and whose
-// x- keys are extensions, stamping each entry's origin from the key that heads
-// it. The JSON version re-marshals every entry back to JSON and re-parses it,
-// once per entry; here the child node goes straight to the child decoder.
+// unmarshalMaplikeYAML decodes a mapping whose x- keys are extensions and whose
+// remaining entries are components, stamping each entry's origin from the key
+// that heads it.
 func unmarshalMaplikeYAML[V any](node *yaml.Node, ext *map[string]any, out *map[string]*V) error {
 	if node.Kind != yaml.MappingNode {
 		return node.Decode(out)
@@ -35,8 +34,7 @@ func unmarshalMaplikeYAML[V any](node *yaml.Node, ext *map[string]any, out *map[
 			return err
 		}
 		(*out)[k] = &vv
-		// This parent iterates, so it holds the key node and needs no
-		// reflection to stamp it.
+		// The key node is in hand here, so no reflection is needed to find it.
 		setOriginKey(reflect.ValueOf(&vv), node.Content[i], nativeOriginFile())
 	}
 	return nil
@@ -69,7 +67,7 @@ func (paths *Paths) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
-// Header embeds Parameter and defers to it, as the JSON version does.
+// Header embeds Parameter and carries no fields of its own.
 func (header *Header) UnmarshalYAML(node *yaml.Node) error {
 	return header.Parameter.UnmarshalYAML(node)
 }
@@ -108,8 +106,8 @@ func (bs *BoolSchema) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
-// ExclusiveBound is a bool in OAS 3.0 (a modifier for min/max) or a number in
-// 3.1 (the bound itself).
+// ExclusiveBound is a bool in OAS 3.0, where it modifies minimum/maximum, or a
+// number in 3.1, where it is the bound itself.
 func (eb *ExclusiveBound) UnmarshalYAML(node *yaml.Node) error {
 	if node.Kind != yaml.ScalarNode || node.Tag == "!!null" {
 		return nil

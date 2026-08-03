@@ -8,36 +8,21 @@ import (
 	yaml "go.yaml.in/yaml/v3"
 )
 
-// Native YAML decoding against stock go.yaml.in/yaml/v3 -- no fork, no patches.
+// Shared machinery for the UnmarshalYAML methods: extension collection, and
+// origins read from the node being decoded.
 //
-// Today a YAML document is decoded to map[string]any, re-serialized to JSON
-// text and parsed again, because these types implement UnmarshalJSON rather
-// than UnmarshalYAML. Positions cannot survive that, so they are smuggled
-// through it as synthetic __origin__ nodes and reapplied afterwards by a
-// reflection walk over a separately-built tree.
-//
-// Decoding from the node directly removes both. The node carries Line and
-// Column, which stock go-yaml has always had, so origins are read off it.
-//
-// End positions are deliberately not used. A block's extent is recoverable
-// from start positions alone -- it runs to the line before the next key or
-// sequence item at the same or shallower indentation -- which was measured to
-// agree with recorded end positions on ~99.98% of ~11.9M spans, the remainder
-// being a trailing blank-or-comment boundary convention. That is what lets
-// this run on the stock parser.
+// Origins record where an element starts, not where it ends. A consumer that
+// needs the extent of a block derives it from the next key or sequence item at
+// the same or shallower indentation.
 
 // originFileVar is the file stamped into origins for the decode in progress.
-//
-// UnmarshalYAML receives a node and nothing else, so the file cannot be
-// threaded through the call. This follows the precedent of IncludeOrigin,
-// which is already a package-level decode setting, and inherits its
-// concurrency characteristics: one decode at a time per process. Making both
-// per-Loader is worth doing, but is a separate change to a public API.
+// UnmarshalYAML receives a node and nothing else, so the file cannot be passed
+// through the call. One decode at a time per process, as with IncludeOrigin.
 var originFileVar string
 
 // originEnabledVar mirrors the includeOrigin argument unmarshal receives, which
-// comes from the Loader rather than from the package-level IncludeOrigin.
-// Gating on the global would miss a caller that set it only on its Loader.
+// comes from the Loader. The package-level IncludeOrigin only seeds NewLoader,
+// so a caller that set it on its Loader alone would be missed.
 var originEnabledVar bool
 
 func nativeOriginFile() string { return originFileVar }
@@ -82,13 +67,11 @@ func knownYAMLFields(t reflect.Type) map[string]struct{} {
 }
 
 // decodeStructWithExtensions decodes node into out and returns the mapping keys
-// out does not declare. nil rather than an empty map when there are none,
-// matching the JSON path.
+// out does not declare, which are the extensions. Returns nil rather than an
+// empty map when there are none.
 //
-// The JSON versions of this build the whole object as a map and then delete
-// every known name from it -- Schema.UnmarshalJSON is 91 lines, about 60 of
-// them deletes. Reading the known set off the struct tags means the list
-// cannot drift from the struct, which it silently can today.
+// The declared set comes from out's yaml tags, so adding a field to a struct is
+// enough to stop it being collected as an extension.
 func decodeStructWithExtensions(node *yaml.Node, out any) (map[string]any, error) {
 	if err := node.Decode(out); err != nil {
 		return nil, err
@@ -123,8 +106,7 @@ func decodeStructWithExtensions(node *yaml.Node, out any) (map[string]any, error
 // Origin.Key is not set here -- it is the location of the key heading this
 // mapping in its parent, which a node does not know. See setChildOriginKeys.
 func originFromNode(node *yaml.Node, file string) *Origin {
-	// Origins are opt-in. Without this every decode pays for them and every
-	// consumer sees positions it did not ask for.
+	// Origins are opt-in: without this every decode pays for them.
 	if !originEnabledVar {
 		return nil
 	}
@@ -162,12 +144,12 @@ func originFromNode(node *yaml.Node, file string) *Origin {
 }
 
 // setChildOriginKeys sets Origin.Key on the immediate children of a mapping,
-// from the key node heading each one. This is the only origin data that cannot
-// be read locally: UnmarshalYAML receives the value node, not the key above it.
+// from the key node heading each one.
 //
-// One field, one level. Children stamp their own children, so the tree is
-// covered without anyone walking it -- unlike applyOrigins, which rebuilds the
-// whole tree in parallel with a separately-built OriginTree.
+// This is the only origin data a node cannot supply for itself: UnmarshalYAML
+// receives the value node, and Key is the position of the key above it. Each
+// child sets its own children's keys in turn, so one level per call covers the
+// tree.
 func setChildOriginKeys(node *yaml.Node, container any, file string) {
 	if !originEnabledVar {
 		return
@@ -193,15 +175,14 @@ func setChildOriginKeys(node *yaml.Node, container any, file string) {
 		switch c := deref(child); c.Kind() {
 		case reflect.Map:
 			// A map-valued field (Content, Headers, Links) holds children of
-			// its own, each keyed in valNode. They are decoded by the generic
-			// map decoder, which has no hook to stamp them, so descend here.
+			// its own, keyed in valNode. The generic map decoder gives them no
+			// hook of their own, so descend.
 			if c.CanInterface() {
 				setChildOriginKeys(valNode, c.Interface(), file)
 			}
 		case reflect.Slice:
 			// A sequence item has no key above it, so it takes its own first
-			// key as its Key -- the same choice the existing origin code makes
-			// ("in case of a sequence, we use the first element as the key").
+			// key as its Key.
 			if valNode.Kind != yaml.SequenceNode {
 				continue
 			}
@@ -248,9 +229,8 @@ func childByKey(v reflect.Value, key string) reflect.Value {
 	return reflect.Value{}
 }
 
-// setOriginKey stamps Key on a child carrying an *Origin. Only the key's own
-// position: the extent of what it heads is the consumer's to derive from the
-// next boundary, which is what removes the need for a patched parser.
+// setOriginKey stamps Key on a child carrying an *Origin, from the key's own
+// position. The extent of what the key heads is the consumer's to derive.
 func setOriginKey(child reflect.Value, keyNode *yaml.Node, file string) {
 	if !originEnabledVar {
 		return
@@ -278,22 +258,18 @@ func setOriginKey(child reflect.Value, keyNode *yaml.Node, file string) {
 		Name:   keyNode.Value,
 	}
 	// A $ref wrapper and the value it holds occupy the same node, so both
-	// carry that node's origin -- which is what applyOrigins produces today.
+	// carry that node's origin.
 	if inner := child.FieldByName("Value"); inner.IsValid() {
 		setOriginKey(inner, keyNode, file)
 	}
 }
 
-// stripTimestamps retags date-shaped scalars as strings.
+// stripTimestamps retags implicitly-resolved date-shaped scalars as strings.
 //
-// YAML 1.1 resolves an untagged scalar like 2020-06-11T16:32:50-03:00 to a
-// timestamp, so an OpenAPI `example` of that shape decodes to a time.Time and
-// then fails validation as an unhandled type. The previous decode path avoided
-// this with a DisableTimestamps option on our yaml fork; stock go-yaml has no
-// such option, so the same effect is had by retagging before decoding.
-//
-// Explicit !!timestamp tags in the source are left alone: those are a
-// deliberate request for a time.Time, which is what the fork's option did too.
+// YAML 1.1 resolves an untagged scalar such as 2020-06-11T16:32:50-03:00 to a
+// timestamp, which would make an OpenAPI `example` of that shape decode to a
+// time.Time and fail validation as an unhandled type. An explicit !!timestamp
+// tag is a deliberate request for a time.Time and is left alone.
 func stripTimestamps(n *yaml.Node) {
 	if n == nil {
 		return

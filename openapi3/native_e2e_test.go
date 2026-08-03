@@ -13,8 +13,8 @@ import (
 	goyaml "go.yaml.in/yaml/v3"
 )
 
-// The whole point: a complete document decoding through UnmarshalYAML on the
-// stock parser, matching what the JSON round trip produces.
+// A complete document decoded through UnmarshalYAML must equal the same
+// document decoded as JSON.
 func TestNativeE2E_WholeDocument(t *testing.T) {
 	// Every full document in testdata, so this is breadth rather than a
 	// hand-picked sample.
@@ -50,7 +50,7 @@ func TestNativeE2E_WholeDocument(t *testing.T) {
 	require.Positive(t, ran, "should have found documents to compare")
 }
 
-// And origins must reach the places oasdiff reads them from.
+// Path items and operations must carry an origin naming their own key.
 func TestNativeE2E_OriginsReachOperations(t *testing.T) {
 	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
 	originEnabledVar = true

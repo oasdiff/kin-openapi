@@ -1,9 +1,0 @@
-invalid components: schema "CreateDistributionLinks": invalid example: unhandled value of type time.Time
-Schema:
-  {
-    "example": "2021-01-21T00:00:00Z",
-    "type": "string"
-  }
-
-Value:
-  "2021-01-21T00:00:00Z"

@@ -1,14 +1,8 @@
 package openapi3
 
-// Generated companions to the UnmarshalJSON methods, decoding from the node
-// instead of via JSON text. Each is the same three steps: decode into a shadow
-// type, collect the keys the struct does not declare as extensions, and read
-// the origin off the node.
-//
-// The JSON versions restate the known field set by hand as a list of deletes
-// -- Schema's is about 60 lines of them -- which silently misfiles a field
-// added to the struct and forgotten in the list. Here it comes off the struct
-// tags and cannot drift.
+// Generated. Each method is the same three steps: decode into a shadow type so
+// the decoder does not recurse into this method, collect the keys the struct
+// does not declare as extensions, and read the origin off the node.
 
 import (
 	yaml "go.yaml.in/yaml/v3"

@@ -1,9 +1,0 @@
-invalid components: schema "adjustmentConditionLengthOfStayRule": invalid example: unhandled value of type time.Time
-Schema:
-  {
-    "example": "2021-08-23T00:00:00Z",
-    "type": "string"
-  }
-
-Value:
-  "2021-08-23T00:00:00Z"

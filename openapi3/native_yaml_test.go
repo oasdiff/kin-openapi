@@ -24,8 +24,8 @@ const nativeSrc = `"200":
 x-collection: top
 `
 
-// Decoding from the node, on the stock parser, must produce the same document
-// as the JSON round trip does.
+// A document decoded from the node must equal the same document decoded as
+// JSON: the two paths are interchangeable for content.
 func TestNativeStock_MatchesJSONPath(t *testing.T) {
 	var viaJSON Responses
 	jsonBytes, err := yamlToJSON(nativeSrc)
@@ -42,10 +42,8 @@ func TestNativeStock_MatchesJSONPath(t *testing.T) {
 	require.JSONEq(t, string(want), string(got))
 }
 
-// And the origins must match what the current path reconstructs -- except for
-// end positions, which this design deliberately does not record. The extent of
-// a block is derivable from the next boundary, which is what lets this run on
-// an unpatched parser.
+// Origins read from the node must match those reconstructed from an origin
+// tree, on every field except end positions, which are not recorded.
 func TestNativeStock_OriginsMatchExceptEnds(t *testing.T) {
 	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
 	originEnabledVar = true
@@ -91,12 +89,11 @@ func TestNativeStock_OriginsMatchExceptEnds(t *testing.T) {
 		}
 	}
 
-	// End positions are absent by design: the stock parser does not record
-	// them and the consumer derives extents from the next boundary.
+	// End positions are not recorded; a consumer derives extents instead.
 	require.Zero(t, got.Key.EndLine, "the stock parser records no end position")
 }
 
-// The origin has to reach the nested media type, not just the top level.
+// Origins must reach nested collections, not only the top level.
 func TestNativeStock_OriginsAtDepth(t *testing.T) {
 	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
 	originEnabledVar = true

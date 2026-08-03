@@ -1,8 +1,0 @@
-invalid components: schema "Action": invalid example: Error at "/date": unhandled value of type time.Time
-Schema:
-  {
-    "type": "string"
-  }
-
-Value:
-  "2018-06-05T12:55:58.6262759Z"

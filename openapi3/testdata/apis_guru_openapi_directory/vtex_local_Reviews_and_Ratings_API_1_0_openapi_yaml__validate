@@ -1,9 +1,0 @@
-invalid paths: invalid path /review: invalid operation POST: invalid example: Error at "/searchDate": unhandled value of type time.Time
-Schema:
-  {
-    "description": "Review's search date.",
-    "type": "string"
-  }
-
-Value:
-  "2022-04-19T18:55:58Z"
