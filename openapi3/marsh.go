@@ -35,6 +35,8 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 	var root goyaml.Node
 	if err := goyaml.Unmarshal(data, &root); err == nil {
 		stripTimestamps(&root)
+		// Ends are derived from the tree, the parser reporting only starts.
+		originEndsVar = newEndIndex(&root, data)
 		if err = root.Decode(v); err == nil {
 			if !includeOrigin {
 				return nil, nil

@@ -35,7 +35,7 @@ func unmarshalMaplikeYAML[V any](node *yaml.Node, ext *map[string]any, out *map[
 		}
 		(*out)[k] = &vv
 		// The key node is in hand here, so no reflection is needed to find it.
-		setOriginKey(reflect.ValueOf(&vv), node.Content[i], nativeOriginFile())
+		setOriginKey(reflect.ValueOf(&vv), node.Content[i], node.Content[i+1], nativeOriginFile())
 	}
 	return nil
 }

@@ -10,6 +10,7 @@ package openapi3
 
 import (
 	"reflect"
+	"sort"
 	"strings"
 
 	yaml "go.yaml.in/yaml/v3"
@@ -149,7 +150,8 @@ func setChildOriginKeys(node *yaml.Node, container any, file string) {
 		if !child.IsValid() {
 			continue
 		}
-		setOriginKey(child, keyNode, file)
+		setOriginKey(child, keyNode, valNode, file)
+		recordScalarMapKeys(v, child, keyNode, valNode, file)
 
 		switch c := deref(child); c.Kind() {
 		case reflect.Map:
@@ -168,7 +170,7 @@ func setChildOriginKeys(node *yaml.Node, container any, file string) {
 			for j := 0; j < len(valNode.Content) && j < c.Len(); j++ {
 				item := valNode.Content[j]
 				if item.Kind == yaml.MappingNode && len(item.Content) > 0 {
-					setOriginKey(c.Index(j), item.Content[0], file)
+					setOriginKey(c.Index(j), item.Content[0], item, file)
 				}
 			}
 		}
@@ -210,10 +212,11 @@ func childByKey(v reflect.Value, key string) reflect.Value {
 
 // setOriginKey stamps Key on a child carrying an *Origin, from the key's own
 // position. The extent of what the key heads is the consumer's to derive.
-func setOriginKey(child reflect.Value, keyNode *yaml.Node, file string) {
+func setOriginKey(child reflect.Value, keyNode, valNode *yaml.Node, file string) {
 	if !originEnabledVar {
 		return
 	}
+	keyNode, valNode = resolveAlias(keyNode, valNode)
 	for child.Kind() == reflect.Pointer || child.Kind() == reflect.Interface {
 		if child.IsNil() {
 			return
@@ -226,34 +229,35 @@ func setOriginKey(child reflect.Value, keyNode *yaml.Node, file string) {
 	f := child.FieldByName("Origin")
 	if !f.IsValid() || f.Type() != originPtrType || !f.CanSet() {
 		// No origin of its own; it may still wrap something that has one.
-		descendToWrapped(child, keyNode, file)
+		descendToWrapped(child, keyNode, valNode, file)
 		return
 	}
 	if f.IsNil() {
 		f.Set(reflect.ValueOf(&Origin{}))
 	}
-	f.Interface().(*Origin).Key = &Location{
+	key := withEnd(Location{
 		File:   file,
 		Line:   keyNode.Line,
 		Column: keyNode.Column,
 		Name:   keyNode.Value,
-	}
+	}, valNode)
+	f.Interface().(*Origin).Key = &key
 	// A wrapper and the thing it holds occupy the same node, so both carry
 	// that node's origin. Value is the $ref wrappers; Schema is BoolSchema,
 	// which holds either a bool or a schema.
-	descendToWrapped(child, keyNode, file)
+	descendToWrapped(child, keyNode, valNode, file)
 }
 
 // descendToWrapped stamps the thing a wrapper holds, which occupies the same
 // node. Value is the $ref wrappers; Schema is BoolSchema, which holds either a
 // bool or a schema.
-func descendToWrapped(child reflect.Value, keyNode *yaml.Node, file string) {
+func descendToWrapped(child reflect.Value, keyNode, valNode *yaml.Node, file string) {
 	if child.Kind() != reflect.Struct {
 		return
 	}
 	for _, name := range [...]string{"Value", "Schema"} {
 		if inner := child.FieldByName(name); inner.IsValid() {
-			setOriginKey(inner, keyNode, file)
+			setOriginKey(inner, keyNode, valNode, file)
 		}
 	}
 }
@@ -287,5 +291,43 @@ func stampRootOrigin(v any, node *yaml.Node) {
 	if o.Key != nil {
 		return
 	}
-	o.Key = &Location{File: nativeOriginFile(), Line: node.Line, Column: node.Column}
+	key := withEnd(Location{File: nativeOriginFile(), Line: node.Line, Column: node.Column}, node)
+	o.Key = &key
+}
+
+// recordScalarMapKeys records where each key of a scalar-valued map sits.
+//
+// A map[string]string -- scopes on an OAuth flow, say -- decodes to a plain Go
+// map with nowhere to hang an Origin of its own, so its keys are recorded on
+// the enclosing struct's Origin under the field name, sorted by key.
+func recordScalarMapKeys(container, child reflect.Value, keyNode, valNode *yaml.Node, file string) {
+	if child.Kind() != reflect.Map || valNode == nil || valNode.Kind != yaml.MappingNode {
+		return
+	}
+	// A map of structs or pointers carries origins on its values instead.
+	switch child.Type().Elem().Kind() {
+	case reflect.Struct, reflect.Pointer, reflect.Interface, reflect.Map, reflect.Slice:
+		return
+	}
+	f := container.FieldByName("Origin")
+	if !f.IsValid() || f.Type() != originPtrType || !f.CanSet() {
+		return
+	}
+	if f.IsNil() {
+		f.Set(reflect.ValueOf(&Origin{}))
+	}
+	var locs []Location
+	for i := 0; i+1 < len(valNode.Content); i += 2 {
+		k := valNode.Content[i]
+		locs = append(locs, Location{File: file, Line: k.Line, Column: k.Column, Name: k.Value})
+	}
+	if len(locs) == 0 {
+		return
+	}
+	sort.Slice(locs, func(i, j int) bool { return locs[i].Name < locs[j].Name })
+	o := f.Interface().(*Origin)
+	if o.Sequences == nil {
+		o.Sequences = make(map[string][]Location)
+	}
+	o.Sequences[keyNode.Value] = locs
 }
