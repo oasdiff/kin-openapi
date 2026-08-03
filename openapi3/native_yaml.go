@@ -26,6 +26,23 @@ import (
 // being a trailing blank-or-comment boundary convention. That is what lets
 // this run on the stock parser.
 
+// nativeOriginFile is the file stamped into origins. The loader supplies it
+// per document in the wired-up version; the spike decodes one file.
+const nativeOriginFile = ""
+
+// mappingValue returns the value node for key, or nil.
+func mappingValue(node *yaml.Node, key string) *yaml.Node {
+	if node.Kind != yaml.MappingNode {
+		return nil
+	}
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		if node.Content[i].Value == key {
+			return node.Content[i+1]
+		}
+	}
+	return nil
+}
+
 var knownYAMLFieldsCache sync.Map // reflect.Type -> map[string]struct{}
 
 // knownYAMLFields returns the yaml keys a struct type declares, skipping "-".
