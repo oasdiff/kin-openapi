@@ -1,46 +1,4 @@
-invalid components: schema "field": invalid allOf element: invalid example: Error at "/fields/0/type": value is not one of the allowed values [0,1,2]
-Schema:
-  {
-    "description": "Selector type. ( 0 - image, 1 - text, 2 - link)",
-    "enum": [
-      0,
-      1,
-      2
-    ],
-    "type": "integer"
-  }
-
-Value:
-  1
- | Error at "/fields/1/type": value is not one of the allowed values [0,1,2]
-Schema:
-  {
-    "description": "Selector type. ( 0 - image, 1 - text, 2 - link)",
-    "enum": [
-      0,
-      1,
-      2
-    ],
-    "type": "integer"
-  }
-
-Value:
-  2
- | Error at "/fields/2/type": value is not one of the allowed values [0,1,2]
-Schema:
-  {
-    "description": "Selector type. ( 0 - image, 1 - text, 2 - link)",
-    "enum": [
-      0,
-      1,
-      2
-    ],
-    "type": "integer"
-  }
-
-Value:
-  0
- | Error at "/proxy": property "proxy" is missing
+invalid components: schema "field": invalid allOf element: invalid example: Error at "/proxy": property "proxy" is missing
 Schema:
   {
     "example": {

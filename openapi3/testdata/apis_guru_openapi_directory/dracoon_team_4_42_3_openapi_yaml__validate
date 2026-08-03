@@ -1,17 +1,10 @@
-invalid components: schema "ConfigRoomRequest": invalid default: value is not one of the allowed values [1,2,3,4]
+invalid paths: invalid path /v4/auth/login: invalid operation POST: invalid example: example null: Error at "/errorCode": Value is not nullable
 Schema:
   {
-    "default": 2,
-    "description": "Classification ID:\n\n* `1` - public\n\n* `2` - internal\n\n* `3` - confidential\n\n* `4` - strictly confidential\n\n\n\nProvided (or default) classification is taken from room\n\nwhen file gets uploaded without any classification.",
-    "enum": [
-      1,
-      2,
-      3,
-      4
-    ],
+    "description": "Internal error code",
     "format": "int32",
     "type": "integer"
   }
 
 Value:
-  2
+  null

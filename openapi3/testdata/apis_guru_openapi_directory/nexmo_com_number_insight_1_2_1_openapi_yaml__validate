@@ -1,17 +1,12 @@
-invalid components: schema "niBasicStatus": invalid example: value is not one of the allowed values [0,1,3,4,5,9]
+invalid components: schema "niResponseXmlAdvanced": invalid example: value must be a string
 Schema:
   {
-    "description": "Code | Text\n-- | --\n0 | Success - request accepted for delivery by .\n1 | Busy - you have made more requests in the last second than are permitted by your account. Please retry.\n3 | Invalid - your request is incomplete and missing some mandatory parameters.\n4 | Invalid credentials - the _api_key_ or _api_secret_ you supplied is either not valid or has been disabled.\n5 | Internal Error - the format of the recipient address is not valid.\n9 | Partner quota exceeded - your account does not have sufficient credit to process this request.\n",
-    "enum": [
-      0,
-      1,
-      3,
-      4,
-      5,
-      9
-    ],
+    "description": "The status code",
     "example": 0,
-    "type": "integer"
+    "type": "string",
+    "xml": {
+      "attribute": true
+    }
   }
 
 Value:

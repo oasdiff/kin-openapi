@@ -2063,6 +2063,10 @@ func (schema *Schema) visitEnumOperation(settings *schemaValidationSettings, val
 				if v == f {
 					return
 				}
+			case int:
+				if v == float64(c) {
+					return
+				}
 			case int64:
 				if v == float64(c) {
 					return

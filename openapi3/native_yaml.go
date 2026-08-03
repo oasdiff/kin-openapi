@@ -65,7 +65,10 @@ func normalizeNumbers(v any) any {
 }
 
 // normalizeAnyFields applies normalizeNumbers to a struct's any-typed fields,
-// which the decoder fills directly (Example, Default and the like).
+// which the decoder fills directly: Example and Default, but also Enum, whose
+// element type is any. Missing the slice case left an integer example as a
+// float64 and the enum it must match as an int, so a schema failed against its
+// own allowed values.
 func normalizeAnyFields(out any) {
 	v := reflect.ValueOf(out)
 	for v.Kind() == reflect.Pointer {
@@ -79,8 +82,34 @@ func normalizeAnyFields(out any) {
 	}
 	for i := range v.NumField() {
 		f := v.Field(i)
-		if f.Kind() == reflect.Interface && f.CanSet() && !f.IsNil() {
-			f.Set(reflect.ValueOf(normalizeNumbers(f.Interface())))
+		if !f.CanSet() {
+			continue
+		}
+		switch f.Kind() {
+		case reflect.Interface:
+			if !f.IsNil() {
+				f.Set(reflect.ValueOf(normalizeNumbers(f.Interface())))
+			}
+		case reflect.Slice, reflect.Map:
+			// []any and map[string]any: normalise the elements in place.
+			if f.Type().Elem().Kind() != reflect.Interface || f.IsNil() {
+				continue
+			}
+			if f.Kind() == reflect.Slice {
+				for j := range f.Len() {
+					e := f.Index(j)
+					if !e.IsNil() {
+						e.Set(reflect.ValueOf(normalizeNumbers(e.Interface())))
+					}
+				}
+				continue
+			}
+			for _, k := range f.MapKeys() {
+				e := f.MapIndex(k)
+				if !e.IsNil() {
+					f.SetMapIndex(k, reflect.ValueOf(normalizeNumbers(e.Interface())))
+				}
+			}
 		}
 	}
 }

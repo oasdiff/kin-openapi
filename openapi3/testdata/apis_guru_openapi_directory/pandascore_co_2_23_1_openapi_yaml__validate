@@ -6990,17 +6990,7 @@ Value:
     "name": "Dota 2",
     "slug": "dota-2"
   }
- Or Error at "/id": value is not one of the allowed values [4]
-Schema:
-  {
-    "enum": [
-      4
-    ]
-  }
-
-Value:
-  4
- | Error at "/current_version": property "current_version" is missing
+ Or Error at "/current_version": property "current_version" is missing
 Schema:
   {
     "additionalProperties": false,
@@ -9688,70 +9678,6 @@ Schema:
 
 Value:
   null
- | Error at "/object/videogame": value is not one of the allowed values [{"id":1,"name":"LoL","slug":"league-of-legends"},{"id":3,"name":"CS:GO","slug":"cs-go"},{"id":4,"name":"Dota 2","slug":"dota-2"},{"id":14,"name":"Overwatch","slug":"ow"},{"id":20,"name":"PUBG","slug":"pubg"},{"id":22,"name":"Rocket League","slug":"rl"},{"id":23,"name":"Call of Duty","slug":"cod-mw"},{"id":24,"name":"Rainbow 6 Siege","slug":"r6-siege"},{"id":25,"name":"FIFA","slug":"fifa"},{"id":26,"name":"Valorant","slug":"valorant"}]
-Schema:
-  {
-    "enum": [
-      {
-        "id": 1,
-        "name": "LoL",
-        "slug": "league-of-legends"
-      },
-      {
-        "id": 3,
-        "name": "CS:GO",
-        "slug": "cs-go"
-      },
-      {
-        "id": 4,
-        "name": "Dota 2",
-        "slug": "dota-2"
-      },
-      {
-        "id": 14,
-        "name": "Overwatch",
-        "slug": "ow"
-      },
-      {
-        "id": 20,
-        "name": "PUBG",
-        "slug": "pubg"
-      },
-      {
-        "id": 22,
-        "name": "Rocket League",
-        "slug": "rl"
-      },
-      {
-        "id": 23,
-        "name": "Call of Duty",
-        "slug": "cod-mw"
-      },
-      {
-        "id": 24,
-        "name": "Rainbow 6 Siege",
-        "slug": "r6-siege"
-      },
-      {
-        "id": 25,
-        "name": "FIFA",
-        "slug": "fifa"
-      },
-      {
-        "id": 26,
-        "name": "Valorant",
-        "slug": "valorant"
-      }
-    ],
-    "type": "object"
-  }
-
-Value:
-  {
-    "id": 4,
-    "name": "Dota 2",
-    "slug": "dota-2"
-  }
  | Error at "/object/videogame_version": doesn't match schema due to: Value is not nullable
 Schema:
   {
@@ -31706,70 +31632,6 @@ Value:
     "winner": null,
     "winner_id": null
   }
- | Error at "/object/videogame": value is not one of the allowed values [{"id":1,"name":"LoL","slug":"league-of-legends"},{"id":3,"name":"CS:GO","slug":"cs-go"},{"id":4,"name":"Dota 2","slug":"dota-2"},{"id":14,"name":"Overwatch","slug":"ow"},{"id":20,"name":"PUBG","slug":"pubg"},{"id":22,"name":"Rocket League","slug":"rl"},{"id":23,"name":"Call of Duty","slug":"cod-mw"},{"id":24,"name":"Rainbow 6 Siege","slug":"r6-siege"},{"id":25,"name":"FIFA","slug":"fifa"},{"id":26,"name":"Valorant","slug":"valorant"}]
-Schema:
-  {
-    "enum": [
-      {
-        "id": 1,
-        "name": "LoL",
-        "slug": "league-of-legends"
-      },
-      {
-        "id": 3,
-        "name": "CS:GO",
-        "slug": "cs-go"
-      },
-      {
-        "id": 4,
-        "name": "Dota 2",
-        "slug": "dota-2"
-      },
-      {
-        "id": 14,
-        "name": "Overwatch",
-        "slug": "ow"
-      },
-      {
-        "id": 20,
-        "name": "PUBG",
-        "slug": "pubg"
-      },
-      {
-        "id": 22,
-        "name": "Rocket League",
-        "slug": "rl"
-      },
-      {
-        "id": 23,
-        "name": "Call of Duty",
-        "slug": "cod-mw"
-      },
-      {
-        "id": 24,
-        "name": "Rainbow 6 Siege",
-        "slug": "r6-siege"
-      },
-      {
-        "id": 25,
-        "name": "FIFA",
-        "slug": "fifa"
-      },
-      {
-        "id": 26,
-        "name": "Valorant",
-        "slug": "valorant"
-      }
-    ],
-    "type": "object"
-  }
-
-Value:
-  {
-    "id": 4,
-    "name": "Dota 2",
-    "slug": "dota-2"
-  }
  | Error at "/object": property "videogame_version" is unsupported
 Schema:
   {
@@ -52209,70 +52071,6 @@ Value:
     "videogame_version": null,
     "winner": null,
     "winner_id": null
-  }
- | Error at "/object/videogame": value is not one of the allowed values [{"id":1,"name":"LoL","slug":"league-of-legends"},{"id":3,"name":"CS:GO","slug":"cs-go"},{"id":4,"name":"Dota 2","slug":"dota-2"},{"id":14,"name":"Overwatch","slug":"ow"},{"id":20,"name":"PUBG","slug":"pubg"},{"id":22,"name":"Rocket League","slug":"rl"},{"id":23,"name":"Call of Duty","slug":"cod-mw"},{"id":24,"name":"Rainbow 6 Siege","slug":"r6-siege"},{"id":25,"name":"FIFA","slug":"fifa"},{"id":26,"name":"Valorant","slug":"valorant"}]
-Schema:
-  {
-    "enum": [
-      {
-        "id": 1,
-        "name": "LoL",
-        "slug": "league-of-legends"
-      },
-      {
-        "id": 3,
-        "name": "CS:GO",
-        "slug": "cs-go"
-      },
-      {
-        "id": 4,
-        "name": "Dota 2",
-        "slug": "dota-2"
-      },
-      {
-        "id": 14,
-        "name": "Overwatch",
-        "slug": "ow"
-      },
-      {
-        "id": 20,
-        "name": "PUBG",
-        "slug": "pubg"
-      },
-      {
-        "id": 22,
-        "name": "Rocket League",
-        "slug": "rl"
-      },
-      {
-        "id": 23,
-        "name": "Call of Duty",
-        "slug": "cod-mw"
-      },
-      {
-        "id": 24,
-        "name": "Rainbow 6 Siege",
-        "slug": "r6-siege"
-      },
-      {
-        "id": 25,
-        "name": "FIFA",
-        "slug": "fifa"
-      },
-      {
-        "id": 26,
-        "name": "Valorant",
-        "slug": "valorant"
-      }
-    ],
-    "type": "object"
-  }
-
-Value:
-  {
-    "id": 4,
-    "name": "Dota 2",
-    "slug": "dota-2"
   }
  | Error at "/object": property "videogame_version" is unsupported
 Schema:

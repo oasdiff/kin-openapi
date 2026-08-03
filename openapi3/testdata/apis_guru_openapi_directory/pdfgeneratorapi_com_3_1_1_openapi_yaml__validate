@@ -1,16 +1,13 @@
-invalid components: schema "TemplateDefinition": invalid example: value is not one of the allowed values [0,90,180,270]
+invalid components: response "error403": invalid example: value is not one of the allowed values ["Your account has exceeded the monthly document generation limit."]
 Schema:
   {
-    "description": "Page rotation in degrees",
+    "description": "Error description",
     "enum": [
-      0,
-      90,
-      180,
-      270
+      "Your account has exceeded the monthly document generation limit."
     ],
-    "example": 0,
-    "type": "integer"
+    "example": "Access not granted",
+    "type": "string"
   }
 
 Value:
-  0
+  "Access not granted"
