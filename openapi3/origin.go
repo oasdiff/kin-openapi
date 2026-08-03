@@ -24,13 +24,21 @@ var originPtrType = reflect.TypeFor[*Origin]()
 // Key is the location of the collection itself.
 // Fields holds the location of each scalar field in the collection.
 // Sequences is a map of the location of each item in sequence-valued fields.
+//
+// Sequences stays a map although Fields is a slice, which is deliberate.
+// FieldLocations drops the map because Location.Name already carries the key,
+// so the map was storing information the value repeated. Here Location.Name
+// holds the *item's* value (an enum member, a required property) while the key
+// is the *field's* name ("enum", "required", "tags"), so a slice would need a
+// wrapper type invented to hold it. The memory argument is also much weaker:
+// only a collection with a sequence-valued field allocates one at all, which
+// measured at 5% of collections on a large spec, and a nil map is free.
 type Origin struct {
 	Key       *Location             `json:"key,omitempty" yaml:"key,omitempty"`
 	Fields    FieldLocations        `json:"fields,omitempty" yaml:"fields,omitempty"`
 	Sequences map[string][]Location `json:"sequences,omitempty" yaml:"sequences,omitempty"`
 }
 
-// Location is a struct that contains the location of a field.
 // FieldLocations holds the locations of a collection's scalar fields, in the
 // order they appear in the document.
 //
@@ -94,6 +102,7 @@ func (f *FieldLocations) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Location is a struct that contains the location of a field.
 type Location struct {
 	File   string `json:"file,omitempty" yaml:"file,omitempty"`
 	Line   int    `json:"line,omitempty" yaml:"line,omitempty"`

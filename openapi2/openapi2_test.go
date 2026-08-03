@@ -7,7 +7,6 @@ import (
 	"reflect"
 
 	"github.com/getkin/kin-openapi/internal/yamlconv"
-
 	"github.com/getkin/kin-openapi/openapi2"
 )
 

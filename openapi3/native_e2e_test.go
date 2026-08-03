@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
 	goyaml "go.yaml.in/yaml/v3"
 )
 

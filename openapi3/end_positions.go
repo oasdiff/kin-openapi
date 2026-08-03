@@ -41,7 +41,7 @@ func newEndIndex(root *yaml.Node, data []byte) *endIndex {
 		return nil
 	}
 	ei := &endIndex{end: map[*yaml.Node]int{}, anchorKey: map[*yaml.Node]*yaml.Node{}}
-	for _, line := range bytes.Split(data, []byte("\n")) {
+	for line := range bytes.SplitSeq(data, []byte("\n")) {
 		ei.lineLen = append(ei.lineLen, len(bytes.TrimRight(line, "\r")))
 	}
 	ei.measure(root)

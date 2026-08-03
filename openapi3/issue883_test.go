@@ -3,10 +3,10 @@ package openapi3_test
 import (
 	"testing"
 
-	"github.com/getkin/kin-openapi/internal/yamlconv"
 	"github.com/stretchr/testify/require"
 	yamlv3 "go.yaml.in/yaml/v3"
 
+	"github.com/getkin/kin-openapi/internal/yamlconv"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
