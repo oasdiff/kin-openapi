@@ -120,7 +120,13 @@ type originTree struct {
 
 // originFileVar is the file stamped into origins for the decode in progress.
 // UnmarshalYAML receives a node and nothing else, so the file cannot be passed
-// through the call. One decode at a time per process, as with IncludeOrigin.
+// through the call.
+//
+// Being package-level, this makes concurrent decodes unsafe even when each has
+// its own Loader. That is stricter than Loader.IncludeOrigin, which is
+// per-Loader precisely because the deprecated package-level IncludeOrigin was
+// not safe to share. Serialising decodes, or carrying the state per decode,
+// would remove the restriction; neither is done here.
 var originFileVar string
 
 // originEnabledVar mirrors the includeOrigin argument unmarshal receives, which
