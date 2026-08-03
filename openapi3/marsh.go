@@ -28,9 +28,9 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 		file = location.String()
 	}
 
-	// Native decode: one parse, straight into the types via UnmarshalYAML,
-	// with origins read off the nodes. No JSON round trip, no __origin__
-	// channel, and JSON documents get origins too since JSON parses as YAML.
+	// One parse, straight into the types via UnmarshalYAML, with origins read
+	// off the nodes. A JSON document gets origins too, since JSON parses as
+	// YAML.
 	originFileVar, originEnabledVar = file, includeOrigin
 	var root goyaml.Node
 	if err := goyaml.Unmarshal(data, &root); err == nil {
