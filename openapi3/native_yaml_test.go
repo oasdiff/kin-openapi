@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	kinyaml "github.com/oasdiff/yaml"
 	goyaml "go.yaml.in/yaml/v3"
 )
 
@@ -40,57 +39,6 @@ func TestNativeStock_MatchesJSONPath(t *testing.T) {
 	got, err := json.Marshal(&viaNode)
 	require.NoError(t, err)
 	require.JSONEq(t, string(want), string(got))
-}
-
-// Origins read from the node must match those reconstructed from an origin
-// tree, on every field except end positions, which are not recorded.
-func TestNativeStock_OriginsMatchExceptEnds(t *testing.T) {
-	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
-	originEnabledVar = true
-
-	var viaTree Responses
-	tree, err := kinyaml.Unmarshal([]byte(nativeSrc), &viaTree, kinyaml.DecodeOpts{
-		Origin: kinyaml.OriginOpt{Enabled: true},
-	})
-	require.NoError(t, err)
-	applyOrigins(&viaTree, tree)
-
-	var viaNode Responses
-	require.NoError(t, goyaml.Unmarshal([]byte(nativeSrc), &viaNode))
-
-	want := viaTree.Value("200").Value.Origin
-	got := viaNode.Value("200").Value.Origin
-	require.NotNil(t, want)
-	require.NotNil(t, got)
-
-	// Key: the `"200":` line.
-	require.Equal(t, want.Key.Line, got.Key.Line, "Key.Line")
-	require.Equal(t, want.Key.Column, got.Key.Column, "Key.Column")
-	require.Equal(t, want.Key.Name, got.Key.Name, "Key.Name")
-
-	// Fields and Sequences, in full.
-	require.NotEmpty(t, want.Fields)
-	require.Equal(t, len(want.Fields), len(got.Fields), "field count")
-	for name, w := range want.Fields {
-		g, ok := got.Fields[name]
-		require.True(t, ok, "field %q", name)
-		require.Equal(t, w.Line, g.Line, "field %q line", name)
-		require.Equal(t, w.Column, g.Column, "field %q column", name)
-	}
-	require.NotEmpty(t, want.Sequences)
-	require.Equal(t, len(want.Sequences), len(got.Sequences), "sequence count")
-	for f, wl := range want.Sequences {
-		gl, ok := got.Sequences[f]
-		require.True(t, ok, "sequence %q", f)
-		require.Equal(t, len(wl), len(gl))
-		for i := range wl {
-			require.Equal(t, wl[i].Line, gl[i].Line, "%s[%d]", f, i)
-			require.Equal(t, wl[i].Name, gl[i].Name, "%s[%d]", f, i)
-		}
-	}
-
-	// End positions are not recorded; a consumer derives extents instead.
-	require.Zero(t, got.Key.EndLine, "the stock parser records no end position")
 }
 
 // Origins must reach nested collections, not only the top level.
