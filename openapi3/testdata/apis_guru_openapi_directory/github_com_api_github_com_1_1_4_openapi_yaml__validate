@@ -1,10 +1,8 @@
-invalid components: schema "actions-cache-list": invalid example: unhandled value of type time.Time
+invalid components: schema "contributor-activity": invalid example: Error at "/0/w": value must be an integer
 Schema:
   {
-    "example": "2019-01-24T22:45:36Z",
-    "format": "date-time",
-    "type": "string"
+    "type": "integer"
   }
 
 Value:
-  "2019-01-24T22:45:36Z"
+  "1367712000"

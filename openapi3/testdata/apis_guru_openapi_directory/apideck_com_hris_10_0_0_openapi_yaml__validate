@@ -1,13 +1,20 @@
-invalid components: schema "Birthday": invalid example: unhandled value of type time.Time
+invalid components: schema "Employee": invalid example: value is not one of the allowed values ["weekly","biweekly","monthly","pro-rata","other"]
 Schema:
   {
-    "description": "The date of birth of the person.",
-    "example": "2000-08-12T00:00:00Z",
-    "format": "date",
+    "description": "Frequency of employee compensation.",
+    "enum": [
+      "weekly",
+      "biweekly",
+      "monthly",
+      "pro-rata",
+      "other"
+    ],
+    "example": "year",
     "nullable": true,
-    "title": "Birth Date",
-    "type": "string"
+    "title": "Payment Frequency",
+    "type": "string",
+    "x-apideck-enum-id": "payment_frequency"
   }
 
 Value:
-  "2000-08-12T00:00:00Z"
+  "year"

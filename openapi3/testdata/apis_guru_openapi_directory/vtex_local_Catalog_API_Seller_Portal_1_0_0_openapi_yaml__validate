@@ -1,11 +1,1 @@
-invalid paths: invalid path /api/catalog-seller-portal/brands: invalid operation GET: invalid example: unhandled value of type time.Time
-Schema:
-  {
-    "description": "Date when the brand was created.",
-    "example": "2021-01-18T14:41:45.696488Z",
-    "title": "createdAt",
-    "type": "string"
-  }
-
-Value:
-  "2021-01-18T14:41:45.696488Z"
+invalid paths: conflicting paths "/api/catalog-seller-portal/products/{productId}" and "/api/catalog-seller-portal/products/{param}"

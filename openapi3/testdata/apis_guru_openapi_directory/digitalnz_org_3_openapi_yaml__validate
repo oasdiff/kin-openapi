@@ -1,14 +1,13 @@
-invalid components: schema "record": invalid example: unhandled value of type time.Time
+invalid components: schema "record": invalid example: value must be an array
 Schema:
   {
-    "description": "The date the record was initially harvested into DigitalNZ.",
-    "example": "2012-04-21T05:32:02+13:00",
-    "format": "date-time",
-    "type": "string",
-    "xml": {
-      "name": "created-at"
-    }
+    "description": "Date information associated with this record (e.g. 1996-01-01T00:00:00.000Z). This field may be empty.",
+    "example": "1996-01-01T00:00:00.000Z",
+    "items": {
+      "type": "string"
+    },
+    "type": "array"
   }
 
 Value:
-  "2012-04-21T05:32:02+13:00"
+  "1996-01-01T00:00:00.000Z"

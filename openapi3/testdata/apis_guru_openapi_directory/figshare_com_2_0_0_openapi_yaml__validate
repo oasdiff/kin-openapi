@@ -1,10 +1,10 @@
-invalid components: schema "AccountReport": invalid example: unhandled value of type time.Time
+invalid components: schema "ArticleComplete": invalid example: value must be a boolean
 Schema:
   {
-    "description": "Date when the AccountReport was requested",
-    "example": "2017-05-15T15:12:26Z",
-    "type": "string"
+    "description": "True if author has published items",
+    "example": 1,
+    "type": "boolean"
   }
 
 Value:
-  "2017-05-15T15:12:26Z"
+  1

@@ -1,12 +1,10 @@
-invalid components: schema "AttachmentResponse": invalid allOf element: invalid example: unhandled value of type time.Time
+invalid components: schema "BatchRequest": invalid example: value must be an integer
 Schema:
   {
-    "description": "The time at which this resource was created.",
-    "example": "2012-02-22T02:06:58.147Z",
-    "format": "date-time",
-    "readOnly": true,
-    "type": "string"
+    "description": "Pagination offset for the request.",
+    "example": "eyJ0eXAiOJiKV1iQLCJhbGciOiJIUzI1NiJ9",
+    "type": "integer"
   }
 
 Value:
-  "2012-02-22T02:06:58.147Z"
+  "eyJ0eXAiOJiKV1iQLCJhbGciOiJIUzI1NiJ9"

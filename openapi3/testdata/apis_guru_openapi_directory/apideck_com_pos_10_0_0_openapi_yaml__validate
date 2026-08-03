@@ -1,14 +1,11 @@
-invalid components: schema "CreatedAt": invalid example: unhandled value of type time.Time
+invalid components: schema "GetOrderResponse": invalid example: value must be an integer
 Schema:
   {
-    "description": "The date and time when the object was created.",
-    "example": "2020-09-30T07:43:32Z",
-    "format": "date-time",
+    "example": 27.5,
     "nullable": true,
-    "readOnly": true,
-    "title": "Created at (timestamp)",
-    "type": "string"
+    "title": "Total amount (in cents)",
+    "type": "integer"
   }
 
 Value:
-  "2020-09-30T07:43:32Z"
+  27.5

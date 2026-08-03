@@ -1,13 +1,4 @@
-invalid paths: invalid path /api/checkout/pub/orderForm/{orderFormId}/coupons: invalid operation POST: invalid example: example response: Error at "/items/0/priceValidUntil": unhandled value of type time.Time
-Schema:
-  {
-    "description": "Price expiration date and time.",
-    "type": "string"
-  }
-
-Value:
-  "2022-07-13T18:30:46Z"
- | Error at "/shippingData/logisticsInfo/0/slas/0/deliveryIds/0/warehouseId": value must be a string
+invalid paths: invalid path /api/checkout/pub/orderForm/{orderFormId}/coupons: invalid operation POST: invalid example: example response: Error at "/shippingData/logisticsInfo/0/slas/0/deliveryIds/0/warehouseId": value must be a string
 Schema:
   {
     "description": "Warehouse ID.",

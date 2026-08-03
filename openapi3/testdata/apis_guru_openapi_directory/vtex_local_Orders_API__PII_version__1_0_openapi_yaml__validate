@@ -1,9 +1,9 @@
-invalid components: schema "ChangesAttachment": invalid example: Error at "/date": unhandled value of type time.Time
+invalid components: schema "DeliveryId": invalid example: Error at "/warehouseId": value must be a string
 Schema:
   {
-    "description": "Date.",
+    "description": "Warehouse ID.",
     "type": "string"
   }
 
 Value:
-  "2019-02-06T20:46:04.4003606Z"
+  11

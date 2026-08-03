@@ -1,10 +1,8 @@
-invalid components: schema "Account": invalid example: unhandled value of type time.Time
+invalid paths: invalid path /users/{id}/trend_analysis: invalid operation GET: invalid example: value must be an integer
 Schema:
   {
-    "description": "When the account was created.",
-    "example": "2018-02-27T00:00:00Z",
-    "type": "string"
+    "type": "integer"
   }
 
 Value:
-  "2018-02-27T00:00:00Z"
+  true

@@ -1,11 +1,1 @@
-invalid components: schema "Vehicle": invalid example: unhandled value of type time.Time
-Schema:
-  {
-    "description": "Additional Rate of Tax End Date, format: YYYY-MM-DD",
-    "example": "2007-12-25T00:00:00Z",
-    "format": "date",
-    "type": "string"
-  }
-
-Value:
-  "2007-12-25T00:00:00Z"
+invalid components: schema "Vehicle": invalid example: string doesn't match the format "date": string doesn't match pattern "^[0-9]{4}-(0[1-9]|10|11|12)-(0[1-9]|[12][0-9]|3[01])$"

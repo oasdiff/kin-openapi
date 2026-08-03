@@ -1,13 +1,22 @@
-invalid paths: invalid path /: invalid operation GET: invalid example: unhandled value of type time.Time
+invalid paths: invalid path /account-exports: invalid operation POST: invalid example: value must be an array
 Schema:
   {
-    "description": "Date of first payment for monthly plans.",
-    "example": "2010-01-01T23:59:59Z",
-    "format": "date-time",
-    "readOnly": true,
-    "title": "First Payment",
-    "type": "string"
+    "description": "The stages of an account export to include.",
+    "example": "[\"audiences\", \"gallery_files\"]",
+    "items": {
+      "enum": [
+        "audiences",
+        "campaigns",
+        "events",
+        "gallery_files",
+        "reports",
+        "templates"
+      ],
+      "type": "string"
+    },
+    "title": "Include Stages",
+    "type": "array"
   }
 
 Value:
-  "2010-01-01T23:59:59Z"
+  "[\"audiences\", \"gallery_files\"]"

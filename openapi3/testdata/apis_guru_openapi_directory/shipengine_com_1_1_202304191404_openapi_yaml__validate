@@ -1,13 +1,11 @@
-invalid components: schema "account_settings_images": invalid allOf element: invalid example: unhandled value of type time.Time
+invalid components: schema "address_validating_shipment": invalid allOf element: invalid example: value must be a string
 Schema:
   {
-    "description": "An [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) string that represents a date and time.\n",
-    "example": "2018-09-23T15:00:00Z",
-    "format": "date-time",
-    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[-+]\\d{2}:\\d{2})$",
-    "title": "date_time",
+    "description": "The National Motor Freight Traffic Association [freight class](http://www.nmfta.org/pages/nmfc?AspxAutoDetectCookieSupport=1), such as \"77.5\", \"110\", or \"250\".\n",
+    "example": 77.5,
+    "nullable": true,
     "type": "string"
   }
 
 Value:
-  "2018-09-23T15:00:00Z"
+  77.5

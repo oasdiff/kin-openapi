@@ -9,23 +9,3 @@ Value:
   {
     "$ref": "#/components/schemas/UpdateAttendancePeriodRequest/example/comment"
   }
- | Error at "/attendances/0/date": unhandled value of type time.Time
-Schema:
-  {
-    "description": "Attendance date as YYYY-MM-DD",
-    "format": "date",
-    "type": "string"
-  }
-
-Value:
-  "2017-01-18T00:00:00Z"
- | Error at "/attendances/1/date": unhandled value of type time.Time
-Schema:
-  {
-    "description": "Attendance date as YYYY-MM-DD",
-    "format": "date",
-    "type": "string"
-  }
-
-Value:
-  "2017-01-17T00:00:00Z"

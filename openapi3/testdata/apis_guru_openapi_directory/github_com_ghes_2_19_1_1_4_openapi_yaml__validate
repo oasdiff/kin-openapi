@@ -1,10 +1,8 @@
-invalid components: schema "added-to-project-issue-event": invalid example: unhandled value of type time.Time
+invalid components: schema "contributor-activity": invalid example: Error at "/0/w": value must be an integer
 Schema:
   {
-    "example": "2017-07-08T16:18:44-04:00",
-    "format": "date-time",
-    "type": "string"
+    "type": "integer"
   }
 
 Value:
-  "2017-07-08T16:18:44-04:00"
+  "1367712000"

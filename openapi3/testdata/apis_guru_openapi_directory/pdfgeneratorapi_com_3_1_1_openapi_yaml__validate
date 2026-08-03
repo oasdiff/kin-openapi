@@ -1,10 +1,13 @@
-invalid components: schema "Template": invalid example: unhandled value of type time.Time
+invalid components: response "error403": invalid example: value is not one of the allowed values ["Your account has exceeded the monthly document generation limit."]
 Schema:
   {
-    "description": "Timestamp when the template was modified",
-    "example": "2017-10-21T11:49:28Z",
+    "description": "Error description",
+    "enum": [
+      "Your account has exceeded the monthly document generation limit."
+    ],
+    "example": "Access not granted",
     "type": "string"
   }
 
 Value:
-  "2017-10-21T11:49:28Z"
+  "Access not granted"

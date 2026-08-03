@@ -1,8 +1,10 @@
-invalid components: schema "Datum2": invalid example: Error at "/lastUpdate": unhandled value of type time.Time
+invalid paths: invalid path /api/creditcontrol/accounts/{accountId}: invalid operation PUT: invalid default: value must be an integer
 Schema:
   {
-    "type": "string"
+    "default": "100.0",
+    "description": "If the user don't set a credit limit, the system will define 100 for default",
+    "type": "integer"
   }
 
 Value:
-  "2017-07-06T01:57:39.4317119Z"
+  "100.0"

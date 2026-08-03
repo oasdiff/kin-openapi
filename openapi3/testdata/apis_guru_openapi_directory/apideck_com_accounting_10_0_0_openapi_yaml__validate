@@ -1,14 +1,48 @@
-invalid components: schema "AccountingCustomer": invalid example: unhandled value of type time.Time
+invalid components: schema "GetProfitAndLossResponse": invalid anyOf element: invalid example: Error at "/type": property "type" is missing
 Schema:
   {
-    "description": "The date and time when the object was created.",
-    "example": "2020-09-30T07:43:32Z",
-    "format": "date-time",
-    "nullable": true,
-    "readOnly": true,
-    "title": "Created at (timestamp)",
-    "type": "string"
+    "example": {
+      "total": 200000
+    },
+    "properties": {
+      "id": {
+        "example": "123abc",
+        "nullable": true,
+        "type": "string"
+      },
+      "records": {
+        "$ref": "#/components/schemas/ProfitAndLossRecords"
+      },
+      "title": {
+        "example": "Income",
+        "nullable": true,
+        "type": "string"
+      },
+      "total": {
+        "example": 23992.34,
+        "nullable": true,
+        "type": "number"
+      },
+      "type": {
+        "example": "Section",
+        "type": "string"
+      }
+    },
+    "required": [
+      "type"
+    ],
+    "type": "object",
+    "x-apideck-schema-id": "ProfitAndLossSection",
+    "x-apideck-weights": {
+      "id": "medium",
+      "records": "medium",
+      "title": "medium",
+      "total": "medium",
+      "type": "critical"
+    }
   }
 
 Value:
-  "2020-09-30T07:43:32Z"
+  {
+    "total": 200000
+  }

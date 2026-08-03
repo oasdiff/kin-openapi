@@ -1,9 +1,1 @@
-invalid paths: invalid path /article/{article_id}: invalid operation GET: invalid example: unhandled value of type time.Time
-Schema:
-  {
-    "example": "2021-05-28T04:22:48Z",
-    "type": "string"
-  }
-
-Value:
-  "2021-05-28T04:22:48Z"
+invalid paths: operation GET /search/articles?query={query} must define exactly all path parameters (missing: [query])

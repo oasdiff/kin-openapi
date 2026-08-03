@@ -1,12 +1,1 @@
-invalid components: schema "Account": invalid example: unhandled value of type time.Time
-Schema:
-  {
-    "description": "Date of next billing",
-    "example": "2018-01-31T16:32:17.238553Z",
-    "format": "date",
-    "readOnly": true,
-    "type": "string"
-  }
-
-Value:
-  "2018-01-31T16:32:17.238553Z"
+invalid components: schema "Account": invalid example: string doesn't match the format "date": string doesn't match pattern "^[0-9]{4}-(0[1-9]|10|11|12)-(0[1-9]|[12][0-9]|3[01])$"

@@ -1,2 +1,1 @@
-failed to unmarshal data: json error: invalid character 'o' looking for beginning of value, yaml error: yaml: unmarshal errors:
-  line 860: cannot unmarshal !!bool `false` into openapi3.SchemaBis
+failed to unmarshal data: json error: invalid character 'o' looking for beginning of value, yaml error: error unmarshaling JSON: while decoding JSON: json: cannot unmarshal bool into field Schema.properties of type openapi3.Schema
