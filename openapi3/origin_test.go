@@ -26,7 +26,7 @@ func TestOrigin_T(t *testing.T) {
 			Column: 1,
 			Name:   "openapi",
 		},
-		doc.Origin.Fields["openapi"])
+		doc.Origin.Fields.Get("openapi"))
 }
 
 func TestOrigin_Info(t *testing.T) {
@@ -57,7 +57,7 @@ func TestOrigin_Info(t *testing.T) {
 			Column: 3,
 			Name:   "title",
 		},
-		doc.Info.Origin.Fields["title"])
+		doc.Info.Origin.Fields.Get("title"))
 
 	require.Equal(t,
 		openapi3.Location{
@@ -66,7 +66,7 @@ func TestOrigin_Info(t *testing.T) {
 			Column: 3,
 			Name:   "version",
 		},
-		doc.Info.Origin.Fields["version"])
+		doc.Info.Origin.Fields.Get("version"))
 }
 
 func TestOrigin_Paths(t *testing.T) {
@@ -209,7 +209,7 @@ func TestOrigin_Responses(t *testing.T) {
 			Column: 11,
 			Name:   "description",
 		},
-		base.Value("200").Value.Origin.Fields["description"])
+		base.Value("200").Value.Origin.Fields.Get("description"))
 }
 
 func TestOrigin_Parameters(t *testing.T) {
@@ -241,7 +241,7 @@ func TestOrigin_Parameters(t *testing.T) {
 			Column: 11,
 			Name:   "in",
 		},
-		base.Origin.Fields["in"])
+		base.Origin.Fields.Get("in"))
 
 	require.Equal(t,
 		openapi3.Location{
@@ -250,7 +250,7 @@ func TestOrigin_Parameters(t *testing.T) {
 			Column: 11,
 			Name:   "name",
 		},
-		base.Origin.Fields["name"])
+		base.Origin.Fields.Get("name"))
 }
 
 func TestOrigin_SchemaInAdditionalProperties(t *testing.T) {
@@ -284,7 +284,7 @@ func TestOrigin_SchemaInAdditionalProperties(t *testing.T) {
 			Column: 19,
 			Name:   "type",
 		},
-		base.Schema.Value.Origin.Fields["type"])
+		base.Schema.Value.Origin.Fields.Get("type"))
 }
 
 func TestOrigin_ExternalDocs(t *testing.T) {
@@ -317,7 +317,7 @@ func TestOrigin_ExternalDocs(t *testing.T) {
 			Column: 3,
 			Name:   "description",
 		},
-		base.Origin.Fields["description"])
+		base.Origin.Fields.Get("description"))
 
 	require.Equal(t,
 		openapi3.Location{
@@ -326,7 +326,7 @@ func TestOrigin_ExternalDocs(t *testing.T) {
 			Column: 3,
 			Name:   "url",
 		},
-		base.Origin.Fields["url"])
+		base.Origin.Fields.Get("url"))
 }
 
 func TestOrigin_Security(t *testing.T) {
@@ -359,7 +359,7 @@ func TestOrigin_Security(t *testing.T) {
 			Column: 7,
 			Name:   "type",
 		},
-		base.Origin.Fields["type"])
+		base.Origin.Fields.Get("type"))
 
 	require.Equal(t,
 		&openapi3.Location{
@@ -390,7 +390,7 @@ func TestOrigin_Security(t *testing.T) {
 			Column: 11,
 			Name:   "authorizationUrl",
 		},
-		base.Flows.Implicit.Origin.Fields["authorizationUrl"])
+		base.Flows.Implicit.Origin.Fields.Get("authorizationUrl"))
 
 	// scopes is a map[string]string, which decodes without an Origin of its own,
 	// so its per-key locations are recorded on the flow's Origin as a named
@@ -432,7 +432,7 @@ func TestOrigin_Example(t *testing.T) {
 			Column: 17,
 			Name:   "summary",
 		},
-		base.Origin.Fields["summary"])
+		base.Origin.Fields.Get("summary"))
 
 }
 
@@ -465,7 +465,7 @@ func TestOrigin_XML(t *testing.T) {
 			Column: 21,
 			Name:   "namespace",
 		},
-		base.Origin.Fields["namespace"])
+		base.Origin.Fields.Get("namespace"))
 
 	require.Equal(t,
 		openapi3.Location{
@@ -474,7 +474,7 @@ func TestOrigin_XML(t *testing.T) {
 			Column: 21,
 			Name:   "prefix",
 		},
-		base.Origin.Fields["prefix"])
+		base.Origin.Fields.Get("prefix"))
 }
 
 func TestOrigin_ExampleWithArrayValue(t *testing.T) {
@@ -521,7 +521,7 @@ func TestOrigin_WithExternalRef(t *testing.T) {
 			Column: 3,
 			Name:   "namespace",
 		},
-		base.XML.Origin.Fields["namespace"])
+		base.XML.Origin.Fields.Get("namespace"))
 
 	require.Equal(t,
 		openapi3.Location{
@@ -530,7 +530,7 @@ func TestOrigin_WithExternalRef(t *testing.T) {
 			Column: 3,
 			Name:   "prefix",
 		},
-		base.XML.Origin.Fields["prefix"])
+		base.XML.Origin.Fields.Get("prefix"))
 }
 
 // The root-level schema of an externally $ref'd file carries an Origin, not
@@ -567,7 +567,7 @@ func TestOrigin_WithExternalRefRootOrigin(t *testing.T) {
 			Column: 1,
 			Name:   "type",
 		},
-		base.Origin.Fields["type"])
+		base.Origin.Fields.Get("type"))
 }
 
 // TestOrigin_RequiredSequence verifies that Origin.Sequences records the
@@ -585,7 +585,7 @@ func TestOrigin_RequiredSequence(t *testing.T) {
 	require.NotNil(t, schema.Origin)
 
 	// "required" must appear in Fields (it's a sequence-valued field)
-	require.Contains(t, schema.Origin.Fields, "required")
+	require.True(t, mustHaveField(schema.Origin.Fields, "required"))
 
 	// Sequences must record per-item locations for "required"
 	seqLocs, ok := schema.Origin.Sequences["required"]
@@ -663,7 +663,7 @@ func TestOrigin_Headers(t *testing.T) {
 			Column: 15,
 			Name:   "description",
 		},
-		headers["X-Rate-Limit"].Value.Origin.Fields["description"])
+		headers["X-Rate-Limit"].Value.Origin.Fields.Get("description"))
 
 	require.Equal(t,
 		&openapi3.Location{
@@ -750,29 +750,36 @@ func TestOrigin_MappingFields(t *testing.T) {
 	file := "testdata/origin/mapping_fields.yaml"
 
 	// dependentRequired is a map[string][]string — mapping-valued
-	require.Contains(t, schema.Origin.Fields, "dependentRequired")
+	require.True(t, mustHaveField(schema.Origin.Fields, "dependentRequired"))
 	require.Equal(t, openapi3.Location{
 		File:   file,
 		Line:   18,
 		Column: 21,
 		Name:   "dependentRequired",
-	}, schema.Origin.Fields["dependentRequired"])
+	}, schema.Origin.Fields.Get("dependentRequired"))
 
 	// dependentSchemas is a Schemas map — mapping-valued
-	require.Contains(t, schema.Origin.Fields, "dependentSchemas")
+	require.True(t, mustHaveField(schema.Origin.Fields, "dependentSchemas"))
 	require.Equal(t, openapi3.Location{
 		File:   file,
 		Line:   22,
 		Column: 21,
 		Name:   "dependentSchemas",
-	}, schema.Origin.Fields["dependentSchemas"])
+	}, schema.Origin.Fields.Get("dependentSchemas"))
 
 	// patternProperties is a Schemas map — mapping-valued
-	require.Contains(t, schema.Origin.Fields, "patternProperties")
+	require.True(t, mustHaveField(schema.Origin.Fields, "patternProperties"))
 	require.Equal(t, openapi3.Location{
 		File:   file,
 		Line:   25,
 		Column: 21,
 		Name:   "patternProperties",
-	}, schema.Origin.Fields["patternProperties"])
+	}, schema.Origin.Fields.Get("patternProperties"))
+}
+
+// mustHaveField reports whether the named field carries a location, the
+// slice-shaped equivalent of asserting a key is present in a map.
+func mustHaveField(f openapi3.FieldLocations, name string) bool {
+	_, ok := f.Lookup(name)
+	return ok
 }
