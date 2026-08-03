@@ -545,6 +545,8 @@ func TestOrigin_ExampleWithArrayValue(t *testing.T) {
 	}
 }
 
+// A property named __origin__ is ordinary: nothing is injected into the
+// document, so there is nothing for it to collide with.
 // TestOrigin_OriginExistsInProperties verifies that loading fails when a specification
 // contains a property named "__origin__", highlighting a limitation in the current implementation.
 func TestOrigin_ConstAndExamplesStripped(t *testing.T) {
@@ -605,10 +607,17 @@ components:
 	loader := openapi3.NewLoader()
 	loader.IncludeOrigin = true
 
-	_, err := loader.LoadFromData([]byte(data))
-	require.Error(t, err)
-	require.Equal(t, `failed to unmarshal data: json error: invalid character 'p' looking for beginning of value, yaml error: error converting YAML to JSON: yaml: unmarshal errors:
-  line 0: mapping key "__origin__" already defined at line 17`, err.Error())
+	doc, err := loader.LoadFromData([]byte(data))
+	require.NoError(t, err, "a property may be named __origin__")
+
+	// Positions are read from the node rather than injected into the document,
+	// so a property of that name is an ordinary property.
+	foo := doc.Components.Schemas["Foo"].Value
+	require.NotNil(t, foo)
+	prop := foo.Properties["__origin__"]
+	require.NotNil(t, prop, "the property should survive")
+	require.True(t, prop.Value.Type.Is("string"))
+	require.NotNil(t, foo.Origin, "and the schema still carries its own origin")
 }
 
 // TestOrigin_ExtensionValuesStripped verifies that __origin__ metadata injected

@@ -142,3 +142,25 @@ func (operation *Operation) UnmarshalYAML(node *yaml.Node) error {
 	setChildOriginKeys(node, operation, nativeOriginFile())
 	return nil
 }
+
+// T is the document root, so no parent stamps its Origin.Key. It takes its own
+// first key instead, the same rule a sequence item follows.
+func (doc *T) UnmarshalYAML(node *yaml.Node) error {
+	type bis T
+	ext, err := decodeMapping(node, (*bis)(doc))
+	if err != nil {
+		return err
+	}
+	doc.Extensions, doc.Origin = ext, originFromNode(node, nativeOriginFile())
+	if doc.Origin != nil && node.Kind == yaml.MappingNode && len(node.Content) > 0 {
+		first := node.Content[0]
+		doc.Origin.Key = &Location{
+			File:   nativeOriginFile(),
+			Line:   first.Line,
+			Column: first.Column,
+			Name:   first.Value,
+		}
+	}
+	setChildOriginKeys(node, doc, nativeOriginFile())
+	return nil
+}

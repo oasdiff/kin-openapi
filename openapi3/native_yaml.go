@@ -305,6 +305,8 @@ func setOriginKey(child reflect.Value, keyNode *yaml.Node, file string) {
 	}
 	f := child.FieldByName("Origin")
 	if !f.IsValid() || f.Type() != originPtrType || !f.CanSet() {
+		// No origin of its own; it may still wrap something that has one.
+		descendToWrapped(child, keyNode, file)
 		return
 	}
 	if f.IsNil() {
@@ -316,10 +318,23 @@ func setOriginKey(child reflect.Value, keyNode *yaml.Node, file string) {
 		Column: keyNode.Column,
 		Name:   keyNode.Value,
 	}
-	// A $ref wrapper and the value it holds occupy the same node, so both
-	// carry that node's origin.
-	if inner := child.FieldByName("Value"); inner.IsValid() {
-		setOriginKey(inner, keyNode, file)
+	// A wrapper and the thing it holds occupy the same node, so both carry
+	// that node's origin. Value is the $ref wrappers; Schema is BoolSchema,
+	// which holds either a bool or a schema.
+	descendToWrapped(child, keyNode, file)
+}
+
+// descendToWrapped stamps the thing a wrapper holds, which occupies the same
+// node. Value is the $ref wrappers; Schema is BoolSchema, which holds either a
+// bool or a schema.
+func descendToWrapped(child reflect.Value, keyNode *yaml.Node, file string) {
+	if child.Kind() != reflect.Struct {
+		return
+	}
+	for _, name := range [...]string{"Value", "Schema"} {
+		if inner := child.FieldByName(name); inner.IsValid() {
+			setOriginKey(inner, keyNode, file)
+		}
 	}
 }
 

@@ -252,18 +252,6 @@ func (serverVariable *ServerVariable) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
-// UnmarshalYAML sets T from node.
-func (doc *T) UnmarshalYAML(node *yaml.Node) error {
-	type bis T
-	ext, err := decodeMapping(node, (*bis)(doc))
-	if err != nil {
-		return err
-	}
-	doc.Extensions, doc.Origin = ext, originFromNode(node, nativeOriginFile())
-	setChildOriginKeys(node, doc, nativeOriginFile())
-	return nil
-}
-
 // UnmarshalYAML sets Tag from node.
 func (t *Tag) UnmarshalYAML(node *yaml.Node) error {
 	type bis Tag

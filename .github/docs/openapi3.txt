@@ -3670,7 +3670,8 @@ func (doc *T) UnmarshalJSON(data []byte) error
     UnmarshalJSON sets T to a copy of data.
 
 func (doc *T) UnmarshalYAML(node *yaml.Node) error
-    UnmarshalYAML sets T from node.
+    T is the document root, so no parent stamps its Origin.Key. It takes its own
+    first key instead, the same rule a sequence item follows.
 
 func (doc *T) Validate(ctx context.Context, opts ...ValidationOption) error
     Validate returns an error if T does not comply with the OpenAPI spec.
