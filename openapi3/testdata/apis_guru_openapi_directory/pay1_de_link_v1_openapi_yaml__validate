@@ -1,1 +1,11 @@
-invalid components: security scheme "createAuth": security scheme of type 'http' has invalid 'scheme' value "payone-hmac-sha256"
+invalid components: schema "CartItemDto": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "description": "delivery period end date",
+    "example": "2021-01-01T00:00:00Z",
+    "format": "date",
+    "type": "string"
+  }
+
+Value:
+  "2021-01-01T00:00:00Z"

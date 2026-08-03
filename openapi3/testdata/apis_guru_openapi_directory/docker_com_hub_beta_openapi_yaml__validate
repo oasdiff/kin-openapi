@@ -1,10 +1,11 @@
-invalid components: schema "Users2FALoginRequest": invalid example: value must be a string
+invalid components: schema "GetNamespaceRepositoryImagesResponse": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "The Time-based One-Time Password of the Docker Hub account to authenticate with.",
-    "example": 123456,
+    "description": "Time when this image was last pulled. Note this is updated at most once per hour.",
+    "example": "2021-02-24T23:16:10.200008Z",
+    "nullable": true,
     "type": "string"
   }
 
 Value:
-  123456
+  "2021-02-24T23:16:10.200008Z"

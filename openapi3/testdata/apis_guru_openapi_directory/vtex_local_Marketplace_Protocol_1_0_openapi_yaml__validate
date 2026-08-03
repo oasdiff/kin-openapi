@@ -1,9 +1,10 @@
-invalid paths: invalid path /api/checkout/pub/orderForms/simulation: invalid operation POST: invalid example: Error at "/logisticsInfo/0/slas/0/deliveryIds/0/warehouseId": value must be a string
+invalid components: schema "orderPlacement": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "Warehouse ID.",
+    "description": "Scheduled delivery window end date in UTC.",
+    "example": "2016-04-20T12:00:00Z",
     "type": "string"
   }
 
 Value:
-  11
+  "2016-04-20T12:00:00Z"

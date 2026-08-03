@@ -1,1 +1,12 @@
-invalid components: schema "Item": invalid allOf element: invalid oneOf element: extra sibling fields: [description]
+invalid components: schema "Blob": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "description": "[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted string for when this resource was created.",
+    "example": "2018-08-30T09:51:59.737Z",
+    "format": "dateTime",
+    "readOnly": true,
+    "type": "string"
+  }
+
+Value:
+  "2018-08-30T09:51:59.737Z"

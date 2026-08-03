@@ -1,8 +1,10 @@
-invalid components: parameter "end_id_parameter": invalid example: value must be a string
+invalid components: schema "all_events": invalid anyOf element: invalid allOf element: invalid example: unhandled value of type time.Time
 Schema:
   {
+    "description": "The time that the event happened",
+    "example": "2019-09-12T19:49:21.823Z",
     "type": "string"
   }
 
 Value:
-  19
+  "2019-09-12T19:49:21.823Z"

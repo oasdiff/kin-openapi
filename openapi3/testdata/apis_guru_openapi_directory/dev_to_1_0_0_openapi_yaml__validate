@@ -1,8 +1,37 @@
-invalid paths: invalid path /api/comments/{id}: invalid operation GET: invalid example: value must be an integer
+invalid paths: invalid path /api/articles: invalid operation GET: invalid example: Error at "/0/created_at": unhandled value of type time.Time
 Schema:
   {
-    "type": "integer"
+    "format": "date-time",
+    "type": "string"
   }
 
 Value:
-  "321"
+  "2023-04-07T11:16:58Z"
+ | Error at "/0/last_comment_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2023-04-07T11:16:58Z"
+ | Error at "/0/published_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2023-04-07T11:16:58Z"
+ | Error at "/0/published_timestamp": unhandled value of type time.Time
+Schema:
+  {
+    "description": "Crossposting or published date time",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2023-04-07T11:16:58Z"

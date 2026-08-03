@@ -1,9 +1,22 @@
-invalid paths: invalid path /projects/{projectId}/images/tagged/count: invalid operation GET: invalid example: example Successful GetTaggedImageCount request: value must be an integer
+invalid paths: invalid path /projects: invalid operation GET: invalid example: example Successful GetProjects request: Error at "/0/created": unhandled value of type time.Time
 Schema:
   {
-    "format": "int32",
-    "type": "integer"
+    "description": "Gets the date this project was created.",
+    "format": "date-time",
+    "readOnly": true,
+    "type": "string"
   }
 
 Value:
-  "10"
+  "2017-12-18T05:43:18.08Z"
+ | Error at "/0/lastModified": unhandled value of type time.Time
+Schema:
+  {
+    "description": "Gets the date this project was last modified.",
+    "format": "date-time",
+    "readOnly": true,
+    "type": "string"
+  }
+
+Value:
+  "2017-12-18T05:43:18.0962423Z"

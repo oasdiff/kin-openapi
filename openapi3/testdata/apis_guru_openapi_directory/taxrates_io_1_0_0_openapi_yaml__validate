@@ -1,0 +1,9 @@
+invalid paths: invalid path /v1/tax/countrycode: invalid operation GET: parameter "date" schema is invalid: invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "example": "2020-09-02T00:00:00Z",
+    "type": "string"
+  }
+
+Value:
+  "2020-09-02T00:00:00Z"

@@ -1,9 +1,10 @@
-invalid components: schema "TransferBalanceOrCreditRequest": invalid example: value must be a number
+invalid components: schema "ListBalanceTransfersResponse": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "example": "123.45",
-    "type": "number"
+    "description": "The date and time when the balance transfer was executed",
+    "example": "2019-03-02T16:34:49Z",
+    "type": "string"
   }
 
 Value:
-  "123.45"
+  "2019-03-02T16:34:49Z"

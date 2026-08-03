@@ -1,10 +1,10 @@
-invalid paths: invalid path /asset: invalid operation GET: parameter "updatedAfter" schema is invalid: invalid default: string doesn't match the regular expression "date-time"
+invalid paths: invalid path /asset: invalid operation GET: parameter "updatedAfter" schema is invalid: invalid default: unhandled value of type time.Time
 Schema:
   {
-    "default": "2015-05-05T00:00:00.000Z",
+    "default": "2015-05-05T00:00:00Z",
     "pattern": "date-time",
     "type": "string"
   }
 
 Value:
-  "2015-05-05T00:00:00.000Z"
+  "2015-05-05T00:00:00Z"

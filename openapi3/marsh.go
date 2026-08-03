@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/oasdiff/yaml"
+	goyaml "go.yaml.in/yaml/v3"
 )
 
 func unmarshalError(jsonUnmarshalErr error) error {
@@ -23,24 +23,27 @@ func unmarshalError(jsonUnmarshalErr error) error {
 func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*originTree, error) {
 	var jsonErr, yamlErr error
 
-	// See https://github.com/getkin/kin-openapi/issues/680
-	if jsonErr = json.Unmarshal(data, v); jsonErr == nil {
-		return nil, nil
-	}
-
-	// UnmarshalStrict(data, v) TODO: investigate how ymlv3 handles duplicate map keys
 	var file string
 	if location != nil {
 		file = location.String()
 	}
-	if tree, err := yaml.Unmarshal(data, v, yaml.DecodeOpts{
-		Origin:            yaml.OriginOpt{Enabled: includeOrigin, File: file},
-		DisableTimestamps: true,
-	}); err == nil {
-		applyOrigins(v, tree)
-		return tree, nil
+
+	// Native decode: one parse, straight into the types via UnmarshalYAML,
+	// with origins read off the nodes. No JSON round trip, no __origin__
+	// channel, and JSON documents get origins too since JSON parses as YAML.
+	originFileVar, originEnabledVar = file, includeOrigin
+	if err := goyaml.Unmarshal(data, v); err == nil {
+		return nil, nil
 	} else {
 		yamlErr = err
+	}
+
+	// Fall back to the json path for what the yaml parser will not accept --
+	// most importantly duplicate keys, which json resolves last-one-wins and
+	// yaml rejects. Such documents load as they always did, without origins.
+	// See https://github.com/getkin/kin-openapi/issues/680
+	if jsonErr = json.Unmarshal(data, v); jsonErr == nil {
+		return nil, nil
 	}
 
 	// If both unmarshaling attempts fail, return a new error that includes both errors

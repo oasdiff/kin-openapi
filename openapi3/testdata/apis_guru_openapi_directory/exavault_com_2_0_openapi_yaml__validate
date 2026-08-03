@@ -1,10 +1,11 @@
-invalid components: schema "Error": invalid example: value must be an object
+invalid components: schema "Account": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "Meta object containing non-standard meta-information about the error.",
-    "example": "\u003c_META_OBJECT\u003e",
-    "type": "object"
+    "description": "Timestamp of account creation.",
+    "example": "2017-01-12T09:06:21Z",
+    "format": "date-time",
+    "type": "string"
   }
 
 Value:
-  "\u003c_META_OBJECT\u003e"
+  "2017-01-12T09:06:21Z"

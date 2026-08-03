@@ -1,0 +1,9 @@
+invalid paths: invalid path /mobilesdk/stage/track/get_track/v1: invalid operation GET: invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "example": "2021-02-27T13:42:48+01:00",
+    "type": "string"
+  }
+
+Value:
+  "2021-02-27T13:42:48+01:00"

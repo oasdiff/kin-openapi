@@ -1,0 +1,9 @@
+invalid paths: invalid path /accounts/{accountId}/transactions: invalid operation GET: invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2020-01-01T01:02:03+10:00"

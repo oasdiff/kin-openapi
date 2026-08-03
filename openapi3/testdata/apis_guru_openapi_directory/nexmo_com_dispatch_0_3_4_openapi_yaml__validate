@@ -1,16 +1,11 @@
-invalid components: schema "finalReport": invalid example: value is not one of the allowed values ["messenger","viber_sevice_msg","sms","whatsapp","mms"]
+invalid components: schema "MessageStatus": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "enum": [
-      "messenger",
-      "viber_sevice_msg",
-      "sms",
-      "whatsapp",
-      "mms"
-    ],
-    "example": "viber_service_msg",
+    "description": "The datetime of when the event occurred.",
+    "example": "2020-01-01T14:00:00Z",
+    "format": "ISO 8601",
     "type": "string"
   }
 
 Value:
-  "viber_service_msg"
+  "2020-01-01T14:00:00Z"

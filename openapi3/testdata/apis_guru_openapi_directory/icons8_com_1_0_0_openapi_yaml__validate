@@ -1,0 +1,8 @@
+invalid paths: invalid path /api/iconsets/v3/total?since={since}: invalid operation GET: invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2014-12-31T00:00:00Z"

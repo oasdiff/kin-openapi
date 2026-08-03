@@ -26,9 +26,21 @@ import (
 // being a trailing blank-or-comment boundary convention. That is what lets
 // this run on the stock parser.
 
-// nativeOriginFile is the file stamped into origins. The loader supplies it
-// per document in the wired-up version; the spike decodes one file.
-const nativeOriginFile = ""
+// originFileVar is the file stamped into origins for the decode in progress.
+//
+// UnmarshalYAML receives a node and nothing else, so the file cannot be
+// threaded through the call. This follows the precedent of IncludeOrigin,
+// which is already a package-level decode setting, and inherits its
+// concurrency characteristics: one decode at a time per process. Making both
+// per-Loader is worth doing, but is a separate change to a public API.
+var originFileVar string
+
+// originEnabledVar mirrors the includeOrigin argument unmarshal receives, which
+// comes from the Loader rather than from the package-level IncludeOrigin.
+// Gating on the global would miss a caller that set it only on its Loader.
+var originEnabledVar bool
+
+func nativeOriginFile() string { return originFileVar }
 
 // mappingValue returns the value node for key, or nil.
 func mappingValue(node *yaml.Node, key string) *yaml.Node {
@@ -111,6 +123,11 @@ func decodeStructWithExtensions(node *yaml.Node, out any) (map[string]any, error
 // Origin.Key is not set here -- it is the location of the key heading this
 // mapping in its parent, which a node does not know. See setChildOriginKeys.
 func originFromNode(node *yaml.Node, file string) *Origin {
+	// Origins are opt-in. Without this every decode pays for them and every
+	// consumer sees positions it did not ask for.
+	if !originEnabledVar {
+		return nil
+	}
 	if node == nil || node.Kind != yaml.MappingNode {
 		return nil
 	}
@@ -152,6 +169,9 @@ func originFromNode(node *yaml.Node, file string) *Origin {
 // covered without anyone walking it -- unlike applyOrigins, which rebuilds the
 // whole tree in parallel with a separately-built OriginTree.
 func setChildOriginKeys(node *yaml.Node, container any, file string) {
+	if !originEnabledVar {
+		return
+	}
 	if node == nil || node.Kind != yaml.MappingNode {
 		return
 	}
@@ -170,11 +190,27 @@ func setChildOriginKeys(node *yaml.Node, container any, file string) {
 		}
 		setOriginKey(child, keyNode, file)
 
-		// A map-valued field (Content, Headers, Links) holds children of its
-		// own, each keyed in valNode. They are decoded by the generic map
-		// decoder, which has no hook to stamp them, so descend here.
-		if m := deref(child); m.Kind() == reflect.Map && m.CanInterface() {
-			setChildOriginKeys(valNode, m.Interface(), file)
+		switch c := deref(child); c.Kind() {
+		case reflect.Map:
+			// A map-valued field (Content, Headers, Links) holds children of
+			// its own, each keyed in valNode. They are decoded by the generic
+			// map decoder, which has no hook to stamp them, so descend here.
+			if c.CanInterface() {
+				setChildOriginKeys(valNode, c.Interface(), file)
+			}
+		case reflect.Slice:
+			// A sequence item has no key above it, so it takes its own first
+			// key as its Key -- the same choice the existing origin code makes
+			// ("in case of a sequence, we use the first element as the key").
+			if valNode.Kind != yaml.SequenceNode {
+				continue
+			}
+			for j := 0; j < len(valNode.Content) && j < c.Len(); j++ {
+				item := valNode.Content[j]
+				if item.Kind == yaml.MappingNode && len(item.Content) > 0 {
+					setOriginKey(c.Index(j), item.Content[0], file)
+				}
+			}
 		}
 	}
 }
@@ -216,6 +252,9 @@ func childByKey(v reflect.Value, key string) reflect.Value {
 // position: the extent of what it heads is the consumer's to derive from the
 // next boundary, which is what removes the need for a patched parser.
 func setOriginKey(child reflect.Value, keyNode *yaml.Node, file string) {
+	if !originEnabledVar {
+		return
+	}
 	for child.Kind() == reflect.Pointer || child.Kind() == reflect.Interface {
 		if child.IsNil() {
 			return

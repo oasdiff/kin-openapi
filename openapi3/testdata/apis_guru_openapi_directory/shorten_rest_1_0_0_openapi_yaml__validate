@@ -1,0 +1,10 @@
+invalid components: schema "ClicksFilterModel": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "description": "date From",
+    "example": "2001-05-02T00:00:00Z",
+    "type": "string"
+  }
+
+Value:
+  "2001-05-02T00:00:00Z"

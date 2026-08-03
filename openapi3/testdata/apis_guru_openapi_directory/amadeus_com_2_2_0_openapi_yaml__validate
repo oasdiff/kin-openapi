@@ -1,28 +1,11 @@
-invalid components: schema "Error_400": invalid example: Error at "/errors/0/source": there must be at most 1 properties
+invalid components: schema "DateTimeRange": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "an object containing references to the source of the error",
-    "maxProperties": 1,
-    "properties": {
-      "example": {
-        "description": "a string indicating an example of the right value",
-        "type": "string"
-      },
-      "parameter": {
-        "description": "a string indicating which URI query parameter caused the issue",
-        "type": "string"
-      },
-      "pointer": {
-        "description": "a JSON Pointer [RFC6901] to the associated entity in the request document",
-        "type": "string"
-      }
-    },
-    "title": "Issue_Source",
-    "type": "object"
+    "description": "Dates are specified in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-DD format, e.g. 2018-12-25",
+    "example": "2018-09-22T00:00:00Z",
+    "format": "date",
+    "type": "string"
   }
 
 Value:
-  {
-    "example": "CDG",
-    "parameter": "airport"
-  }
+  "2018-09-22T00:00:00Z"

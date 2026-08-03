@@ -1,0 +1,10 @@
+invalid components: schema "GeocodeAddressResponse": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "description": "The current date at the time zone (ISO 8601 format 'YYYY-MM-DD')",
+    "example": "2021-01-01T00:00:00Z",
+    "type": "string"
+  }
+
+Value:
+  "2021-01-01T00:00:00Z"

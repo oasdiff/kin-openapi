@@ -52,6 +52,9 @@ func TestNativeE2E_WholeDocument(t *testing.T) {
 
 // And origins must reach the places oasdiff reads them from.
 func TestNativeE2E_OriginsReachOperations(t *testing.T) {
+	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
+	originEnabledVar = true
+
 	data, err := os.ReadFile("testdata/callbacks.yml")
 	require.NoError(t, err)
 	var doc T

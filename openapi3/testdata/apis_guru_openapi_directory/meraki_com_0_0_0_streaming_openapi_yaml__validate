@@ -1,30 +1,10 @@
-invalid paths: invalid path /networks/{networkId}/clients/{clientId}/policy: invalid operation PUT: invalid example: Error at "/devicePolicy": property "devicePolicy" is missing
+invalid paths: invalid path /networks/{networkId}/cameras/{serial}/snapshot: invalid operation POST: invalid example: Error at "/timestamp": unhandled value of type time.Time
 Schema:
   {
-    "example": {
-      "groupPolicyId": "101",
-      "mac": "00:11:22:33:44:55",
-      "type": "Group policy"
-    },
-    "properties": {
-      "devicePolicy": {
-        "description": "The policy to assign. Can be 'Whitelisted', 'Blocked', 'Normal' or 'Group policy'. Required.",
-        "type": "string"
-      },
-      "groupPolicyId": {
-        "description": "[optional] If 'devicePolicy' is set to 'Group policy' this param is used to specify the group policy ID.",
-        "type": "string"
-      }
-    },
-    "required": [
-      "devicePolicy"
-    ],
-    "type": "object"
+    "description": "[optional] The snapshot will be taken from this time on the camera. The timestamp is expected to be in ISO 8601 format. If no timestamp is specified, we will assume current time.",
+    "format": "date-time",
+    "type": "string"
   }
 
 Value:
-  {
-    "groupPolicyId": "101",
-    "mac": "00:11:22:33:44:55",
-    "type": "Group policy"
-  }
+  "2021-04-30T15:18:08Z"

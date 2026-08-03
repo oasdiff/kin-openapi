@@ -1,13 +1,13 @@
-invalid components: schema "Case": invalid example: minimum string length is 18
+invalid components: schema "AccessTokenIdListResponse": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "Document ID which is the parent document for the current document. This will be null if the current document is a parent document.",
-    "example": "CDOC3Ygn4ooAvNjHv",
-    "maxLength": 18,
-    "minLength": 18,
-    "nullable": true,
+    "description": "Date when access token was created.",
+    "example": "2022-11-10T10:17:56Z",
+    "format": "date-time",
+    "maxLength": 25,
+    "minLength": 25,
     "type": "string"
   }
 
 Value:
-  "CDOC3Ygn4ooAvNjHv"
+  "2022-11-10T10:17:56Z"

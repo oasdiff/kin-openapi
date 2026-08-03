@@ -1,0 +1,9 @@
+invalid paths: invalid path /data/v1/errors: invalid operation GET: invalid example: Error at "/data/0/last_seen": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The last time this error was seen (ISO 8601 timestamp).",
+    "type": "string"
+  }
+
+Value:
+  "2021-01-08T13:42:39Z"

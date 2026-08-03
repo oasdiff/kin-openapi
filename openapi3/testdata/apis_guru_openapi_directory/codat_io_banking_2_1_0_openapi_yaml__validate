@@ -1,1 +1,6 @@
-invalid components: schema "Account": extra sibling fields: [definitions]
+invalid components: schema "Account": invalid allOf element: invalid example: validation failed due to: at '': invalid jsonType time.Time
+Schema:
+  null
+
+Value:
+  null

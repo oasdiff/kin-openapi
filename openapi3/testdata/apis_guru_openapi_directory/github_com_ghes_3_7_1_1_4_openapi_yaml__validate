@@ -1,1 +1,10 @@
-invalid components: schema "announcement": invalid example: string doesn't match the format "date-time": string doesn't match pattern "^[0-9]{4}-(0[1-9]|10|11|12)-(0[1-9]|[12][0-9]|3[01])T([0-1][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)[0-9]{2}:[0-9]{2})$"
+invalid components: schema "actions-cache-list": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "example": "2019-01-24T22:45:36Z",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2019-01-24T22:45:36Z"

@@ -1,8 +1,8 @@
-invalid paths: invalid path /VisualCrossingWebServices/rest/services/weatherdata/forecast: invalid operation GET: invalid example: value must be a boolean
+invalid paths: invalid path /VisualCrossingWebServices/rest/services/timeline/{location}/{startdate}: invalid operation GET: invalid example: unhandled value of type time.Time
 Schema:
   {
-    "type": "boolean"
+    "type": "string"
   }
 
 Value:
-  "false"
+  "2022-02-01T00:00:00Z"

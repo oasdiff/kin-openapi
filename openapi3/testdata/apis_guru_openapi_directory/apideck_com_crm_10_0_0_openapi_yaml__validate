@@ -1,0 +1,11 @@
+invalid components: schema "ActivitiesFilter": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "example": "2020-09-30T07:43:32Z",
+    "format": "date-time",
+    "title": "Updated since (timestamp)",
+    "type": "string"
+  }
+
+Value:
+  "2020-09-30T07:43:32Z"

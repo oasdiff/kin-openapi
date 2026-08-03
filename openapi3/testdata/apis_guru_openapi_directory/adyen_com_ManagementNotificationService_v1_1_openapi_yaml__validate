@@ -1,63 +1,10 @@
-invalid webhooks: webhook "merchant.updated": invalid operation POST: invalid example: example merchant-updated-with-errors: Error at "/data/capabilities/receivePayments/problems/0/verificationErrors/0/code": value must be a string
+invalid webhooks: webhook "merchant.created": invalid operation POST: invalid example: example merchant.created: Error at "/createdAt": unhandled value of type time.Time
 Schema:
   {
-    "description": "The verification error code.",
+    "description": "Timestamp for when the webhook was created.",
+    "format": "date-time",
     "type": "string"
   }
 
 Value:
-  28064
- | Error at "/data/capabilities/receivePayments/problems/0/verificationErrors/0/remediatingActions/0/code": value must be a string
-Schema:
-  {
-    "description": "The remediating action code.",
-    "type": "string"
-  }
-
-Value:
-  2123
- | Error at "/data/capabilities/receivePayments/problems/0/verificationErrors/1/code": value must be a string
-Schema:
-  {
-    "description": "The verification error code.",
-    "type": "string"
-  }
-
-Value:
-  130
- | Error at "/data/capabilities/receivePayments/problems/0/verificationErrors/1/remediatingActions/0/code": value must be a string
-Schema:
-  {
-    "description": "The remediating action code.",
-    "type": "string"
-  }
-
-Value:
-  1300
- | Error at "/data/capabilities/receivePayments/problems/0/verificationErrors/1/subErrors/0/code": value must be a string
-Schema:
-  {
-    "description": "The verification error code.",
-    "type": "string"
-  }
-
-Value:
-  13000
- | Error at "/data/capabilities/receivePayments/problems/0/verificationErrors/1/subErrors/0/remediatingActions/0/code": value must be a string
-Schema:
-  {
-    "description": "The remediating action code.",
-    "type": "string"
-  }
-
-Value:
-  1300
- | Error at "/data/capabilities/receivePayments/problems/0/verificationErrors/1/subErrors/0/remediatingActions/1/code": value must be a string
-Schema:
-  {
-    "description": "The remediating action code.",
-    "type": "string"
-  }
-
-Value:
-  1301
+  "2022-08-12T10:50:01+02:00"

@@ -1,0 +1,10 @@
+invalid components: schema "Media": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "description": "A timestamp for the time that the file was created",
+    "example": "2020-01-01T14:00:00Z",
+    "type": "string"
+  }
+
+Value:
+  "2020-01-01T14:00:00Z"

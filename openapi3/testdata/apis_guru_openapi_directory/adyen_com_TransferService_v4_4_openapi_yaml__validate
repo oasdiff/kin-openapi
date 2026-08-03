@@ -1,0 +1,128 @@
+invalid paths: invalid path /transactions: invalid operation GET: invalid example: example success: Error at "/data/0/bookingDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the transaction was booked into the balance account.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "1"
+  }
+
+Value:
+  "2023-08-10T14:51:33+02:00"
+ | Error at "/data/0/creationDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2023-08-10T14:51:20+02:00"
+ | Error at "/data/0/valueDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the transfer amount becomes available in the balance account.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "1"
+  }
+
+Value:
+  "2023-08-10T14:51:20+02:00"
+ | Error at "/data/1/bookingDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the transaction was booked into the balance account.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "1"
+  }
+
+Value:
+  "2023-08-10T15:34:40+02:00"
+ | Error at "/data/1/creationDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2023-08-10T15:34:31+02:00"
+ | Error at "/data/1/valueDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the transfer amount becomes available in the balance account.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "1"
+  }
+
+Value:
+  "2023-08-10T15:34:31+02:00"
+ | Error at "/data/2/bookingDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the transaction was booked into the balance account.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "1"
+  }
+
+Value:
+  "2023-08-11T13:45:57+02:00"
+ | Error at "/data/2/creationDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2023-08-11T13:45:46+02:00"
+ | Error at "/data/2/valueDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the transfer amount becomes available in the balance account.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "1"
+  }
+
+Value:
+  "2023-08-11T13:45:46+02:00"
+ | Error at "/data/3/bookingDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the transaction was booked into the balance account.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "1"
+  }
+
+Value:
+  "2023-08-11T13:45:58+02:00"
+ | Error at "/data/3/creationDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2023-08-11T13:45:51+02:00"
+ | Error at "/data/3/valueDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the transfer amount becomes available in the balance account.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "1"
+  }
+
+Value:
+  "2023-08-11T13:45:51+02:00"

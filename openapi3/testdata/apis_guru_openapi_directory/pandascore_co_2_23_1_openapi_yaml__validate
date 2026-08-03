@@ -1,4 +1,14 @@
-invalid components: response "AdditionIncidents": invalid example: example /additions?page[size]=1: Error at "/0": doesn't match schema due to: Error at "/object": property "begin_at" is unsupported
+invalid components: response "AdditionIncidents": invalid example: example /additions?page[size]=1: Error at "/0": doesn't match schema due to: Error at "/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
+ | Error at "/object": property "begin_at" is unsupported
 Schema:
   {
     "additionalProperties": false,
@@ -3154,6 +3164,16 @@ Value:
     "winner": null,
     "winner_id": null
   }
+ | Error at "/object/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
  | Error at "/object": property "number_of_games" is unsupported
 Schema:
   {
@@ -9164,7 +9184,35 @@ Schema:
 
 Value:
   "match"
- Or Error at "/object/end_at": doesn't match schema due to: Value is not nullable
+ Or Error at "/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
+ | Error at "/object/begin_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ | Error at "/object/end_at": doesn't match schema due to: Value is not nullable
 Schema:
   {
     "format": "date-time",
@@ -9574,6 +9622,16 @@ Schema:
 
 Value:
   null
+ | Error at "/object/league/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T10:15:12Z"
  | Error at "/object/league/url": doesn't match schema due to: Value is not nullable
 Schema:
   {
@@ -9602,6 +9660,70 @@ Schema:
 
 Value:
   null
+ | Error at "/object/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
+ | Error at "/object/original_scheduled_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ | Error at "/object/scheduled_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ | Error at "/object/serie/begin_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-12T10:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-12T10:00:00Z"
  | Error at "/object/serie/description": doesn't match schema due to: Value is not nullable
 Schema:
   {
@@ -9620,6 +9742,16 @@ Schema:
 
 Value:
   null
+ | Error at "/object/serie/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-12T07:20:33Z"
  | Error at "/object/serie/name": doesn't match schema due to: Value is not nullable
 Schema:
   {
@@ -9663,6 +9795,52 @@ Schema:
 
 Value:
   null
+ | Error at "/object/tournament/begin_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-19T10:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-19T10:00:00Z"
+ | Error at "/object/tournament/end_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-24T22:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-24T22:00:00Z"
+ | Error at "/object/tournament/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T13:14:31Z"
  | Error at "/object/tournament/winner_id": doesn't match schema due to: doesn't match any schema from "anyOf"
 Schema:
   {
@@ -9916,7 +10094,17 @@ Schema:
 
 Value:
   null
- Or Error at "/object": property "begin_at" is unsupported
+ Or Error at "/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
+ | Error at "/object": property "begin_at" is unsupported
 Schema:
   {
     "additionalProperties": false,
@@ -23693,7 +23881,35 @@ Schema:
 
 Value:
   "match"
- Or Error at "/object": property "detailed_stats" is unsupported
+ Or Error at "/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
+ | Error at "/object/begin_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ | Error at "/object": property "detailed_stats" is unsupported
 Schema:
   {
     "additionalProperties": false,
@@ -25503,6 +25719,16 @@ Value:
     "winner": null,
     "winner_id": null
   }
+ | Error at "/object/league/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T10:15:12Z"
  | Error at "/object/league/url": doesn't match schema due to: Value is not nullable
 Schema:
   {
@@ -26592,6 +26818,16 @@ Value:
     "winner": null,
     "winner_id": null
   }
+ | Error at "/object/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
  | Error at "/object": property "number_of_games" is unsupported
 Schema:
   {
@@ -35257,7 +35493,17 @@ Schema:
 
 Value:
   "match"
- Or Error at "/object": property "begin_at" is unsupported
+ Or Error at "/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
+ | Error at "/object": property "begin_at" is unsupported
 Schema:
   {
     "additionalProperties": false,
@@ -38749,6 +38995,16 @@ Value:
     "winner": null,
     "winner_id": null
   }
+ | Error at "/object/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
  | Error at "/object": property "number_of_games" is unsupported
 Schema:
   {
@@ -45452,7 +45708,35 @@ Schema:
 
 Value:
   "match"
- Or Error at "/object": property "detailed_stats" is unsupported
+ Or Error at "/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
+ | Error at "/object/begin_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-24T16:00:00Z"
+ | Error at "/object": property "detailed_stats" is unsupported
 Schema:
   {
     "additionalProperties": false,
@@ -47097,6 +47381,16 @@ Value:
     "winner": null,
     "winner_id": null
   }
+ | Error at "/object/league/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T10:15:12Z"
  | Error at "/object/league/url": doesn't match schema due to: Value is not nullable
 Schema:
   {
@@ -48087,6 +48381,16 @@ Value:
     "winner": null,
     "winner_id": null
   }
+ | Error at "/object/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-22T23:45:50Z"
  | Error at "/object": property "number_of_games" is unsupported
 Schema:
   {
@@ -50376,6 +50680,24 @@ Value:
     "winner": null,
     "winner_id": null
   }
+ | Error at "/object/serie/begin_at": doesn't match schema due to: unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true
+  }
+
+Value:
+  "2021-04-12T10:00:00Z"
+ And unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-12T10:00:00Z"
  | Error at "/object/serie/description": doesn't match schema due to: Value is not nullable
 Schema:
   {
@@ -50394,6 +50716,16 @@ Schema:
 
 Value:
   null
+ | Error at "/object/serie/modified_at": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "minLength": 1,
+    "type": "string"
+  }
+
+Value:
+  "2021-04-12T07:20:33Z"
  | Error at "/object/serie/name": doesn't match schema due to: Value is not nullable
 Schema:
   {

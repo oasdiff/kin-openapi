@@ -1,0 +1,10 @@
+invalid paths: invalid path /{projectId}/image: invalid operation POST: invalid example: example Successful PredictImage request: Error at "/created": unhandled value of type time.Time
+Schema:
+  {
+    "format": "date-time",
+    "readOnly": true,
+    "type": "string"
+  }
+
+Value:
+  "2017-12-19T14:21:41.6789561Z"

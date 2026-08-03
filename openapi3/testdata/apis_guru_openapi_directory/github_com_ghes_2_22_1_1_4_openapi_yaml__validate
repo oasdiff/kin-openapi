@@ -1,8 +1,9 @@
-invalid components: schema "contributor-activity": invalid example: Error at "/0/w": value must be an integer
+invalid components: schema "actions-public-key": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "type": "integer"
+    "example": "2011-01-26T19:01:12Z",
+    "type": "string"
   }
 
 Value:
-  "1367712000"
+  "2011-01-26T19:01:12Z"

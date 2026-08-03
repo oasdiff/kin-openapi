@@ -1,0 +1,13 @@
+invalid components: schema "Company": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date of birth of the person.",
+    "example": "2000-08-12T00:00:00Z",
+    "format": "date",
+    "nullable": true,
+    "title": "Birth Date",
+    "type": "string"
+  }
+
+Value:
+  "2000-08-12T00:00:00Z"

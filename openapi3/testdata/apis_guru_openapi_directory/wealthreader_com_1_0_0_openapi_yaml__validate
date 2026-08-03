@@ -1,10 +1,10 @@
-invalid components: schema "entities": invalid example: value must be a boolean
+invalid components: schema "accounts": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "Indica si el campo es requerido",
-    "example": 0,
-    "type": "boolean"
+    "example": "2022-12-30T00:00:00Z",
+    "format": "date",
+    "type": "string"
   }
 
 Value:
-  0
+  "2022-12-30T00:00:00Z"

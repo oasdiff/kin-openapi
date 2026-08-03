@@ -1,0 +1,40 @@
+invalid paths: invalid path /{blockchain}: invalid operation GET: invalid example: example Example 1: Error at "/blockbook/buildTime": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2023-02-27T02:40:48Z"
+ | Error at "/blockbook/currentFiatRatesTime": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2023-04-07T03:00:04.080770962Z"
+ | Error at "/blockbook/historicalFiatRatesTime": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2023-04-07T00:00:00Z"
+ | Error at "/blockbook/lastBlockTime": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2023-04-07T02:55:40.032567054Z"
+ | Error at "/blockbook/lastMempoolTime": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2023-04-07T03:04:36.260327616Z"

@@ -47,6 +47,9 @@ func TestNativeStock_MatchesJSONPath(t *testing.T) {
 // a block is derivable from the next boundary, which is what lets this run on
 // an unpatched parser.
 func TestNativeStock_OriginsMatchExceptEnds(t *testing.T) {
+	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
+	originEnabledVar = true
+
 	var viaTree Responses
 	tree, err := kinyaml.Unmarshal([]byte(nativeSrc), &viaTree, kinyaml.DecodeOpts{
 		Origin: kinyaml.OriginOpt{Enabled: true},
@@ -95,6 +98,9 @@ func TestNativeStock_OriginsMatchExceptEnds(t *testing.T) {
 
 // The origin has to reach the nested media type, not just the top level.
 func TestNativeStock_OriginsAtDepth(t *testing.T) {
+	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
+	originEnabledVar = true
+
 	var r Responses
 	require.NoError(t, goyaml.Unmarshal([]byte(nativeSrc), &r))
 	mt := r.Value("200").Value.Content["application/json"]

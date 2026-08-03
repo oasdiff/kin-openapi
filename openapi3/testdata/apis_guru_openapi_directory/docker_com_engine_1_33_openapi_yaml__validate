@@ -1,17 +1,11 @@
-invalid components: schema "Network": invalid example: Error at "/IPAM/Options": value must be an array
+invalid components: schema "ClusterInfo": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "Driver-specific options, specified as a map.",
-    "items": {
-      "additionalProperties": {
-        "type": "string"
-      },
-      "type": "object"
-    },
-    "type": "array"
+    "description": "Date and time at which the swarm was initialised in\n[RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds.\n",
+    "example": "2016-08-18T10:44:24.496525531Z",
+    "format": "dateTime",
+    "type": "string"
   }
 
 Value:
-  {
-    "foo": "bar"
-  }
+  "2016-08-18T10:44:24.496525531Z"

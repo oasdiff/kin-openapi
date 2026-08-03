@@ -1,0 +1,11 @@
+invalid paths: invalid path /storeDetail: invalid operation POST: invalid example: example storeDetail: Error at "/dateOfBirth": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date of birth.\nFormat: [ISO-8601](https://www.w3.org/TR/NOTE-datetime); example: YYYY-MM-DD\nFor Paysafecard it must be the same as used when registering the Paysafecard account.\n\u003e This field is mandatory for natural persons.",
+    "format": "date",
+    "type": "string",
+    "x-addedInVersion": "24"
+  }
+
+Value:
+  "1990-01-01T00:00:00Z"

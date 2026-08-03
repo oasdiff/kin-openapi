@@ -1,9 +1,8 @@
-invalid paths: invalid path /analytics/itinerary-price-metrics: invalid operation GET: parameter "oneWay" schema is invalid: invalid default: value must be a boolean
+invalid paths: invalid path /analytics/itinerary-price-metrics: invalid operation GET: invalid example: unhandled value of type time.Time
 Schema:
   {
-    "default": "false",
-    "type": "boolean"
+    "type": "string"
   }
 
 Value:
-  "false"
+  "2021-03-21T00:00:00Z"

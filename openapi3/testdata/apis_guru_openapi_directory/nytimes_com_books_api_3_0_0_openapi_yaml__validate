@@ -1,0 +1,24 @@
+invalid paths: invalid path /lists.{format}: invalid operation GET: invalid example: example response: Error at "/last_modified": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2016-03-11T13:09:01-05:00"
+ | Error at "/results/0/bestsellers_date": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2016-03-05T00:00:00Z"
+ | Error at "/results/0/published_date": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2016-03-20T00:00:00Z"

@@ -1,9 +1,10 @@
-invalid components: schema "CalendarEventResource": invalid example: Error at "/attributes/completed_by": value must be an object
+invalid components: schema "ArchiveHistory": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "The coach who marked the calendar event as completed. Only valid for `plan-check-in` event type.",
-    "type": "object"
+    "example": "2016-06-03T13:15:22Z",
+    "format": "dateTime",
+    "type": "string"
   }
 
 Value:
-  "5a0c8e27a9d454cc150997c9"
+  "2016-06-03T13:15:22Z"

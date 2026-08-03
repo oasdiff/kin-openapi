@@ -1,1 +1,10 @@
-invalid paths: conflicting paths "/api/catalog/pvt/subcollection/{subCollectionId}/brand/{categoryId}" and "/api/catalog/pvt/subcollection/{subCollectionId}/brand/{brandId}"
+invalid components: schema "GetSKUAltID": invalid example: Error at "/ReleaseDate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "Release date of the product.",
+    "nullable": true,
+    "type": "string"
+  }
+
+Value:
+  "2020-01-06T00:00:00Z"

@@ -1,0 +1,11 @@
+invalid components: schema "VeteranStatusRequest": invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "deprecated": true,
+    "description": "Birth date for the person of interest in any valid ISO8601 format",
+    "example": "1965-01-01T00:00:00Z",
+    "type": "string"
+  }
+
+Value:
+  "1965-01-01T00:00:00Z"

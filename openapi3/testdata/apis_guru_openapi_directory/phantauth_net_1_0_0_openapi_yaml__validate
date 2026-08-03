@@ -1,0 +1,9 @@
+invalid paths: invalid path /user: invalid operation POST: invalid example: Error at "/birthdate": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The user's birthday, represented as an ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD format.",
+    "type": "string"
+  }
+
+Value:
+  "1950-02-10T00:00:00Z"

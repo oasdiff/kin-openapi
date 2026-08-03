@@ -1,0 +1,9 @@
+invalid paths: invalid path /json/email/{YOUR_API_KEY_HERE}/{USER_EMAIL_HERE}: invalid operation GET: invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "example": "2013-09-10T14:18:53-04:00",
+    "type": "string"
+  }
+
+Value:
+  "2013-09-10T14:18:53-04:00"

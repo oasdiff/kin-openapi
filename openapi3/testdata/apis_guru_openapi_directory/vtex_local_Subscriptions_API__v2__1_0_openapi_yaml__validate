@@ -1,18 +1,16 @@
-invalid components: schema "settings": invalid example: value must be an array
+invalid components: schema "Item1": invalid example: Error at "/createdAt": unhandled value of type time.Time
 Schema:
   {
-    "default": [],
-    "description": "Array containing delivery channels.",
-    "example": "delivery",
-    "items": {
-      "default": "",
-      "description": "Type of delivery channel. The values that are possible are: `pickup-in-point` for pickup point and `delivery` for regular delivery.",
-      "example": "delivery",
-      "type": "string"
-    },
-    "title": "deliveryChannels",
-    "type": "array"
+    "type": "string"
   }
 
 Value:
-  "delivery"
+  "2019-06-20T18:27:41.23Z"
+ | Error at "/lastUpdate": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2019-06-20T18:27:41.23Z"

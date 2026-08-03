@@ -1,0 +1,9 @@
+invalid paths: invalid path /combined_submissions: invalid operation GET: invalid example: example response: Error at "/3/expires_at": unhandled value of type time.Time
+Schema:
+  {
+    "nullable": true,
+    "type": "string"
+  }
+
+Value:
+  "2023-01-05T14:05:00Z"

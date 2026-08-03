@@ -1,15 +1,11 @@
-invalid paths: invalid path /certificates: invalid operation GET: invalid example: value is not one of the allowed values ["pending","completed","failed"]
+invalid paths: invalid path /actions: invalid operation GET: invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "Status of the issuance process of the Certificate",
-    "enum": [
-      "pending",
-      "completed",
-      "failed"
-    ],
-    "example": "valid",
+    "description": "Point in time when the Action was finished (in ISO-8601 format). Only set if the Action is finished otherwise null.",
+    "example": "2016-01-30T23:55:00Z",
+    "nullable": true,
     "type": "string"
   }
 
 Value:
-  "valid"
+  "2016-01-30T23:55:00Z"

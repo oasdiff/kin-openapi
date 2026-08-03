@@ -1,0 +1,18 @@
+invalid paths: invalid path /api/pricing-hub/prices: invalid operation POST: invalid example: Error at "/items/0/priceValidUntil": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The moment up until the price is valid. After that moment, it will be necessary to call the pricing API again. The format of the string is in RFC3339",
+    "type": "string"
+  }
+
+Value:
+  "2022-03-24T14:57:19Z"
+ | Error at "/items/1/priceValidUntil": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The moment up until the price is valid. After that moment, it will be necessary to call the pricing API again. The format of the string is in RFC3339",
+    "type": "string"
+  }
+
+Value:
+  "2022-03-04T20:00:18Z"

@@ -1,0 +1,18 @@
+invalid components: schema "AvailabilityRequests": invalid example: Error at "/0/timestamp": unhandled value of type time.Time
+Schema:
+  {
+    "description": "Timestamp requested in ISO 8601 format. The following formats are acceptable: - YYYY - YYYY-MM - YYYY-MM-DD - YYYY-MM-DDTHH:mm:SSz - YYYY-MM-DD:HH:mm+00:00\n",
+    "type": "string"
+  }
+
+Value:
+  "2016-04-07T19:39:18Z"
+ | Error at "/2/timestamp": unhandled value of type time.Time
+Schema:
+  {
+    "description": "Timestamp requested in ISO 8601 format. The following formats are acceptable: - YYYY - YYYY-MM - YYYY-MM-DD - YYYY-MM-DDTHH:mm:SSz - YYYY-MM-DD:HH:mm+00:00\n",
+    "type": "string"
+  }
+
+Value:
+  "2016-04-07T19:39:18Z"

@@ -1,32 +1,10 @@
-invalid components: schema "NHInterior": invalid example: value is not one of the allowed values ["Aqua","Beige","Black","Blue","Brown","Colorful","Gray","Green","Orange","Pink","Purple","Red","White","Yellow"]
+invalid components: schema "NHEvent": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "(WIP)",
-    "enum": [
-      "Aqua",
-      "Beige",
-      "Black",
-      "Blue",
-      "Brown",
-      "Colorful",
-      "Gray",
-      "Green",
-      "Orange",
-      "Pink",
-      "Purple",
-      "Red",
-      "White",
-      "Yellow"
-    ],
-    "example": [
-      "White",
-      "Colorful"
-    ],
+    "description": "The date of the event in YYYY-MM-DD format.",
+    "example": "2021-05-01T00:00:00Z",
     "type": "string"
   }
 
 Value:
-  [
-    "White",
-    "Colorful"
-  ]
+  "2021-05-01T00:00:00Z"

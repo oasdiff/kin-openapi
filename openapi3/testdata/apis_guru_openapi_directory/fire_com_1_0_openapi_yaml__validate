@@ -1,9 +1,11 @@
-invalid paths: invalid path /v1/accounts/{ican}/transactions: invalid operation GET: invalid oneOf element: invalid example: value must be a string
+invalid paths: invalid path /v1/accounts/{ican}/transactions: invalid operation GET: invalid example: unhandled value of type time.Time
 Schema:
   {
-    "example": 6011329,
+    "description": "Date of the transaction",
+    "example": "2021-04-13T11:06:32.437Z",
+    "format": "date-time",
     "type": "string"
   }
 
 Value:
-  6011329
+  "2021-04-13T11:06:32.437Z"

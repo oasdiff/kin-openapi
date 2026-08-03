@@ -1,0 +1,8 @@
+invalid components: schema "FailedIpn": invalid example: Error at "/timestamp": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2020-09-19T14:33:01Z"

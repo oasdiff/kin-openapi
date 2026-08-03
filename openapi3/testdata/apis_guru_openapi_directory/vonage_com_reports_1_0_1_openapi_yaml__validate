@@ -1,10 +1,10 @@
-invalid components: schema "CallLog": invalid example: value must be a string
+invalid components: schema "CallLog": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "Source number of the call",
-    "example": 17325550100,
+    "description": "End time of the call",
+    "example": "2019-01-01T00:00:00Z",
     "type": "string"
   }
 
 Value:
-  17325550100
+  "2019-01-01T00:00:00Z"

@@ -1,6 +1,11 @@
-invalid webhooks: webhook "/ACCOUNT_CLOSED": invalid operation POST: invalid example: example accountClosed: validation failed due to: at '': got string, want object
+invalid webhooks: webhook "/ACCOUNT_CLOSED": invalid operation POST: invalid example: example accountClosed: Error at "/eventDate": unhandled value of type time.Time
 Schema:
-  null
+  {
+    "description": "The date and time when an event has been completed.",
+    "format": "date-time",
+    "type": "string",
+    "x-addedInVersion": "4"
+  }
 
 Value:
-  null
+  "2019-01-01T01:00:00+01:00"

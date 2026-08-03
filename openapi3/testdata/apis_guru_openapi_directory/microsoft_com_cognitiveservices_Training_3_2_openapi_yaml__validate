@@ -1,1 +1,22 @@
-invalid paths: invalid path /projects/{projectId}/images/regions: invalid operation DELETE: invalid example: Successful DeleteImageRegions request: Error at "/0": string doesn't match the format "uuid": string doesn't match pattern "^(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+invalid paths: invalid path /projects: invalid operation GET: invalid example: example Successful GetProjects request: Error at "/0/created": unhandled value of type time.Time
+Schema:
+  {
+    "description": "Gets the date this project was created.",
+    "format": "date-time",
+    "readOnly": true,
+    "type": "string"
+  }
+
+Value:
+  "2017-12-18T05:43:18Z"
+ | Error at "/0/lastModified": unhandled value of type time.Time
+Schema:
+  {
+    "description": "Gets the date this project was last modified.",
+    "format": "date-time",
+    "readOnly": true,
+    "type": "string"
+  }
+
+Value:
+  "2017-12-18T05:43:18Z"

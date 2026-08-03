@@ -1,0 +1,16 @@
+invalid components: schema "ArEVentilaO": invalid example: Error at "/Date": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2016-10-18T16:53:31.0842607Z"
+ | Error at "/Until": unhandled value of type time.Time
+Schema:
+  {
+    "type": "string"
+  }
+
+Value:
+  "2017-04-16T16:53:31.0842607Z"

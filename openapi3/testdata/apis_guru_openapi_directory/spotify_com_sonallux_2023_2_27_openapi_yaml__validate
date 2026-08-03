@@ -1,0 +1,10 @@
+invalid components: schema "AudiobookObject": invalid allOf element: invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date the episode was first released, for example `\"1981-12-15\"`. Depending on the precision, it might be shown as `\"1981\"` or `\"1981-12\"`.\n",
+    "example": "1981-12-15T00:00:00Z",
+    "type": "string"
+  }
+
+Value:
+  "1981-12-15T00:00:00Z"

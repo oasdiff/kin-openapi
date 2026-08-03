@@ -1,0 +1,11 @@
+invalid paths: invalid path /api/catalog_system/pub/products/crossselling/whoboughtalsobought/{productId}: invalid operation GET: invalid example: unhandled value of type time.Time
+Schema:
+  {
+    "description": "Date and time of the last update of the image.",
+    "example": "2020-10-07T12:49:27.58Z",
+    "title": "imageLastModified",
+    "type": "string"
+  }
+
+Value:
+  "2020-10-07T12:49:27.58Z"

@@ -1,8 +1,8 @@
-invalid paths: invalid path /group/{groupId}/audit: invalid operation POST: invalid example: value must be a number
+invalid paths: invalid path /group/{groupId}/audit: invalid operation POST: invalid example: unhandled value of type time.Time
 Schema:
   {
-    "type": "number"
+    "type": "string"
   }
 
 Value:
-  "1"
+  "2019-07-01T00:00:00Z"

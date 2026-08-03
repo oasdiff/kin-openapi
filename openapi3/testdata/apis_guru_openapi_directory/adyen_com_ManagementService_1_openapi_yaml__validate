@@ -1,9 +1,40 @@
-invalid paths: invalid path /terminals/scheduleActions: invalid operation POST: invalid example: example verification-error: Error at "/errorCode": value must be a string
+invalid paths: invalid path /companies/{companyId}/androidCertificates: invalid operation GET: invalid example: example success: Error at "/data/0/notAfter": unhandled value of type time.Time
 Schema:
   {
-    "description": "A code that identifies the problem type.",
+    "description": "The date when the certificate stops to be valid.",
+    "format": "date-time",
     "type": "string"
   }
 
 Value:
-  1029
+  "2038-04-12T00:00:00+02:00"
+ | Error at "/data/0/notBefore": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date when the certificate starts to be valid.",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2008-04-20T00:00:00+02:00"
+ | Error at "/data/1/notAfter": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date when the certificate stops to be valid.",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2048-04-12T00:00:00+02:00"
+ | Error at "/data/1/notBefore": unhandled value of type time.Time
+Schema:
+  {
+    "description": "The date when the certificate starts to be valid.",
+    "format": "date-time",
+    "type": "string"
+  }
+
+Value:
+  "2008-04-20T00:00:00+02:00"

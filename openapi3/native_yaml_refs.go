@@ -49,7 +49,7 @@ func unmarshalRefYAML(node *yaml.Node, ref *string, summary, description **strin
 }
 
 func (x *CallbackRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
 		return nil
 	}
@@ -57,7 +57,7 @@ func (x *CallbackRef) UnmarshalYAML(node *yaml.Node) error {
 }
 
 func (x *ExampleRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
 		return nil
 	}
@@ -65,7 +65,7 @@ func (x *ExampleRef) UnmarshalYAML(node *yaml.Node) error {
 }
 
 func (x *HeaderRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
 		return nil
 	}
@@ -73,7 +73,7 @@ func (x *HeaderRef) UnmarshalYAML(node *yaml.Node) error {
 }
 
 func (x *LinkRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
 		return nil
 	}
@@ -81,7 +81,7 @@ func (x *LinkRef) UnmarshalYAML(node *yaml.Node) error {
 }
 
 func (x *ParameterRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
 		return nil
 	}
@@ -89,7 +89,7 @@ func (x *ParameterRef) UnmarshalYAML(node *yaml.Node) error {
 }
 
 func (x *RequestBodyRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
 		return nil
 	}
@@ -97,7 +97,7 @@ func (x *RequestBodyRef) UnmarshalYAML(node *yaml.Node) error {
 }
 
 func (x *ResponseRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
 		return nil
 	}
@@ -105,7 +105,7 @@ func (x *ResponseRef) UnmarshalYAML(node *yaml.Node) error {
 }
 
 func (x *SecuritySchemeRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
 		return nil
 	}
@@ -115,7 +115,7 @@ func (x *SecuritySchemeRef) UnmarshalYAML(node *yaml.Node) error {
 // SchemaRef differs: no summary/description, and OAS 3.1 allows keyword
 // siblings alongside a $ref, which are held until the reference resolves.
 func (x *SchemaRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile)
+	x.Origin = originFromNode(node, nativeOriginFile())
 	if !unmarshalRefYAML(node, &x.Ref, nil, nil, &x.Extensions) {
 		return node.Decode(&x.Value)
 	}

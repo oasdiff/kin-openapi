@@ -1,10 +1,12 @@
-invalid components: schema "FormShow": invalid example: value must be a boolean
+invalid components: schema "FormShow": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "A flag indicating whether the form url was confirmed as a valid download",
-    "example": "true",
-    "type": "boolean"
+    "description": "Internal field for VA.gov use",
+    "example": "2021-03-30T16:28:30.338Z",
+    "format": "date-time",
+    "nullable": true,
+    "type": "string"
   }
 
 Value:
-  "true"
+  "2021-03-30T16:28:30.338Z"

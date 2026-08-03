@@ -1,10 +1,11 @@
-invalid components: schema "DocumentUploadStatus": invalid example: value must be an integer
+invalid components: schema "DocumentUploadAttributes": invalid example: unhandled value of type time.Time
 Schema:
   {
-    "description": "The document height",
-    "example": "11.0",
-    "type": "integer"
+    "description": "The last time the submission was updated",
+    "example": "2018-07-30T17:31:15.958Z",
+    "format": "date-time",
+    "type": "string"
   }
 
 Value:
-  "11.0"
+  "2018-07-30T17:31:15.958Z"
