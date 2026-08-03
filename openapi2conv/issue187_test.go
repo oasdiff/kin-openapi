@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/oasdiff/yaml"
+	"github.com/getkin/kin-openapi/internal/yamlconv"
 	"github.com/stretchr/testify/require"
 
 	"github.com/getkin/kin-openapi/openapi2"
@@ -23,7 +23,7 @@ func v2v3JSON(spec2 []byte) (doc3 *openapi3.T, err error) {
 
 func v2v3YAML(spec2 []byte) (doc3 *openapi3.T, err error) {
 	var doc2 openapi2.T
-	if _, err = yaml.Unmarshal(spec2, &doc2, yaml.DecodeOpts{DisableTimestamps: true}); err != nil {
+	if err = yamlconv.Unmarshal(spec2, &doc2); err != nil {
 		return
 	}
 	doc3, err = openapi2conv.ToV3(&doc2)
@@ -137,7 +137,7 @@ definitions:
 	doc3, err := v2v3YAML([]byte(spec))
 	require.NoError(t, err)
 
-	spec3, err := yaml.Marshal(doc3)
+	spec3, err := yamlconv.Marshal(doc3)
 	require.NoError(t, err)
 	const expected = `components:
   schemas:
@@ -185,7 +185,7 @@ securityDefinitions:
 	doc3, err := v2v3YAML([]byte(spec))
 	require.NoError(t, err)
 	require.NotNil(t, doc3.Components.SecuritySchemes["OAuth2Application"].Value.Flows.ClientCredentials)
-	_, err = yaml.Marshal(doc3)
+	_, err = yamlconv.Marshal(doc3)
 	require.NoError(t, err)
 
 	doc2, err := openapi2conv.FromV3(doc3)

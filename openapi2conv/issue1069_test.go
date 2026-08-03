@@ -3,7 +3,7 @@ package openapi2conv_test
 import (
 	"testing"
 
-	"github.com/oasdiff/yaml"
+	"github.com/getkin/kin-openapi/internal/yamlconv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -199,7 +199,7 @@ paths:
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var doc3 openapi3.T
-			_, err := yaml.Unmarshal([]byte(tt.v3Spec), &doc3, yaml.DecodeOpts{DisableTimestamps: true})
+			err := yamlconv.Unmarshal([]byte(tt.v3Spec), &doc3)
 			require.NoError(t, err)
 
 			v2, err := openapi2conv.FromV3(&doc3)
