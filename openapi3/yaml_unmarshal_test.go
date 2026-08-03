@@ -269,3 +269,91 @@ func TestNativeYAML_OriginKeySpansTheBlock(t *testing.T) {
 	require.Equal(t, 1, k.Line, "block starts at its own key line, not its first content line")
 	require.Equal(t, 5, k.EndLine, "block ends at its last content line, not at the next sibling")
 }
+
+// Origin.Sequences records the location of each scalar item in a
+// sequence-valued field. The earlier origin test had no sequences in its
+// document, so this half of originFromNode was written but never compared
+// against the current path.
+func TestNativeYAML_OriginSequencesMatch(t *testing.T) {
+	const src = `"200":
+  description: ok
+  x-tags:
+    - alpha
+    - beta
+    - gamma
+  x-single:
+    - only
+`
+	var viaTree Responses
+	tree, err := kinyaml.Unmarshal([]byte(src), &viaTree, kinyaml.DecodeOpts{
+		Origin: kinyaml.OriginOpt{Enabled: true},
+	})
+	require.NoError(t, err)
+	applyOrigins(&viaTree, tree)
+
+	var viaNode Responses
+	require.NoError(t, yaml.Unmarshal([]byte(src), &viaNode))
+
+	want := viaTree.Value("200").Value.Origin
+	got := viaNode.Value("200").Value.Origin
+	require.NotNil(t, want)
+	require.NotNil(t, got)
+
+	// Guard against a vacuous pass: if the current path recorded no sequences
+	// there is nothing being compared.
+	require.NotEmpty(t, want.Sequences, "current path should record sequences for this document")
+
+	require.Equal(t, len(want.Sequences), len(got.Sequences), "sequence field count")
+	for field, wantLocs := range want.Sequences {
+		gotLocs, ok := got.Sequences[field]
+		require.True(t, ok, "sequence field %q missing from the native origin", field)
+		require.Equal(t, len(wantLocs), len(gotLocs), "item count for %q", field)
+		for i := range wantLocs {
+			require.Equal(t, wantLocs[i].Name, gotLocs[i].Name, "%s[%d] name", field, i)
+			require.Equal(t, wantLocs[i].Line, gotLocs[i].Line, "%s[%d] line", field, i)
+			require.Equal(t, wantLocs[i].Column, gotLocs[i].Column, "%s[%d] column", field, i)
+		}
+	}
+}
+
+// Sequences nested below the top level, and sequences whose items are not
+// scalars. The current path records only scalar items (there is no single
+// position that represents a mapping item), so the native path must skip them
+// the same way rather than inventing entries.
+func TestNativeYAML_OriginSequencesNestedAndNonScalar(t *testing.T) {
+	const src = `"200":
+  description: ok
+  content:
+    application/json:
+      x-nested-tags:
+        - one
+        - two
+      x-objects:
+        - {a: 1}
+        - {b: 2}
+`
+	var viaTree Responses
+	tree, err := kinyaml.Unmarshal([]byte(src), &viaTree, kinyaml.DecodeOpts{
+		Origin: kinyaml.OriginOpt{Enabled: true},
+	})
+	require.NoError(t, err)
+	applyOrigins(&viaTree, tree)
+
+	var viaNode Responses
+	require.NoError(t, yaml.Unmarshal([]byte(src), &viaNode))
+
+	wantMT := viaTree.Value("200").Value.Content["application/json"]
+	gotMT := viaNode.Value("200").Value.Content["application/json"]
+	require.NotNil(t, wantMT.Origin, "current path should reach the nested media type")
+	require.NotNil(t, gotMT.Origin)
+
+	// Scalar items are recorded, at depth.
+	require.NotEmpty(t, wantMT.Origin.Sequences["x-nested-tags"])
+	require.Equal(t, wantMT.Origin.Sequences["x-nested-tags"], gotMT.Origin.Sequences["x-nested-tags"])
+
+	// Mapping items are not, on either path.
+	_, wantHas := wantMT.Origin.Sequences["x-objects"]
+	_, gotHas := gotMT.Origin.Sequences["x-objects"]
+	require.Equal(t, wantHas, gotHas, "both paths must agree on whether a non-scalar sequence is recorded")
+	require.False(t, gotHas, "a sequence of mappings has no scalar item positions to record")
+}
