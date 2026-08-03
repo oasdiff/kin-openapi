@@ -68,6 +68,13 @@ func knownYAMLFields(t reflect.Type) map[string]struct{} {
 	return known
 }
 
+// decodeMapping decodes node into a method-less view of the target, supplied by
+// the caller as a locally-declared shadow type, and returns the keys the target
+// does not declare.
+func decodeMapping[S any](node *yaml.Node, shadow *S) (map[string]any, error) {
+	return decodeStructWithExtensions(node, shadow)
+}
+
 // decodeStructWithExtensions decodes node into out and returns the mapping keys
 // out does not declare, which are the extensions. Returns nil rather than an
 // empty map when there are none.

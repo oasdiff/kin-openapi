@@ -6,366 +6,296 @@ import (
 )
 
 // UnmarshalYAML for the types whose YAML form is a mapping of declared fields
-// plus extensions. Each decodes into a shadow type, so the decoder does not
-// recurse into this method, collects the keys the struct does not declare, and
-// reads the origin off the node.
+// plus extensions.
+//
+// The local shadow type is what stops the decoder recursing into this method;
+// converting the receiver to it decodes in place, so only the two fields the
+// decoder skips are set afterwards. Everything else is in decodeMapping.
 
 // UnmarshalYAML sets Components from node.
 func (components *Components) UnmarshalYAML(node *yaml.Node) error {
-	type ComponentsBis Components
-	var x ComponentsBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Components
+	ext, err := decodeMapping(node, (*bis)(components))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*components = Components(x)
+	components.Extensions, components.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, components, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Contact from node.
 func (contact *Contact) UnmarshalYAML(node *yaml.Node) error {
-	type ContactBis Contact
-	var x ContactBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Contact
+	ext, err := decodeMapping(node, (*bis)(contact))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*contact = Contact(x)
+	contact.Extensions, contact.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, contact, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Discriminator from node.
 func (discriminator *Discriminator) UnmarshalYAML(node *yaml.Node) error {
-	type DiscriminatorBis Discriminator
-	var x DiscriminatorBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Discriminator
+	ext, err := decodeMapping(node, (*bis)(discriminator))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*discriminator = Discriminator(x)
+	discriminator.Extensions, discriminator.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, discriminator, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Encoding from node.
 func (encoding *Encoding) UnmarshalYAML(node *yaml.Node) error {
-	type EncodingBis Encoding
-	var x EncodingBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Encoding
+	ext, err := decodeMapping(node, (*bis)(encoding))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*encoding = Encoding(x)
+	encoding.Extensions, encoding.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, encoding, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Example from node.
 func (example *Example) UnmarshalYAML(node *yaml.Node) error {
-	type ExampleBis Example
-	var x ExampleBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Example
+	ext, err := decodeMapping(node, (*bis)(example))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*example = Example(x)
+	example.Extensions, example.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, example, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets ExternalDocs from node.
 func (e *ExternalDocs) UnmarshalYAML(node *yaml.Node) error {
-	type ExternalDocsBis ExternalDocs
-	var x ExternalDocsBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis ExternalDocs
+	ext, err := decodeMapping(node, (*bis)(e))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*e = ExternalDocs(x)
+	e.Extensions, e.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, e, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Info from node.
 func (info *Info) UnmarshalYAML(node *yaml.Node) error {
-	type InfoBis Info
-	var x InfoBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Info
+	ext, err := decodeMapping(node, (*bis)(info))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*info = Info(x)
+	info.Extensions, info.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, info, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets License from node.
 func (license *License) UnmarshalYAML(node *yaml.Node) error {
-	type LicenseBis License
-	var x LicenseBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis License
+	ext, err := decodeMapping(node, (*bis)(license))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*license = License(x)
+	license.Extensions, license.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, license, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Link from node.
 func (link *Link) UnmarshalYAML(node *yaml.Node) error {
-	type LinkBis Link
-	var x LinkBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Link
+	ext, err := decodeMapping(node, (*bis)(link))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*link = Link(x)
+	link.Extensions, link.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, link, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets MediaType from node.
 func (mediaType *MediaType) UnmarshalYAML(node *yaml.Node) error {
-	type MediaTypeBis MediaType
-	var x MediaTypeBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis MediaType
+	ext, err := decodeMapping(node, (*bis)(mediaType))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*mediaType = MediaType(x)
+	mediaType.Extensions, mediaType.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, mediaType, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets OAuthFlow from node.
 func (flow *OAuthFlow) UnmarshalYAML(node *yaml.Node) error {
-	type OAuthFlowBis OAuthFlow
-	var x OAuthFlowBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis OAuthFlow
+	ext, err := decodeMapping(node, (*bis)(flow))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*flow = OAuthFlow(x)
+	flow.Extensions, flow.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, flow, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets OAuthFlows from node.
 func (flows *OAuthFlows) UnmarshalYAML(node *yaml.Node) error {
-	type OAuthFlowsBis OAuthFlows
-	var x OAuthFlowsBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis OAuthFlows
+	ext, err := decodeMapping(node, (*bis)(flows))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*flows = OAuthFlows(x)
+	flows.Extensions, flows.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, flows, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Operation from node.
 func (operation *Operation) UnmarshalYAML(node *yaml.Node) error {
-	type OperationBis Operation
-	var x OperationBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Operation
+	ext, err := decodeMapping(node, (*bis)(operation))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*operation = Operation(x)
+	operation.Extensions, operation.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, operation, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Parameter from node.
 func (parameter *Parameter) UnmarshalYAML(node *yaml.Node) error {
-	type ParameterBis Parameter
-	var x ParameterBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Parameter
+	ext, err := decodeMapping(node, (*bis)(parameter))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*parameter = Parameter(x)
+	parameter.Extensions, parameter.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, parameter, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets PathItem from node.
 func (pathItem *PathItem) UnmarshalYAML(node *yaml.Node) error {
-	type PathItemBis PathItem
-	var x PathItemBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis PathItem
+	ext, err := decodeMapping(node, (*bis)(pathItem))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*pathItem = PathItem(x)
+	pathItem.Extensions, pathItem.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, pathItem, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets RequestBody from node.
 func (requestBody *RequestBody) UnmarshalYAML(node *yaml.Node) error {
-	type RequestBodyBis RequestBody
-	var x RequestBodyBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis RequestBody
+	ext, err := decodeMapping(node, (*bis)(requestBody))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*requestBody = RequestBody(x)
+	requestBody.Extensions, requestBody.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, requestBody, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Response from node.
 func (response *Response) UnmarshalYAML(node *yaml.Node) error {
-	type ResponseBis Response
-	var x ResponseBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Response
+	ext, err := decodeMapping(node, (*bis)(response))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*response = Response(x)
+	response.Extensions, response.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, response, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Schema from node.
 func (schema *Schema) UnmarshalYAML(node *yaml.Node) error {
-	type SchemaBis Schema
-	var x SchemaBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Schema
+	ext, err := decodeMapping(node, (*bis)(schema))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*schema = Schema(x)
+	schema.Extensions, schema.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, schema, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets SecurityScheme from node.
 func (ss *SecurityScheme) UnmarshalYAML(node *yaml.Node) error {
-	type SecuritySchemeBis SecurityScheme
-	var x SecuritySchemeBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis SecurityScheme
+	ext, err := decodeMapping(node, (*bis)(ss))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*ss = SecurityScheme(x)
+	ss.Extensions, ss.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, ss, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Server from node.
 func (server *Server) UnmarshalYAML(node *yaml.Node) error {
-	type ServerBis Server
-	var x ServerBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Server
+	ext, err := decodeMapping(node, (*bis)(server))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*server = Server(x)
+	server.Extensions, server.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, server, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets ServerVariable from node.
 func (serverVariable *ServerVariable) UnmarshalYAML(node *yaml.Node) error {
-	type ServerVariableBis ServerVariable
-	var x ServerVariableBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis ServerVariable
+	ext, err := decodeMapping(node, (*bis)(serverVariable))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*serverVariable = ServerVariable(x)
+	serverVariable.Extensions, serverVariable.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, serverVariable, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets T from node.
 func (doc *T) UnmarshalYAML(node *yaml.Node) error {
-	type TBis T
-	var x TBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis T
+	ext, err := decodeMapping(node, (*bis)(doc))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*doc = T(x)
+	doc.Extensions, doc.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, doc, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets Tag from node.
 func (t *Tag) UnmarshalYAML(node *yaml.Node) error {
-	type TagBis Tag
-	var x TagBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis Tag
+	ext, err := decodeMapping(node, (*bis)(t))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*t = Tag(x)
+	t.Extensions, t.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, t, nativeOriginFile())
 	return nil
 }
 
 // UnmarshalYAML sets XML from node.
 func (xml *XML) UnmarshalYAML(node *yaml.Node) error {
-	type XMLBis XML
-	var x XMLBis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis XML
+	ext, err := decodeMapping(node, (*bis)(xml))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*xml = XML(x)
+	xml.Extensions, xml.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, xml, nativeOriginFile())
 	return nil
 }

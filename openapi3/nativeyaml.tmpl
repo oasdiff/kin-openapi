@@ -6,21 +6,20 @@ import (
 )
 
 // UnmarshalYAML for the types whose YAML form is a mapping of declared fields
-// plus extensions. Each decodes into a shadow type, so the decoder does not
-// recurse into this method, collects the keys the struct does not declare, and
-// reads the origin off the node.
+// plus extensions.
+//
+// The local shadow type is what stops the decoder recursing into this method;
+// converting the receiver to it decodes in place, so only the two fields the
+// decoder skips are set afterwards. Everything else is in decodeMapping.
 {{ range $type := .Types }}
 // UnmarshalYAML sets {{ $type.Name }} from node.
 func ({{ $type.Recv }} *{{ $type.Name }}) UnmarshalYAML(node *yaml.Node) error {
-	type {{ $type.Name }}Bis {{ $type.Name }}
-	var x {{ $type.Name }}Bis
-	ext, err := decodeStructWithExtensions(node, &x)
+	type bis {{ $type.Name }}
+	ext, err := decodeMapping(node, (*bis)({{ $type.Recv }}))
 	if err != nil {
 		return err
 	}
-	x.Extensions = ext
-	x.Origin = originFromNode(node, nativeOriginFile())
-	*{{ $type.Recv }} = {{ $type.Name }}(x)
+	{{ $type.Recv }}.Extensions, {{ $type.Recv }}.Origin = ext, originFromNode(node, nativeOriginFile())
 	setChildOriginKeys(node, {{ $type.Recv }}, nativeOriginFile())
 	return nil
 }

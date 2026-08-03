@@ -1,2 +1,2 @@
 failed to unmarshal data: json error: invalid character 'o' looking for beginning of value, yaml error: yaml: unmarshal errors:
-  line 766: cannot unmarshal !!bool `false` into openapi3.SchemaBis
+  line 766: cannot unmarshal !!bool `false` into openapi3.bis
