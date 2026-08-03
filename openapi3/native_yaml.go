@@ -1,5 +1,7 @@
 package openapi3
 
+//go:generate go run nativeyamlgenerator.go
+
 import (
 	"reflect"
 	"strings"
