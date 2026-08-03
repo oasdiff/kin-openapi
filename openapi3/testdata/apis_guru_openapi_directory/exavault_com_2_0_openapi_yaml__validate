@@ -1,10 +1,15 @@
-invalid components: schema "Error": invalid example: value must be an object
+invalid components: schema "Account": invalid example: value is not one of the allowed values [1,0]
 Schema:
   {
-    "description": "Meta object containing non-standard meta-information about the error.",
-    "example": "\u003c_META_OBJECT\u003e",
-    "type": "object"
+    "description": "Account status flag. A one (1) means the account is active; zero (0) means it is suspended.",
+    "enum": [
+      1,
+      0
+    ],
+    "example": 1,
+    "format": "int32",
+    "type": "integer"
   }
 
 Value:
-  "\u003c_META_OBJECT\u003e"
+  1

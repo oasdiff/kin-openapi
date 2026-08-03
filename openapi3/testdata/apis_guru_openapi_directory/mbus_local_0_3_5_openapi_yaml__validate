@@ -1,10 +1,19 @@
-invalid components: schema "hat": invalid example: value must be a string
+invalid components: schema "baudrate": invalid example: value is not one of the allowed values [300,600,1200,2400,4800,9600]
 Schema:
   {
-    "description": "Product ID",
-    "example": 1,
-    "type": "string"
+    "description": "Baudrate to use for the communication - valid values 300, 600, 1200, 2400, 4800, 9600",
+    "enum": [
+      300,
+      600,
+      1200,
+      2400,
+      4800,
+      9600
+    ],
+    "example": 2400,
+    "format": "int32",
+    "type": "integer"
   }
 
 Value:
-  1
+  2400

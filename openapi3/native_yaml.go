@@ -68,6 +68,55 @@ func knownYAMLFields(t reflect.Type) map[string]struct{} {
 	return known
 }
 
+// normalizeNumbers converts integers to float64 inside a decoded any.
+//
+// JSON has one number type, so a value reaching an any-typed field carries a
+// float64 whichever notation the source used. YAML resolves 42, 0x2A and 4_2
+// to an int, which would make a consumer's type switch depend on notation.
+//
+// Applied only to any-typed values. A declared integer field keeps its own
+// type and its full range, which a blanket conversion would cost beyond 2^53.
+func normalizeNumbers(v any) any {
+	switch t := v.(type) {
+	case int:
+		return float64(t)
+	case int64:
+		return float64(t)
+	case uint64:
+		return float64(t)
+	case map[string]any:
+		for k, e := range t {
+			t[k] = normalizeNumbers(e)
+		}
+	case []any:
+		for i, e := range t {
+			t[i] = normalizeNumbers(e)
+		}
+	}
+	return v
+}
+
+// normalizeAnyFields applies normalizeNumbers to a struct's any-typed fields,
+// which the decoder fills directly (Example, Default and the like).
+func normalizeAnyFields(out any) {
+	v := reflect.ValueOf(out)
+	for v.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			return
+		}
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return
+	}
+	for i := range v.NumField() {
+		f := v.Field(i)
+		if f.Kind() == reflect.Interface && f.CanSet() && !f.IsNil() {
+			f.Set(reflect.ValueOf(normalizeNumbers(f.Interface())))
+		}
+	}
+}
+
 // decodeMapping decodes node into a method-less view of the target, supplied by
 // the caller as a locally-declared shadow type, and returns the keys the target
 // does not declare.
@@ -103,8 +152,9 @@ func decodeStructWithExtensions(node *yaml.Node, out any) (map[string]any, error
 		if ext == nil {
 			ext = make(map[string]any)
 		}
-		ext[key] = v
+		ext[key] = normalizeNumbers(v)
 	}
+	normalizeAnyFields(out)
 	return ext, nil
 }
 

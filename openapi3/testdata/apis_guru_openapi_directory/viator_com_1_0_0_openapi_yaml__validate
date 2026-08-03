@@ -124,6 +124,20 @@ Value:
   {
     "$ref": "#/components/examples/product-example-1/value/data/pas"
   }
+ | Error at "/data/0/translationLevel": value is not one of the allowed values [0,80,100]
+Schema:
+  {
+    "description": "**numeric indicator** of the language translation level for *this* product that is one of:\n- `0`: no translation (English only)\n- `80`: full machine translation\n- `100`: full human translation\n\nSee: [Working with human and machine translations](#section/Appendices/Working-with-human-and-machine-translations) for more information\n",
+    "enum": [
+      0,
+      80,
+      100
+    ],
+    "type": "integer"
+  }
+
+Value:
+  0
  | Error at "/data/0/uniqueShortDescription": value must be a string
 Schema:
   {
@@ -200,6 +214,20 @@ Value:
   {
     "$ref": "#/components/examples/product-example-1/value/data/pas"
   }
+ | Error at "/data/1/translationLevel": value is not one of the allowed values [0,80,100]
+Schema:
+  {
+    "description": "**numeric indicator** of the language translation level for *this* product that is one of:\n- `0`: no translation (English only)\n- `80`: full machine translation\n- `100`: full human translation\n\nSee: [Working with human and machine translations](#section/Appendices/Working-with-human-and-machine-translations) for more information\n",
+    "enum": [
+      0,
+      80,
+      100
+    ],
+    "type": "integer"
+  }
+
+Value:
+  0
  | Error at "/data/1/uniqueShortDescription": value must be a string
 Schema:
   {

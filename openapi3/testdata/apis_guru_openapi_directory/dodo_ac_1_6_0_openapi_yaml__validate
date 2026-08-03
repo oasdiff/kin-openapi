@@ -1,32 +1,21 @@
-invalid components: schema "NHInterior": invalid example: value is not one of the allowed values ["Aqua","Beige","Black","Blue","Brown","Colorful","Gray","Green","Orange","Pink","Purple","Red","White","Yellow"]
+invalid components: schema "NHClothing": invalid example: value is not one of the allowed values [0,1,2,3,4,5,6,7,8]
 Schema:
   {
-    "description": "(WIP)",
+    "description": "The total number of variations the clothing has, between 0 and 8.",
     "enum": [
-      "Aqua",
-      "Beige",
-      "Black",
-      "Blue",
-      "Brown",
-      "Colorful",
-      "Gray",
-      "Green",
-      "Orange",
-      "Pink",
-      "Purple",
-      "Red",
-      "White",
-      "Yellow"
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
     ],
-    "example": [
-      "White",
-      "Colorful"
-    ],
-    "type": "string"
+    "example": 2,
+    "type": "integer"
   }
 
 Value:
-  [
-    "White",
-    "Colorful"
-  ]
+  2

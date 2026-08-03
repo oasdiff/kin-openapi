@@ -1,0 +1,19 @@
+invalid paths: invalid path /addresses.{outputFormat}: invalid operation GET: parameter "outputSRS" schema is invalid: invalid default: value is not one of the allowed values [4326,4269,3005,26907,26908,26909,26910,26911]
+Schema:
+  {
+    "default": 4326,
+    "enum": [
+      4326,
+      4269,
+      3005,
+      26907,
+      26908,
+      26909,
+      26910,
+      26911
+    ],
+    "type": "integer"
+  }
+
+Value:
+  4326

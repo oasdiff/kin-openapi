@@ -1,0 +1,32 @@
+invalid paths: invalid path /api/v1/groundhogs: invalid operation GET: invalid example: example /groundhogs: Error at "/groundhogs/0/active": value is not one of the allowed values [0,1]
+Schema:
+  {
+    "enum": [
+      0,
+      1
+    ],
+    "exclusiveMaximum": false,
+    "exclusiveMinimum": false,
+    "maximum": 1,
+    "minimum": 0,
+    "type": "integer"
+  }
+
+Value:
+  1
+ | Error at "/groundhogs/1/active": value is not one of the allowed values [0,1]
+Schema:
+  {
+    "enum": [
+      0,
+      1
+    ],
+    "exclusiveMaximum": false,
+    "exclusiveMinimum": false,
+    "maximum": 1,
+    "minimum": 0,
+    "type": "integer"
+  }
+
+Value:
+  1

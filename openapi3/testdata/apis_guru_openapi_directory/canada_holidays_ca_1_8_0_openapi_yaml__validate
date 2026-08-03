@@ -1,0 +1,26 @@
+invalid paths: invalid path /api/v1/holidays: invalid operation GET: invalid example: example /holidays: Error at "/holidays/0/federal": value is not one of the allowed values [1,0]
+Schema:
+  {
+    "description": "Whether this holiday is observed by federally-regulated industries.",
+    "enum": [
+      1,
+      0
+    ],
+    "type": "integer"
+  }
+
+Value:
+  1
+ | Error at "/holidays/1/federal": value is not one of the allowed values [1,0]
+Schema:
+  {
+    "description": "Whether this holiday is observed by federally-regulated industries.",
+    "enum": [
+      1,
+      0
+    ],
+    "type": "integer"
+  }
+
+Value:
+  0

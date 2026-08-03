@@ -1,0 +1,13 @@
+invalid paths: invalid path /devices/{serial}/camera/qualityAndRetention: invalid operation PUT: invalid example: Error at "/motionDetectorVersion": value is not one of the allowed values [1,2]
+Schema:
+  {
+    "description": "The version of the motion detector that will be used by the camera. Only applies to Gen 2 cameras. Defaults to v2.",
+    "enum": [
+      1,
+      2
+    ],
+    "type": "integer"
+  }
+
+Value:
+  2

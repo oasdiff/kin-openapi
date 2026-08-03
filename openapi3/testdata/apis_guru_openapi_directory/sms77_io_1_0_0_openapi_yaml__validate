@@ -1,9 +1,13 @@
-invalid paths: invalid path /contacts: invalid operation POST: invalid example: value must be a string
+invalid paths: invalid path /contacts: invalid operation GET: parameter "json" schema is invalid: invalid default: value is not one of the allowed values [0,1]
 Schema:
   {
-    "example": 152,
-    "type": "string"
+    "default": 0,
+    "enum": [
+      0,
+      1
+    ],
+    "type": "number"
   }
 
 Value:
-  152
+  0

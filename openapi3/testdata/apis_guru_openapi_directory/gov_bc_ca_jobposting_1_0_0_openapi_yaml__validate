@@ -1,4 +1,4 @@
-invalid paths: invalid path /jobs: invalid operation POST: invalid default: value must be an integer
+invalid paths: invalid path /jobs: invalid operation POST: invalid default: value is not one of the allowed values [[1],[2]]
 Schema:
   {
     "default": [

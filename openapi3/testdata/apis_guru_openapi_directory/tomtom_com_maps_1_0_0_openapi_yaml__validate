@@ -1,0 +1,29 @@
+invalid paths: invalid path /map/{versionNumber}/copyrights/{zoom}/{X}/{Y}.{format}: invalid operation GET: invalid example: value is not one of the allowed values [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+Schema:
+  {
+    "enum": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "type": "integer"
+  }
+
+Value:
+  0

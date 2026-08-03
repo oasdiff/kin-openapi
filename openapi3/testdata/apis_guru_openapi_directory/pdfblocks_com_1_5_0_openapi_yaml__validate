@@ -1,0 +1,20 @@
+invalid paths: invalid path /v1/rotate_pages: invalid operation POST: invalid example: value is not one of the allowed values [0,90,180,270,-90,-180,-270]
+Schema:
+  {
+    "description": "The angle of rotation of the pages. Positive angles rotate the pages clockwise. Negative angles rotate the pages counter-clockwise.",
+    "enum": [
+      0,
+      90,
+      180,
+      270,
+      -90,
+      -180,
+      -270
+    ],
+    "example": 90,
+    "format": "int32",
+    "type": "integer"
+  }
+
+Value:
+  90
