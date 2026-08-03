@@ -43,9 +43,15 @@ type Location struct {
 	EndColumn int `json:"endColumn,omitempty" yaml:"endColumn,omitempty"`
 }
 
-// originTree aliases the decoder-side origin tree, so the loader and marsh can
-// carry it without referencing the yaml package directly.
-type originTree = yaml.Node
+// originTree is a decoded document's node tree together with what the origins
+// read off it were stamped against. A $ref resolved later decodes a subtree of
+// this, and must stamp the file the subtree came from rather than whichever
+// document happened to be decoded last.
+type originTree struct {
+	node *yaml.Node
+	file string
+	ends *endIndex
+}
 
 // originFileVar is the file stamped into origins for the decode in progress.
 // UnmarshalYAML receives a node and nothing else, so the file cannot be passed
@@ -68,15 +74,22 @@ func nativeOriginFile() string { return originFileVar }
 
 // mappingValue returns the value node for key, or nil.
 func mappingValue(node *yaml.Node, key string) *yaml.Node {
+	_, v := mappingEntry(node, key)
+	return v
+}
+
+// mappingEntry returns both halves of a mapping entry, the key being what a
+// value's origin records as its own location.
+func mappingEntry(node *yaml.Node, key string) (*yaml.Node, *yaml.Node) {
 	if node.Kind != yaml.MappingNode {
-		return nil
+		return nil, nil
 	}
 	for i := 0; i+1 < len(node.Content); i += 2 {
 		if node.Content[i].Value == key {
-			return node.Content[i+1]
+			return node.Content[i], node.Content[i+1]
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 // originFromNode builds the origin data a mapping can see for itself: where

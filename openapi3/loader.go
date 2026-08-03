@@ -13,6 +13,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	yaml "go.yaml.in/yaml/v3"
 )
 
 // IncludeOrigin specifies whether to include the origin of the OpenAPI elements.
@@ -565,23 +567,36 @@ func (loader *Loader) attachOriginToResolved(resolved any, componentDoc *T, frag
 	if !loader.IncludeOrigin {
 		return
 	}
-	node := loader.originTrees[componentDoc]
-	if node == nil {
+	tree := loader.originTrees[componentDoc]
+	if tree == nil {
 		return
 	}
+	// Stamp against the file this tree came from, not the document being
+	// loaded, which is what originFileVar still names here.
+	prevFile, prevEnds := originFileVar, originEndsVar
+	originFileVar, originEndsVar = tree.file, tree.ends
+	defer func() { originFileVar, originEndsVar = prevFile, prevEnds }()
+
+	node := tree.node
 	// Walk the retained node tree down to the fragment and decode that subtree
 	// into the resolved value, which runs its UnmarshalYAML and so produces
 	// origins. The generic-map resolution path that produced `resolved` has
 	// none, because an extension value decodes as plain data.
+	var keyNode *yaml.Node
 	for part := range strings.SplitSeq(strings.Trim(fragment, "/"), "/") {
 		if part == "" {
 			continue
 		}
-		if node = mappingValue(node, unescapeRefString(part)); node == nil {
+		if keyNode, node = mappingEntry(node, unescapeRefString(part)); node == nil {
 			return
 		}
 	}
-	_ = node.Decode(resolved)
+	if node.Decode(resolved) != nil {
+		return
+	}
+	// The key location is normally stamped by the mapping above, which does not
+	// run on this path: the last fragment part is that key.
+	setOriginKey(reflect.ValueOf(resolved), keyNode, node, tree.file)
 }
 
 func readableType(x any) string {

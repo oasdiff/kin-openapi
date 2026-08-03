@@ -46,10 +46,10 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 			// carries no positions.
 			if root.Kind == goyaml.DocumentNode && len(root.Content) > 0 {
 				stampRootOrigin(v, root.Content[0])
-				return root.Content[0], nil
+				return &originTree{node: root.Content[0], file: file, ends: originEndsVar}, nil
 			}
 			stampRootOrigin(v, &root)
-			return &root, nil
+			return &originTree{node: &root, file: file, ends: originEndsVar}, nil
 		}
 		yamlErr = err
 	} else {
