@@ -36,7 +36,16 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 	if err := goyaml.Unmarshal(data, &root); err == nil {
 		stripTimestamps(&root)
 		if err = root.Decode(v); err == nil {
-			return nil, nil
+			if !includeOrigin {
+				return nil, nil
+			}
+			// Retained so a $ref to an arbitrary top-level key can be decoded
+			// from its own node; that path resolves through plain data, which
+			// carries no positions.
+			if root.Kind == goyaml.DocumentNode && len(root.Content) > 0 {
+				return root.Content[0], nil
+			}
+			return &root, nil
 		}
 		yamlErr = err
 	} else {

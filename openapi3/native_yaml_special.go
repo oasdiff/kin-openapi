@@ -124,3 +124,21 @@ func (eb *ExclusiveBound) UnmarshalYAML(node *yaml.Node) error {
 	eb.Value = &f
 	return nil
 }
+
+// Operation distinguishes an omitted responses from an explicitly null one:
+// the first is allowed in OAS 3.1 and later, the second never is. A null node
+// decodes to an empty Responses, which is indistinguishable from `{}` without
+// the flag.
+func (operation *Operation) UnmarshalYAML(node *yaml.Node) error {
+	type bis Operation
+	ext, err := decodeMapping(node, (*bis)(operation))
+	if err != nil {
+		return err
+	}
+	operation.Extensions, operation.Origin = ext, originFromNode(node, nativeOriginFile())
+	if v := mappingValue(node, "responses"); v != nil && v.Tag == "!!null" {
+		operation.Responses = &Responses{explicitlyNull: true}
+	}
+	setChildOriginKeys(node, operation, nativeOriginFile())
+	return nil
+}

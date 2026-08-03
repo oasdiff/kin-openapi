@@ -21,9 +21,10 @@ type shadowType struct {
 
 func main() {
 	// The types whose YAML form is a mapping of declared fields plus
-	// extensions. The $ref wrappers are generated from refs.tmpl instead, and
-	// the maplike collections and union-typed values are hand-written in
-	// native_yaml_special.go because they do not share this shape.
+	// extensions. The $ref wrappers are generated from refs.tmpl instead.
+	// Hand-written in native_yaml_special.go: the maplike collections, the
+	// union-typed values, and Operation, which has to tell an omitted
+	// responses from an explicitly null one.
 	types := []shadowType{
 		{"Components", "components"},
 		{"Contact", "contact"},
@@ -37,7 +38,6 @@ func main() {
 		{"MediaType", "mediaType"},
 		{"OAuthFlow", "flow"},
 		{"OAuthFlows", "flows"},
-		{"Operation", "operation"},
 		{"Parameter", "parameter"},
 		{"PathItem", "pathItem"},
 		{"RequestBody", "requestBody"},

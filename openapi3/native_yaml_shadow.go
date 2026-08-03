@@ -156,18 +156,6 @@ func (flows *OAuthFlows) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
-// UnmarshalYAML sets Operation from node.
-func (operation *Operation) UnmarshalYAML(node *yaml.Node) error {
-	type bis Operation
-	ext, err := decodeMapping(node, (*bis)(operation))
-	if err != nil {
-		return err
-	}
-	operation.Extensions, operation.Origin = ext, originFromNode(node, nativeOriginFile())
-	setChildOriginKeys(node, operation, nativeOriginFile())
-	return nil
-}
-
 // UnmarshalYAML sets Parameter from node.
 func (parameter *Parameter) UnmarshalYAML(node *yaml.Node) error {
 	type bis Parameter

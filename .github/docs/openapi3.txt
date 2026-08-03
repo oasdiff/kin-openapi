@@ -1909,7 +1909,10 @@ func (operation *Operation) UnmarshalJSON(data []byte) error
     UnmarshalJSON sets Operation to a copy of data.
 
 func (operation *Operation) UnmarshalYAML(node *yaml.Node) error
-    UnmarshalYAML sets Operation from node.
+    Operation distinguishes an omitted responses from an explicitly null one:
+    the first is allowed in OAS 3.1 and later, the second never is. A null node
+    decodes to an empty Responses, which is indistinguishable from `{}` without
+    the flag.
 
 func (operation *Operation) Validate(ctx context.Context, opts ...ValidationOption) error
     Validate returns an error if Operation does not comply with the OpenAPI

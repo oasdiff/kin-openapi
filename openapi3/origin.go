@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/oasdiff/yaml"
+	goyaml "go.yaml.in/yaml/v3"
 )
 
 var originPtrType = reflect.TypeFor[*Origin]()
@@ -327,4 +328,4 @@ func jsonTagName(f reflect.StructField) string {
 
 // originTree aliases the decoder-side origin tree, so the loader and marsh can
 // carry it without referencing the yaml package directly.
-type originTree = yaml.OriginTree
+type originTree = goyaml.Node

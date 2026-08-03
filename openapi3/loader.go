@@ -147,8 +147,9 @@ func (loader *Loader) loadSingleElementFromURI(ref string, rootPath *url.URL, el
 	return resolvedPath, nil
 }
 
-// rememberOriginTree retains doc's origin tree for attachOriginToResolved.
-// tree is nil when IncludeOrigin is off or the data took the json path.
+// rememberOriginTree retains doc's parsed node tree for
+// attachOriginToResolved. tree is nil when origins are off or the data took
+// the json path.
 func (loader *Loader) rememberOriginTree(doc *T, tree *originTree) {
 	if tree == nil {
 		return
@@ -564,19 +565,23 @@ func (loader *Loader) attachOriginToResolved(resolved any, componentDoc *T, frag
 	if !loader.IncludeOrigin {
 		return
 	}
-	tree := loader.originTrees[componentDoc]
-	if tree == nil {
+	node := loader.originTrees[componentDoc]
+	if node == nil {
 		return
 	}
+	// Walk the retained node tree down to the fragment and decode that subtree
+	// into the resolved value, which runs its UnmarshalYAML and so produces
+	// origins. The generic-map resolution path that produced `resolved` has
+	// none, because an extension value decodes as plain data.
 	for part := range strings.SplitSeq(strings.Trim(fragment, "/"), "/") {
 		if part == "" {
 			continue
 		}
-		if tree = tree.Fields[unescapeRefString(part)]; tree == nil {
+		if node = mappingValue(node, unescapeRefString(part)); node == nil {
 			return
 		}
 	}
-	applyOrigins(resolved, tree)
+	_ = node.Decode(resolved)
 }
 
 func readableType(x any) string {
