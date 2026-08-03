@@ -43,8 +43,10 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 			// from its own node; that path resolves through plain data, which
 			// carries no positions.
 			if root.Kind == goyaml.DocumentNode && len(root.Content) > 0 {
+				stampRootOrigin(v, root.Content[0])
 				return root.Content[0], nil
 			}
+			stampRootOrigin(v, &root)
 			return &root, nil
 		}
 		yamlErr = err

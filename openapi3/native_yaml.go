@@ -355,3 +355,35 @@ func stripTimestamps(n *yaml.Node) {
 		stripTimestamps(c)
 	}
 }
+
+// stampRootOrigin gives a document root the position of the document itself.
+//
+// Origin.Key is normally the key heading a mapping in its parent, stamped by
+// that parent. A root has none -- an externally $ref'd file may be a bare
+// schema -- so it takes the root node's own position and an empty name.
+// Applied only when nothing has already set Key, so a type that supplies its
+// own keeps it.
+func stampRootOrigin(v any, node *yaml.Node) {
+	if !originEnabledVar || node == nil {
+		return
+	}
+	rv := reflect.ValueOf(v)
+	for rv.Kind() == reflect.Pointer || rv.Kind() == reflect.Interface {
+		if rv.IsNil() {
+			return
+		}
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct {
+		return
+	}
+	f := rv.FieldByName("Origin")
+	if !f.IsValid() || f.Type() != originPtrType || !f.CanSet() || f.IsNil() {
+		return
+	}
+	o := f.Interface().(*Origin)
+	if o.Key != nil {
+		return
+	}
+	o.Key = &Location{File: nativeOriginFile(), Line: node.Line, Column: node.Column}
+}
