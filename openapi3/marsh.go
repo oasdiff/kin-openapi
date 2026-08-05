@@ -1,6 +1,7 @@
 package openapi3
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -31,15 +32,16 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 	// One parse, straight into the types via UnmarshalYAML, with origins read
 	// off the nodes. A JSON document gets origins too, since JSON parses as
 	// YAML.
-	originMu.Lock()
-	defer originMu.Unlock()
-	originFileVar, originEnabledVar = file, includeOrigin
 	var root goyaml.Node
 	if err := goyaml.Unmarshal(data, &root); err == nil {
 		stripTimestamps(&root)
 		// Ends are derived from the tree, the parser reporting only starts.
-		originEndsVar = newEndIndex(&root, data)
-		if err = root.Decode(v); err == nil {
+		st := &originState{file: file, enabled: includeOrigin}
+		st.ends = newEndIndex(includeOrigin, &root, data)
+		// The state rides the context, so decodes do not share it and can run
+		// at the same time.
+		ctx := withOriginState(context.Background(), st)
+		if err = root.DecodeWithContext(ctx, v); err == nil {
 			if !includeOrigin {
 				return nil, nil
 			}
@@ -47,11 +49,11 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 			// from its own node; that path resolves through plain data, which
 			// carries no positions.
 			if root.Kind == goyaml.DocumentNode && len(root.Content) > 0 {
-				stampRootOrigin(v, root.Content[0])
-				return &originTree{node: root.Content[0], file: file, ends: originEndsVar}, nil
+				stampRootOrigin(st, v, root.Content[0])
+				return &originTree{node: root.Content[0], file: file, ends: st.ends}, nil
 			}
-			stampRootOrigin(v, &root)
-			return &originTree{node: &root, file: file, ends: originEndsVar}, nil
+			stampRootOrigin(st, v, &root)
+			return &originTree{node: &root, file: file, ends: st.ends}, nil
 		}
 		yamlErr = err
 	} else {

@@ -1,6 +1,7 @@
 package openapi3
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
 
@@ -42,11 +43,10 @@ func TestNativeStock_MatchesJSONPath(t *testing.T) {
 
 // Origins must reach nested collections, not only the top level.
 func TestNativeStock_OriginsAtDepth(t *testing.T) {
-	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
-	originEnabledVar = true
 
 	var r Responses
-	require.NoError(t, goyaml.Unmarshal([]byte(nativeSrc), &r))
+	ctx := withOriginState(context.Background(), &originState{enabled: true})
+	require.NoError(t, goyaml.UnmarshalWithContext(ctx, []byte(nativeSrc), &r))
 	mt := r.Value("200").Value.Content["application/json"]
 	require.NotNil(t, mt)
 	require.NotNil(t, mt.Origin, "nested media type should carry an origin")

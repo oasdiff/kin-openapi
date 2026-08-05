@@ -9,12 +9,12 @@ package openapi3
 // it belongs to the parent, which stamps it.
 
 import (
+	"context"
 	"encoding/json"
 	"reflect"
 	"slices"
 	"sort"
 	"strings"
-	"sync"
 
 	yaml "go.yaml.in/yaml/v3"
 )
@@ -128,37 +128,30 @@ type originTree struct {
 	ends *endIndex
 }
 
-// originMu guards the three package-level variables below for the length of a
-// decode. They exist because UnmarshalYAML receives a node and nothing else,
-// with no way to carry per-decode state through the call, and a lock is what
-// makes them safe to hold that way.
-//
-// The cost is that decodes serialise even when each has its own Loader, which
-// TestIssue741 does. Correctness first: without this the three race, and the
-// path this replaces passed the file as an argument and did not.
-//
-// A file recorded on the node itself would remove the need, since the callback
-// already receives the node, but go-yaml's Node has no field for it.
-var originMu sync.Mutex
+// originState is what a decode needs to know beyond the node in front of it:
+// which file it came from, whether origins were asked for, and where each
+// block ends. It travels on the context, so two decodes never share it.
+type originState struct {
+	file    string
+	enabled bool
+	ends    *endIndex
+}
 
-// originFileVar is the file stamped into origins for the decode in progress.
-// UnmarshalYAML receives a node and nothing else, so the file cannot be passed
-// through the call.
-var originFileVar string
+type originStateKey struct{}
 
-// originEnabledVar mirrors the includeOrigin argument unmarshal receives, which
-// comes from the Loader. The package-level IncludeOrigin only seeds NewLoader,
-// so a caller that set it on its Loader alone would be missed.
-var originEnabledVar bool
+// withOriginState returns ctx carrying st.
+func withOriginState(ctx context.Context, st *originState) context.Context {
+	return context.WithValue(ctx, originStateKey{}, st)
+}
 
-// Shared machinery for the UnmarshalYAML methods: extension collection, and
-// origins read from the node being decoded.
-//
-// Origins record where an element starts, not where it ends. A consumer that
-// needs the extent of a block derives it from the next key or sequence item at
-// the same or shallower indentation.
-
-func nativeOriginFile() string { return originFileVar }
+// originFrom returns the state ctx carries, or a disabled one when a caller
+// decoded without going through unmarshal.
+func originFrom(ctx context.Context) *originState {
+	if st, ok := ctx.Value(originStateKey{}).(*originState); ok {
+		return st
+	}
+	return &originState{}
+}
 
 // mappingValue returns the value node for key, or nil.
 func mappingValue(node *yaml.Node, key string) *yaml.Node {
@@ -186,9 +179,9 @@ func mappingEntry(node *yaml.Node, key string) (*yaml.Node, *yaml.Node) {
 //
 // Origin.Key is not set here -- it is the location of the key heading this
 // mapping in its parent, which a node does not know. See setChildOriginKeys.
-func originFromNode(node *yaml.Node, file string) *Origin {
+func originFromNode(st *originState, node *yaml.Node) *Origin {
 	// Origins are opt-in: without this every decode pays for them.
-	if !originEnabledVar {
+	if !st.enabled {
 		return nil
 	}
 	if node == nil || node.Kind != yaml.MappingNode {
@@ -200,7 +193,7 @@ func originFromNode(node *yaml.Node, file string) *Origin {
 		if o.Fields == nil {
 			o.Fields = make(FieldLocations, 0, len(node.Content)/2)
 		}
-		o.Fields = append(o.Fields, Location{File: file, Line: k.Line, Column: k.Column, Name: k.Value})
+		o.Fields = append(o.Fields, Location{File: st.file, Line: k.Line, Column: k.Column, Name: k.Value})
 
 		if v.Kind != yaml.SequenceNode {
 			continue
@@ -208,7 +201,7 @@ func originFromNode(node *yaml.Node, file string) *Origin {
 		var locs []Location
 		for _, item := range v.Content {
 			if item.Kind == yaml.ScalarNode {
-				locs = append(locs, Location{File: file, Line: item.Line, Column: item.Column, Name: item.Value})
+				locs = append(locs, Location{File: st.file, Line: item.Line, Column: item.Column, Name: item.Value})
 			}
 		}
 		if len(locs) > 0 {
@@ -231,8 +224,9 @@ func originFromNode(node *yaml.Node, file string) *Origin {
 // receives the value node, and Key is the position of the key above it. Each
 // child sets its own children's keys in turn, so one level per call covers the
 // tree.
-func setChildOriginKeys(node *yaml.Node, container any, file string) {
-	if !originEnabledVar {
+func setChildOriginKeys(ctx context.Context, node *yaml.Node, container any) {
+	st := originFrom(ctx)
+	if !st.enabled {
 		return
 	}
 	if node == nil || node.Kind != yaml.MappingNode {
@@ -251,8 +245,8 @@ func setChildOriginKeys(node *yaml.Node, container any, file string) {
 		if !child.IsValid() {
 			continue
 		}
-		setOriginKey(child, keyNode, valNode, file)
-		recordScalarMapKeys(v, child, keyNode, valNode, file)
+		setOriginKey(st, child, keyNode, valNode)
+		recordScalarMapKeys(st, v, child, keyNode, valNode)
 
 		switch c := deref(child); c.Kind() {
 		case reflect.Map:
@@ -260,7 +254,7 @@ func setChildOriginKeys(node *yaml.Node, container any, file string) {
 			// its own, keyed in valNode. The generic map decoder gives them no
 			// hook of their own, so descend.
 			if c.CanInterface() {
-				setChildOriginKeys(valNode, c.Interface(), file)
+				setChildOriginKeys(ctx, valNode, c.Interface())
 			}
 		case reflect.Slice:
 			// A sequence item has no key above it, so it takes its own first
@@ -271,7 +265,7 @@ func setChildOriginKeys(node *yaml.Node, container any, file string) {
 			for j := 0; j < len(valNode.Content) && j < c.Len(); j++ {
 				item := valNode.Content[j]
 				if item.Kind == yaml.MappingNode && len(item.Content) > 0 {
-					setOriginKey(c.Index(j), item.Content[0], item, file)
+					setOriginKey(st, c.Index(j), item.Content[0], item)
 				}
 			}
 		}
@@ -313,11 +307,11 @@ func childByKey(v reflect.Value, key string) reflect.Value {
 
 // setOriginKey stamps Key on a child carrying an *Origin, from the key's own
 // position. The extent of what the key heads is the consumer's to derive.
-func setOriginKey(child reflect.Value, keyNode, valNode *yaml.Node, file string) {
-	if !originEnabledVar {
+func setOriginKey(st *originState, child reflect.Value, keyNode, valNode *yaml.Node) {
+	if !st.enabled {
 		return
 	}
-	keyNode, valNode = resolveAlias(keyNode, valNode)
+	keyNode, valNode = resolveAlias(st, keyNode, valNode)
 	for child.Kind() == reflect.Pointer || child.Kind() == reflect.Interface {
 		if child.IsNil() {
 			return
@@ -330,14 +324,14 @@ func setOriginKey(child reflect.Value, keyNode, valNode *yaml.Node, file string)
 	f := child.FieldByName("Origin")
 	if !f.IsValid() || f.Type() != originPtrType || !f.CanSet() {
 		// No origin of its own; it may still wrap something that has one.
-		descendToWrapped(child, keyNode, valNode, file)
+		descendToWrapped(st, child, keyNode, valNode)
 		return
 	}
 	if f.IsNil() {
 		f.Set(reflect.ValueOf(&Origin{}))
 	}
-	key := withEnd(Location{
-		File:   file,
+	key := withEnd(st, Location{
+		File:   st.file,
 		Line:   keyNode.Line,
 		Column: keyNode.Column,
 		Name:   keyNode.Value,
@@ -346,19 +340,19 @@ func setOriginKey(child reflect.Value, keyNode, valNode *yaml.Node, file string)
 	// A wrapper and the thing it holds occupy the same node, so both carry
 	// that node's origin. Value is the $ref wrappers; Schema is BoolSchema,
 	// which holds either a bool or a schema.
-	descendToWrapped(child, keyNode, valNode, file)
+	descendToWrapped(st, child, keyNode, valNode)
 }
 
 // descendToWrapped stamps the thing a wrapper holds, which occupies the same
 // node. Value is the $ref wrappers; Schema is BoolSchema, which holds either a
 // bool or a schema.
-func descendToWrapped(child reflect.Value, keyNode, valNode *yaml.Node, file string) {
+func descendToWrapped(st *originState, child reflect.Value, keyNode, valNode *yaml.Node) {
 	if child.Kind() != reflect.Struct {
 		return
 	}
 	for _, name := range [...]string{"Value", "Schema"} {
 		if inner := child.FieldByName(name); inner.IsValid() {
-			setOriginKey(inner, keyNode, valNode, file)
+			setOriginKey(st, inner, keyNode, valNode)
 		}
 	}
 }
@@ -370,8 +364,8 @@ func descendToWrapped(child reflect.Value, keyNode, valNode *yaml.Node, file str
 // schema -- so it takes the root node's own position and an empty name.
 // Applied only when nothing has already set Key, so a type that supplies its
 // own keeps it.
-func stampRootOrigin(v any, node *yaml.Node) {
-	if !originEnabledVar || node == nil {
+func stampRootOrigin(st *originState, v any, node *yaml.Node) {
+	if !st.enabled || node == nil {
 		return
 	}
 	rv := reflect.ValueOf(v)
@@ -392,7 +386,7 @@ func stampRootOrigin(v any, node *yaml.Node) {
 	if o.Key != nil {
 		return
 	}
-	key := withEnd(Location{File: nativeOriginFile(), Line: node.Line, Column: node.Column}, node)
+	key := withEnd(st, Location{File: st.file, Line: node.Line, Column: node.Column}, node)
 	o.Key = &key
 }
 
@@ -401,7 +395,7 @@ func stampRootOrigin(v any, node *yaml.Node) {
 // A map[string]string -- scopes on an OAuth flow, say -- decodes to a plain Go
 // map with nowhere to hang an Origin of its own, so its keys are recorded on
 // the enclosing struct's Origin under the field name, sorted by key.
-func recordScalarMapKeys(container, child reflect.Value, keyNode, valNode *yaml.Node, file string) {
+func recordScalarMapKeys(st *originState, container, child reflect.Value, keyNode, valNode *yaml.Node) {
 	if child.Kind() != reflect.Map || valNode == nil || valNode.Kind != yaml.MappingNode {
 		return
 	}
@@ -420,7 +414,7 @@ func recordScalarMapKeys(container, child reflect.Value, keyNode, valNode *yaml.
 	var locs []Location
 	for i := 0; i+1 < len(valNode.Content); i += 2 {
 		k := valNode.Content[i]
-		locs = append(locs, Location{File: file, Line: k.Line, Column: k.Column, Name: k.Value})
+		locs = append(locs, Location{File: st.file, Line: k.Line, Column: k.Column, Name: k.Value})
 	}
 	if len(locs) == 0 {
 		return

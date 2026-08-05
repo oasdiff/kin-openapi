@@ -4,6 +4,7 @@ package openapi3
 // rather than declared fields, and for the union-typed values.
 
 import (
+	"context"
 	"reflect"
 	"strings"
 
@@ -13,9 +14,9 @@ import (
 // unmarshalMaplikeYAML decodes a mapping whose x- keys are extensions and whose
 // remaining entries are components, stamping each entry's origin from the key
 // that heads it.
-func unmarshalMaplikeYAML[V any](node *yaml.Node, ext *map[string]any, out *map[string]*V) error {
+func unmarshalMaplikeYAML[V any](ctx context.Context, node *yaml.Node, ext *map[string]any, out *map[string]*V) error {
 	if node.Kind != yaml.MappingNode {
-		return node.Decode(out)
+		return node.DecodeWithContext(ctx, out)
 	}
 	*ext = make(map[string]any)
 	*out = make(map[string]*V, len(node.Content)/2)
@@ -23,44 +24,44 @@ func unmarshalMaplikeYAML[V any](node *yaml.Node, ext *map[string]any, out *map[
 		k, v := node.Content[i].Value, node.Content[i+1]
 		if strings.HasPrefix(k, "x-") {
 			var a any
-			if err := v.Decode(&a); err != nil {
+			if err := v.DecodeWithContext(ctx, &a); err != nil {
 				return err
 			}
 			(*ext)[k] = a
 			continue
 		}
 		var vv V
-		if err := v.Decode(&vv); err != nil {
+		if err := v.DecodeWithContext(ctx, &vv); err != nil {
 			return err
 		}
 		(*out)[k] = &vv
 		// The key node is in hand here, so no reflection is needed to find it.
-		setOriginKey(reflect.ValueOf(&vv), node.Content[i], node.Content[i+1], nativeOriginFile())
+		setOriginKey(originFrom(ctx), reflect.ValueOf(&vv), node.Content[i], node.Content[i+1])
 	}
 	return nil
 }
 
-func (responses *Responses) UnmarshalYAML(node *yaml.Node) error {
+func (responses *Responses) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	var x Responses
-	if err := unmarshalMaplikeYAML(node, &x.Extensions, &x.m); err != nil {
+	if err := unmarshalMaplikeYAML(ctx, node, &x.Extensions, &x.m); err != nil {
 		return err
 	}
 	*responses = x
 	return nil
 }
 
-func (callback *Callback) UnmarshalYAML(node *yaml.Node) error {
+func (callback *Callback) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	var x Callback
-	if err := unmarshalMaplikeYAML(node, &x.Extensions, &x.m); err != nil {
+	if err := unmarshalMaplikeYAML(ctx, node, &x.Extensions, &x.m); err != nil {
 		return err
 	}
 	*callback = x
 	return nil
 }
 
-func (paths *Paths) UnmarshalYAML(node *yaml.Node) error {
+func (paths *Paths) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	var x Paths
-	if err := unmarshalMaplikeYAML(node, &x.Extensions, &x.m); err != nil {
+	if err := unmarshalMaplikeYAML(ctx, node, &x.Extensions, &x.m); err != nil {
 		return err
 	}
 	*paths = x
@@ -68,16 +69,16 @@ func (paths *Paths) UnmarshalYAML(node *yaml.Node) error {
 }
 
 // Header embeds Parameter and carries no fields of its own.
-func (header *Header) UnmarshalYAML(node *yaml.Node) error {
-	return header.Parameter.UnmarshalYAML(node)
+func (header *Header) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	return header.Parameter.UnmarshalYAML(ctx, node)
 }
 
 // Types is a string or a list of strings.
-func (types *Types) UnmarshalYAML(node *yaml.Node) error {
+func (types *Types) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	var list []string
-	if err := node.Decode(&list); err != nil {
+	if err := node.DecodeWithContext(ctx, &list); err != nil {
 		var s string
-		if err := node.Decode(&s); err != nil {
+		if err := node.DecodeWithContext(ctx, &s); err != nil {
 			return err
 		}
 		list = []string{s}
@@ -87,19 +88,19 @@ func (types *Types) UnmarshalYAML(node *yaml.Node) error {
 }
 
 // BoolSchema is `true`/`false` or a schema.
-func (bs *BoolSchema) UnmarshalYAML(node *yaml.Node) error {
+func (bs *BoolSchema) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	if node.Kind == yaml.ScalarNode {
 		if node.Tag == "!!null" {
 			return nil
 		}
 		var b bool
-		if err := node.Decode(&b); err == nil {
+		if err := node.DecodeWithContext(ctx, &b); err == nil {
 			bs.Has = &b
 			return nil
 		}
 	}
 	var sr SchemaRef
-	if err := node.Decode(&sr); err != nil {
+	if err := node.DecodeWithContext(ctx, &sr); err != nil {
 		return err
 	}
 	bs.Schema = &sr
@@ -108,17 +109,17 @@ func (bs *BoolSchema) UnmarshalYAML(node *yaml.Node) error {
 
 // ExclusiveBound is a bool in OAS 3.0, where it modifies minimum/maximum, or a
 // number in 3.1, where it is the bound itself.
-func (eb *ExclusiveBound) UnmarshalYAML(node *yaml.Node) error {
+func (eb *ExclusiveBound) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	if node.Kind != yaml.ScalarNode || node.Tag == "!!null" {
 		return nil
 	}
 	var b bool
-	if err := node.Decode(&b); err == nil {
+	if err := node.DecodeWithContext(ctx, &b); err == nil {
 		eb.Bool = &b
 		return nil
 	}
 	var f float64
-	if err := node.Decode(&f); err != nil {
+	if err := node.DecodeWithContext(ctx, &f); err != nil {
 		return err
 	}
 	eb.Value = &f
@@ -129,38 +130,38 @@ func (eb *ExclusiveBound) UnmarshalYAML(node *yaml.Node) error {
 // the first is allowed in OAS 3.1 and later, the second never is. A null node
 // decodes to an empty Responses, which is indistinguishable from `{}` without
 // the flag.
-func (operation *Operation) UnmarshalYAML(node *yaml.Node) error {
+func (operation *Operation) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	type bis Operation
-	ext, err := decodeMapping(node, (*bis)(operation))
+	ext, err := decodeMapping(ctx, node, (*bis)(operation))
 	if err != nil {
 		return err
 	}
-	operation.Extensions, operation.Origin = ext, originFromNode(node, nativeOriginFile())
+	operation.Extensions, operation.Origin = ext, originFromNode(originFrom(ctx), node)
 	if v := mappingValue(node, "responses"); v != nil && v.Tag == "!!null" {
 		operation.Responses = &Responses{explicitlyNull: true}
 	}
-	setChildOriginKeys(node, operation, nativeOriginFile())
+	setChildOriginKeys(ctx, node, operation)
 	return nil
 }
 
 // T is the document root, so no parent stamps its Origin.Key. It takes its own
 // first key instead, the same rule a sequence item follows.
-func (doc *T) UnmarshalYAML(node *yaml.Node) error {
+func (doc *T) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	type bis T
-	ext, err := decodeMapping(node, (*bis)(doc))
+	ext, err := decodeMapping(ctx, node, (*bis)(doc))
 	if err != nil {
 		return err
 	}
-	doc.Extensions, doc.Origin = ext, originFromNode(node, nativeOriginFile())
+	doc.Extensions, doc.Origin = ext, originFromNode(originFrom(ctx), node)
 	if doc.Origin != nil && node.Kind == yaml.MappingNode && len(node.Content) > 0 {
 		first := node.Content[0]
 		doc.Origin.Key = &Location{
-			File:   nativeOriginFile(),
+			File:   originFrom(ctx).file,
 			Line:   first.Line,
 			Column: first.Column,
 			Name:   first.Value,
 		}
 	}
-	setChildOriginKeys(node, doc, nativeOriginFile())
+	setChildOriginKeys(ctx, node, doc)
 	return nil
 }

@@ -590,12 +590,10 @@ func (loader *Loader) attachOriginToResolved(resolved any, componentDoc *T, frag
 		return
 	}
 	// Stamp against the file this tree came from, not the document being
-	// loaded, which is what originFileVar still names here.
-	originMu.Lock()
-	defer originMu.Unlock()
-	prevFile, prevEnds := originFileVar, originEndsVar
-	originFileVar, originEndsVar = tree.file, tree.ends
-	defer func() { originFileVar, originEndsVar = prevFile, prevEnds }()
+	// loaded. The state is built here rather than inherited, so nothing about
+	// this decode leaks into another.
+	st := &originState{file: tree.file, enabled: true, ends: tree.ends}
+	ctx := withOriginState(context.Background(), st)
 
 	node := tree.node
 	// Walk the retained node tree down to the fragment and decode that subtree
@@ -611,12 +609,12 @@ func (loader *Loader) attachOriginToResolved(resolved any, componentDoc *T, frag
 			return
 		}
 	}
-	if node.Decode(resolved) != nil {
+	if node.DecodeWithContext(ctx, resolved) != nil {
 		return
 	}
 	// The key location is normally stamped by the mapping above, which does not
 	// run on this path: the last fragment part is that key.
-	setOriginKey(reflect.ValueOf(resolved), keyNode, node, tree.file)
+	setOriginKey(st, reflect.ValueOf(resolved), keyNode, node)
 }
 
 func readableType(x any) string {

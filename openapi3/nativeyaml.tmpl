@@ -2,6 +2,8 @@
 package {{ .Package }}
 
 import (
+	"context"
+
 	yaml "go.yaml.in/yaml/v3"
 )
 
@@ -13,14 +15,15 @@ import (
 // decoder skips are set afterwards. Everything else is in decodeMapping.
 {{ range $type := .Types }}
 // UnmarshalYAML sets {{ $type.Name }} from node.
-func ({{ $type.Recv }} *{{ $type.Name }}) UnmarshalYAML(node *yaml.Node) error {
+func ({{ $type.Recv }} *{{ $type.Name }}) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
 	type bis {{ $type.Name }}
-	ext, err := decodeMapping(node, (*bis)({{ $type.Recv }}))
+	ext, err := decodeMapping(ctx, node, (*bis)({{ $type.Recv }}))
 	if err != nil {
 		return err
 	}
-	{{ $type.Recv }}.Extensions, {{ $type.Recv }}.Origin = ext, originFromNode(node, nativeOriginFile())
-	setChildOriginKeys(node, {{ $type.Recv }}, nativeOriginFile())
+	st := originFrom(ctx)
+	{{ $type.Recv }}.Extensions, {{ $type.Recv }}.Origin = ext, originFromNode(st, node)
+	setChildOriginKeys(ctx, node, {{ $type.Recv }})
 	return nil
 }
 {{ end -}}

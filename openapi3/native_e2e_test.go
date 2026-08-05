@@ -2,6 +2,7 @@ package openapi3
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -51,13 +52,12 @@ func TestNativeE2E_WholeDocument(t *testing.T) {
 
 // Path items and operations must carry an origin naming their own key.
 func TestNativeE2E_OriginsReachOperations(t *testing.T) {
-	defer func(v bool) { originEnabledVar = v }(originEnabledVar)
-	originEnabledVar = true
 
 	data, err := os.ReadFile("testdata/callbacks.yml")
 	require.NoError(t, err)
 	var doc T
-	require.NoError(t, goyaml.Unmarshal(data, &doc))
+	ctx := withOriginState(context.Background(), &originState{enabled: true})
+	require.NoError(t, goyaml.UnmarshalWithContext(ctx, data, &doc))
 	require.NotNil(t, doc.Paths)
 
 	var checked int

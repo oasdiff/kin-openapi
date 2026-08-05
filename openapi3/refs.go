@@ -75,10 +75,10 @@ func (x CallbackRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets CallbackRef from node.
-func (x *CallbackRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *CallbackRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	return nil
 }
@@ -246,10 +246,10 @@ func (x ExampleRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets ExampleRef from node.
-func (x *ExampleRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *ExampleRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	return nil
 }
@@ -417,10 +417,10 @@ func (x HeaderRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets HeaderRef from node.
-func (x *HeaderRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *HeaderRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	return nil
 }
@@ -588,10 +588,10 @@ func (x LinkRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets LinkRef from node.
-func (x *LinkRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *LinkRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	return nil
 }
@@ -759,10 +759,10 @@ func (x ParameterRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets ParameterRef from node.
-func (x *ParameterRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *ParameterRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	return nil
 }
@@ -930,10 +930,10 @@ func (x RequestBodyRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets RequestBodyRef from node.
-func (x *RequestBodyRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *RequestBodyRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	return nil
 }
@@ -1101,10 +1101,10 @@ func (x ResponseRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets ResponseRef from node.
-func (x *ResponseRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *ResponseRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	return nil
 }
@@ -1270,10 +1270,10 @@ func (x SchemaRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets SchemaRef from node.
-func (x *SchemaRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, nil, nil, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *SchemaRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, nil, nil, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	// OAS 3.1 / JSON Schema 2020-12: schema keywords alongside a $ref are valid
 	// and are merged with the resolved reference, so they are held on sibling
@@ -1289,7 +1289,7 @@ func (x *SchemaRef) UnmarshalYAML(node *yaml.Node) error {
 	}
 	if hasSiblings {
 		var sibling Schema
-		if err := node.Decode(&sibling); err == nil {
+		if err := node.DecodeWithContext(ctx, &sibling); err == nil {
 			x.sibling = &sibling
 		}
 	}
@@ -1465,10 +1465,10 @@ func (x SecuritySchemeRef) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets SecuritySchemeRef from node.
-func (x *SecuritySchemeRef) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *SecuritySchemeRef) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref, &x.Summary, &x.Description, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 	return nil
 }

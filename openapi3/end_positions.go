@@ -29,15 +29,10 @@ type endIndex struct {
 	lineLen []int
 }
 
-// originEndsVar is the index for the decode in progress, alongside
-// originFileVar. Ends are derived per file: a $ref into another file is decoded
-// separately, against its own text.
-var originEndsVar *endIndex
-
 // newEndIndex indexes data's node tree. Returns nil when origins are off, in
 // which case no end is ever asked for.
-func newEndIndex(root *yaml.Node, data []byte) *endIndex {
-	if !originEnabledVar || root == nil {
+func newEndIndex(enabled bool, root *yaml.Node, data []byte) *endIndex {
+	if !enabled || root == nil {
 		return nil
 	}
 	ei := &endIndex{end: map[*yaml.Node]int{}, anchorKey: map[*yaml.Node]*yaml.Node{}}
@@ -85,22 +80,22 @@ func (ei *endIndex) endOf(node *yaml.Node) (int, int) {
 }
 
 // withEnd returns loc carrying the extent of the block node heads.
-func withEnd(loc Location, node *yaml.Node) Location {
-	loc.EndLine, loc.EndColumn = originEndsVar.endOf(node)
+func withEnd(st *originState, loc Location, node *yaml.Node) Location {
+	loc.EndLine, loc.EndColumn = st.ends.endOf(node)
 	return loc
 }
 
 // resolveAlias follows an alias to the node it points at, together with the key
 // that node was defined under. An aliased schema is the anchored one, so its
 // origin is where that content was written, not where it was referred to.
-func resolveAlias(keyNode, valNode *yaml.Node) (*yaml.Node, *yaml.Node) {
+func resolveAlias(st *originState, keyNode, valNode *yaml.Node) (*yaml.Node, *yaml.Node) {
 	if valNode == nil || valNode.Kind != yaml.AliasNode || valNode.Alias == nil {
 		return keyNode, valNode
 	}
-	if originEndsVar == nil {
+	if st.ends == nil {
 		return keyNode, valNode.Alias
 	}
-	if k, ok := originEndsVar.anchorKey[valNode.Alias]; ok {
+	if k, ok := st.ends.anchorKey[valNode.Alias]; ok {
 		return k, valNode.Alias
 	}
 	return keyNode, valNode.Alias

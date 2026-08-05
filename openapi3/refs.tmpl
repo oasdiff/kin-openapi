@@ -85,10 +85,10 @@ func (x {{ $type.Name }}Ref) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalYAML sets {{ $type.Name }}Ref from node.
-func (x *{{ $type.Name }}Ref) UnmarshalYAML(node *yaml.Node) error {
-	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref{{ if ne $type.Name "Schema" }}, &x.Summary, &x.Description{{ else }}, nil, nil{{ end }}, &x.Extensions) {
-		return node.Decode(&x.Value)
+func (x *{{ $type.Name }}Ref) UnmarshalYAML(ctx context.Context, node *yaml.Node) error {
+	x.Origin = originFromNode(originFrom(ctx), node)
+	if !unmarshalRefYAML(ctx, node, &x.Ref{{ if ne $type.Name "Schema" }}, &x.Summary, &x.Description{{ else }}, nil, nil{{ end }}, &x.Extensions) {
+		return node.DecodeWithContext(ctx, &x.Value)
 	}
 {{- if eq $type.Name "Schema" }}
 	// OAS 3.1 / JSON Schema 2020-12: schema keywords alongside a $ref are valid
