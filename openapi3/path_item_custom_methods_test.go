@@ -3,6 +3,7 @@ package openapi3
 import (
 	"encoding/json"
 	"errors"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -325,4 +326,26 @@ func TestWalkersVisitCustomMethodOperations(t *testing.T) {
 	}))
 	require.Contains(t, paramPointers,
 		"/paths/~1things/additionalOperations/COPY/parameters/0")
+}
+
+func TestPathItemMethods_MatchTheFixedFields(t *testing.T) {
+	methods := PathItemMethods()
+	require.True(t, slices.IsSorted(methods))
+
+	// Every listed method is held by a fixed field, so setting it leaves
+	// AdditionalOperations empty and GetOperation reads it back.
+	for _, method := range methods {
+		pathItem := &PathItem{}
+		operation := &Operation{}
+		pathItem.SetOperation(method, operation)
+
+		require.Empty(t, pathItem.AdditionalOperations, method)
+		require.Same(t, operation, pathItem.GetOperation(method), method)
+	}
+
+	// A method the list omits is a custom one, and lands in the map.
+	pathItem := &PathItem{}
+	pathItem.SetOperation("PURGE", &Operation{})
+	require.NotContains(t, methods, "PURGE")
+	require.Contains(t, pathItem.AdditionalOperations, "PURGE")
 }
