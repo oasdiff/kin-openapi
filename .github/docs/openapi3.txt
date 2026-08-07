@@ -203,6 +203,12 @@ func Int64Ptr(value int64) *int64
 
     Deprecated: Use Ptr instead.
 
+func PathItemMethods() []string
+    PathItemMethods returns the HTTP methods that have a dedicated Path Item
+    Object field, sorted. Any other method an operation is registered under
+    lives in AdditionalOperations, so a caller that treats the two groups
+    differently can tell them apart without listing the fixed methods itself.
+
 func Ptr[T any](value T) *T
     Ptr is a helper for defining OpenAPI schemas.
 
