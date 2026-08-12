@@ -33,6 +33,12 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 	// YAML.
 	originMu.Lock()
 	defer originMu.Unlock()
+	// Released when the decode ends. They exist to carry state into
+	// UnmarshalYAML, so nothing needs them afterwards, and originEndsVar holds
+	// an index over the whole node tree: leaving it set pins that tree until
+	// the next decode replaces it, whether or not anything kept the tree.
+	// A caller that does need it gets it on the returned originTree.
+	defer func() { originFileVar, originEnabledVar, originEndsVar = "", false, nil }()
 	originFileVar, originEnabledVar = file, includeOrigin
 	var root goyaml.Node
 	if err := goyaml.Unmarshal(data, &root); err == nil {

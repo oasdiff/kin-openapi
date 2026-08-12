@@ -168,8 +168,8 @@ func (loader *Loader) loadSingleElementFromURI(ref string, rootPath *url.URL, el
 // undefined by the same rule, so a document carrying one keeps its tree too,
 // whether or not anything ever points at it.)
 //
-// Worth the condition: on a 22 MB spec the retained tree was a third of
-// everything the loader held.
+// Worth the condition: on a 25 MB spec the retained node tree is 55% of
+// everything the loader holds.
 func (loader *Loader) rememberOriginTree(doc *T, tree *originTree) {
 	if tree == nil || len(doc.Extensions) == 0 {
 		return
@@ -593,9 +593,14 @@ func (loader *Loader) attachOriginToResolved(resolved any, componentDoc *T, frag
 	// loaded, which is what originFileVar still names here.
 	originMu.Lock()
 	defer originMu.Unlock()
-	prevFile, prevEnds := originFileVar, originEndsVar
-	originFileVar, originEndsVar = tree.file, tree.ends
-	defer func() { originFileVar, originEndsVar = prevFile, prevEnds }()
+	// Origins are enabled explicitly rather than inherited: a decode releases
+	// these when it ends, and reaching here at all means the tree was retained,
+	// which only happens with origins on.
+	prevFile, prevEnds, prevEnabled := originFileVar, originEndsVar, originEnabledVar
+	originFileVar, originEndsVar, originEnabledVar = tree.file, tree.ends, true
+	defer func() {
+		originFileVar, originEndsVar, originEnabledVar = prevFile, prevEnds, prevEnabled
+	}()
 
 	node := tree.node
 	// Walk the retained node tree down to the fragment and decode that subtree
