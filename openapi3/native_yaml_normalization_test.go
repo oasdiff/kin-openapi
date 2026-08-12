@@ -213,7 +213,8 @@ components:
 func TestNativeDecodePathsApplyTheSameNormalizations(t *testing.T) {
 	for _, c := range nativeDecodeTests {
 		t.Run(c.path+"/"+c.property, func(t *testing.T) {
-			doc, err := NewLoader().LoadFromData([]byte(c.spec))
+			loader := NewLoader()
+			doc, err := loader.LoadFromData([]byte(c.spec))
 			if err != nil {
 				t.Fatalf("load: %v", err)
 			}
