@@ -87,7 +87,7 @@ func (x {{ $type.Name }}Ref) MarshalJSON() ([]byte, error) {
 // UnmarshalYAML sets {{ $type.Name }}Ref from node.
 func (x *{{ $type.Name }}Ref) UnmarshalYAML(node *yaml.Node) error {
 	x.Origin = originFromNode(node, nativeOriginFile())
-	if !unmarshalRefYAML(node, &x.Ref{{ if ne $type.Name "Schema" }}, &x.Summary, &x.Description{{ else }}, nil, nil{{ end }}, &x.Extensions) {
+	if !unmarshalRefYAML(node, &x.Ref{{ if ne $type.Name "Schema" }}, &x.Summary, &x.Description{{ else }}, nil, nil{{ end }}, &x.Extensions, &x.extra) {
 		return node.Decode(&x.Value)
 	}
 {{- if eq $type.Name "Schema" }}
@@ -95,12 +95,10 @@ func (x *{{ $type.Name }}Ref) UnmarshalYAML(node *yaml.Node) error {
 	// and are merged with the resolved reference, so they are held on sibling
 	// until resolveSchemaRef can apply them.
 	var hasSiblings bool
-	for i := 0; i+1 < len(node.Content); i += 2 {
-		if k := node.Content[i].Value; k != "$ref" {
-			x.extra = append(x.extra, k)
-			if !strings.HasPrefix(k, "x-") {
-				hasSiblings = true
-			}
+	for _, k := range x.extra {
+		if !strings.HasPrefix(k, "x-") {
+			hasSiblings = true
+			break
 		}
 	}
 	if hasSiblings {

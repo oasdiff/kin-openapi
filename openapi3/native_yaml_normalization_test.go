@@ -8,28 +8,23 @@ import (
 	"testing"
 )
 
-// Decoding a document natively replaced a round trip through JSON, and that
-// round trip was a single choke point: it gave every object string map keys,
-// one number type, applied merge keys, and a record of unknown siblings.
-//
-// Native decoding splits into three paths, and each has to apply all four
-// itself. This table is that grid. A path that omits one fails its cell here,
-// which is what the four-plus-two regressions found in review had in common:
-// not four bugs, one property missing from one path at a time.
-//
-// paths:
+// Three functions decode a mapping, and each has to apply the same four
+// normalizations to what it produces:
 //
 //	struct  - decodeStructWithExtensions, for objects with declared fields
 //	maplike - unmarshalMaplikeYAML, for keyed collections (Responses, Callback)
 //	ref     - unmarshalRefYAML, for the $ref wrappers
 //
-// properties:
+// The normalizations:
 //
 //	siblings - an undeclared non-x- key is recorded, so Validate can report it
 //	numbers  - an integer behind an any is a float64, whatever the notation
-//	keys     - a non-string mapping key becomes a string, so the doc marshals
-//	merge    - a << key is applied, neither ignored nor taken as content
-var nativeDecodeCells = []struct {
+//	keys     - a non-string mapping key becomes a string, so the document marshals
+//	merge    - a << key is applied, neither ignored nor treated as content
+//
+// This table covers each function against each normalization. A function that
+// leaves one out fails here.
+var nativeDecodeTests = []struct {
 	path, property string
 	spec           string
 	assert         func(t *testing.T, doc *T)
@@ -216,7 +211,7 @@ components:
 }
 
 func TestNativeDecodePathsApplyTheSameNormalizations(t *testing.T) {
-	for _, c := range nativeDecodeCells {
+	for _, c := range nativeDecodeTests {
 		t.Run(c.path+"/"+c.property, func(t *testing.T) {
 			doc, err := NewLoader().LoadFromData([]byte(c.spec))
 			if err != nil {
@@ -227,28 +222,27 @@ func TestNativeDecodePathsApplyTheSameNormalizations(t *testing.T) {
 	}
 }
 
-// gridWaivers records the path/property combinations that are deliberately
-// untestable, with the reason. A combination that is neither covered nor waived
-// fails, so adding a decode path or a normalization has to come with its cells
-// rather than quietly skipping them.
-var gridWaivers = map[string]string{
+// notApplicable records the combinations that cannot exist, with the reason.
+// A combination that is neither tested nor listed here fails, so adding a decode
+// function or a normalization has to come with its tests.
+var notApplicable = map[string]string{
 	"maplike/siblings": "every non-x- key of a keyed collection is a member of it, so there is no undeclared sibling to record",
 }
 
-func TestNativeDecodeGridIsComplete(t *testing.T) {
-	covered := map[string]bool{}
-	for _, c := range nativeDecodeCells {
-		covered[c.path+"/"+c.property] = true
+func TestNativeDecodeCoversEveryNormalization(t *testing.T) {
+	tested := map[string]bool{}
+	for _, c := range nativeDecodeTests {
+		tested[c.path+"/"+c.property] = true
 	}
 	for _, path := range []string{"struct", "maplike", "ref"} {
 		for _, property := range []string{"siblings", "numbers", "keys", "merge"} {
-			cell := path + "/" + property
-			_, waived := gridWaivers[cell]
-			if !covered[cell] && !waived {
-				t.Errorf("no cell for %s\n  add one to nativeDecodeCells, or waive it in gridWaivers with a reason", cell)
+			name := path + "/" + property
+			_, exempt := notApplicable[name]
+			if !tested[name] && !exempt {
+				t.Errorf("%s is untested\n  add it to nativeDecodeTests, or list it in notApplicable with a reason", name)
 			}
-			if covered[cell] && waived {
-				t.Errorf("stale waiver for %s\n  the cell exists; remove the waiver", cell)
+			if tested[name] && exempt {
+				t.Errorf("%s is tested but still listed in notApplicable\n  remove it from notApplicable", name)
 			}
 		}
 	}
