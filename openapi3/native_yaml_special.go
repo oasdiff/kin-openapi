@@ -19,11 +19,11 @@ func unmarshalMaplikeYAML[V any](node *yaml.Node, ext *map[string]any, out *map[
 	}
 	*ext = make(map[string]any)
 	*out = make(map[string]*V, len(node.Content)/2)
-	for i := 0; i+1 < len(node.Content); i += 2 {
-		k, v := node.Content[i].Value, node.Content[i+1]
+	for _, kv := range mappingPairs(node) {
+		k, v := kv[0].Value, kv[1]
 		if strings.HasPrefix(k, "x-") {
-			var a any
-			if err := v.Decode(&a); err != nil {
+			a, err := decodeAny(v)
+			if err != nil {
 				return err
 			}
 			(*ext)[k] = a
@@ -35,7 +35,7 @@ func unmarshalMaplikeYAML[V any](node *yaml.Node, ext *map[string]any, out *map[
 		}
 		(*out)[k] = &vv
 		// The key node is in hand here, so no reflection is needed to find it.
-		setOriginKey(reflect.ValueOf(&vv), node.Content[i], node.Content[i+1], nativeOriginFile())
+		setOriginKey(reflect.ValueOf(&vv), kv[0], kv[1], nativeOriginFile())
 	}
 	return nil
 }

@@ -167,14 +167,15 @@ func mappingValue(node *yaml.Node, key string) *yaml.Node {
 }
 
 // mappingEntry returns both halves of a mapping entry, the key being what a
-// value's origin records as its own location.
+// value's origin records as its own location. Merge keys are applied, so a
+// field a merge brought in is found here the same as one written in place.
 func mappingEntry(node *yaml.Node, key string) (*yaml.Node, *yaml.Node) {
 	if node.Kind != yaml.MappingNode {
 		return nil, nil
 	}
-	for i := 0; i+1 < len(node.Content); i += 2 {
-		if node.Content[i].Value == key {
-			return node.Content[i], node.Content[i+1]
+	for _, kv := range mappingPairs(node) {
+		if kv[0].Value == key {
+			return kv[0], kv[1]
 		}
 	}
 	return nil, nil
