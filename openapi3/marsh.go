@@ -17,9 +17,9 @@ func unmarshalError(jsonUnmarshalErr error) error {
 	return jsonUnmarshalErr
 }
 
-// unmarshal decodes data into v. It returns the document origin tree when
-// includeOrigin is set and the data took the yaml path (json input carries no
-// origins), so the caller can retain it (see Loader.originTrees).
+// unmarshal decodes data into v. It returns the document's parsed node tree
+// when includeOrigin is set and the data took the yaml path (json input carries
+// no origins), so the caller can retain it (see Loader.originTrees).
 func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*originTree, error) {
 	var jsonErr, yamlErr error
 

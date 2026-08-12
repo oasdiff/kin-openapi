@@ -66,11 +66,12 @@ type Loader struct {
 
 	visitedDocuments map[string]*T
 
-	// originTrees retains each loaded document's origin tree, keyed by the
-	// document itself so insert and lookup cannot disagree, populated when
-	// IncludeOrigin is set. resolveComponent uses it to re-attach origins to
-	// components that lose them in the generic-map path, without re-reading
-	// or re-parsing the file.
+	// originTrees retains a loaded document's parsed node tree, keyed by the
+	// document itself so insert and lookup cannot disagree. Populated only for
+	// the documents rememberOriginTree keeps, which is the condition described
+	// there. resolveComponent uses it to re-attach origins to components that
+	// lose them in the generic-map path, without re-reading or re-parsing the
+	// file.
 	originTrees map[*T]*originTree
 
 	visitedRefs map[string]struct{}
@@ -168,8 +169,8 @@ func (loader *Loader) loadSingleElementFromURI(ref string, rootPath *url.URL, el
 // undefined by the same rule, so a document carrying one keeps its tree too,
 // whether or not anything ever points at it.)
 //
-// Worth the condition: on a 25 MB spec the retained node tree is 55% of
-// everything the loader holds.
+// Worth the condition: the node tree is most of what a loaded document
+// costs, so keeping one per document would dominate the loader's memory.
 func (loader *Loader) rememberOriginTree(doc *T, tree *originTree) {
 	if tree == nil || len(doc.Extensions) == 0 {
 		return
@@ -576,10 +577,11 @@ func (loader *Loader) resolveComponent(doc *T, ref string, path *url.URL, resolv
 // attachOriginToResolved re-attaches source origins to a component resolved
 // through the generic-map path: a $ref to a schema under an arbitrary top-level
 // key lands in T.Extensions, and the json round-trip in resolveComponent strips
-// its origin. It walks the document's retained origin tree (see originTrees,
-// populated when the document was first unmarshaled: no re-read, no re-parse)
-// down to the ref fragment and applies that subtree, so the object carries the
-// same origins a typed resolution would, with the original file's line numbers.
+// its origin. It walks the document's retained node tree (see originTrees,
+// kept when the document was first unmarshaled: no re-read, no re-parse) down
+// to the ref fragment and decodes that subtree, which runs the type's
+// UnmarshalYAML and so produces origins, giving the object what a typed
+// resolution would have, with the original file's line numbers.
 // Best-effort: a missing tree or fragment leaves the object without origins.
 func (loader *Loader) attachOriginToResolved(resolved any, componentDoc *T, fragment string) {
 	if !loader.IncludeOrigin {
