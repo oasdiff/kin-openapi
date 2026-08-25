@@ -25,6 +25,12 @@ var ErrAuthenticationServiceMissing = errors.New("missing AuthenticationFunc")
     ErrAuthenticationServiceMissing is returned when no authentication service
     is defined for the request validator
 
+var ErrEncodedPathSeparator error = &routers.RouteError{Reason: "path contains an encoded path separator resolving to another operation"}
+    ErrEncodedPathSeparator is returned when a request path holds an encoded
+    path separator and the decoded path resolves to another operation than the
+    escaped path does. Serving such a request would validate one operation while
+    the wrapped handler serves the other one.
+
 var ErrInvalidEmptyValue = errors.New("empty value is not allowed")
     ErrInvalidEmptyValue is returned when a value of a parameter or request body
     is empty while it's not allowed.

@@ -56,6 +56,14 @@ var fixedPathItemMethods = map[string]struct{}{
 	MethodQuery:        {},
 }
 
+// PathItemMethods returns the HTTP methods that have a dedicated Path Item
+// Object field, sorted. Any other method an operation is registered under
+// lives in AdditionalOperations, so a caller that treats the two groups
+// differently can tell them apart without listing the fixed methods itself.
+func PathItemMethods() []string {
+	return componentNames(fixedPathItemMethods)
+}
+
 // httpTokenRe matches an RFC 9110 token, the grammar HTTP method names
 // must follow.
 var httpTokenRe = regexp.MustCompile("^[!#$%&'*+\\-.^_`|~0-9A-Za-z]+$")

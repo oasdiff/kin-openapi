@@ -151,6 +151,15 @@ type Schema struct {
 
 	DependentRequired map[string][]string `json:"dependentRequired,omitempty" yaml:"dependentRequired,omitempty"` // OpenAPI >=3.1
 
+	// Boolean is set when the schema was written as a JSON Schema boolean
+	// schema rather than an object: `true` accepts every instance, `false`
+	// accepts none. It is nil for an ordinary object schema, and no other
+	// field is populated when it is set.
+	//
+	// Marshalling is handled by MarshalYAML, which emits the bare boolean, so
+	// this carries no struct tag of its own. OpenAPI >=3.1.
+	Boolean *bool `json:"-" yaml:"-"`
+
 	Defs          Schemas `json:"$defs,omitempty" yaml:"$defs,omitempty"`       // OpenAPI >=3.1
 	SchemaDialect string  `json:"$schema,omitempty" yaml:"$schema,omitempty"`   // OpenAPI >=3.1
 	Comment       string  `json:"$comment,omitempty" yaml:"$comment,omitempty"` // OpenAPI >=3.1
@@ -480,6 +489,10 @@ func (schema Schema) MarshalJSON() ([]byte, error) {
 
 // MarshalYAML returns the YAML encoding of Schema.
 func (schema Schema) MarshalYAML() (any, error) {
+	if x := schema.Boolean; x != nil {
+		return *x, nil
+	}
+
 	m := make(map[string]any, 61+len(schema.Extensions))
 	maps.Copy(m, schema.Extensions)
 
@@ -684,8 +697,28 @@ func (schema Schema) MarshalYAML() (any, error) {
 	return m, nil
 }
 
+// unmarshalBooleanSchema reports whether data is a JSON Schema boolean schema,
+// and its value if so. Only a bare `true` or `false` qualifies; an object, a
+// string or anything else is an ordinary schema for the caller to decode.
+func unmarshalBooleanSchema(data []byte) (bool, bool) {
+	var boolean bool
+	if err := json.Unmarshal(data, &boolean); err != nil {
+		return false, false
+	}
+	return boolean, true
+}
+
 // UnmarshalJSON sets Schema to a copy of data.
 func (schema *Schema) UnmarshalJSON(data []byte) error {
+	// JSON Schema 2020-12 allows a boolean wherever a schema is expected, so
+	// every SchemaRef position can hold one. SchemaRef.UnmarshalJSON funnels
+	// into here, which is why this one case covers them all.
+	if boolean, ok := unmarshalBooleanSchema(data); ok {
+		origin := schema.Origin
+		*schema = Schema{Boolean: &boolean, Origin: origin}
+		return nil
+	}
+
 	type SchemaBis Schema
 	var x SchemaBis
 	if err := json.Unmarshal(data, &x); err != nil {
@@ -1270,6 +1303,9 @@ func (schema *Schema) PermitsNull() bool {
 
 // IsEmpty tells whether schema is equivalent to the empty schema `{}`.
 func (schema *Schema) IsEmpty() bool {
+	if x := schema.Boolean; x != nil {
+		return *x
+	}
 	if schema.Type != nil || schema.Format != "" || len(schema.Enum) != 0 ||
 		schema.UniqueItems || schema.ExclusiveMin.IsSet() || schema.ExclusiveMax.IsSet() ||
 		schema.Nullable || schema.ReadOnly || schema.WriteOnly || schema.AllowEmptyValue ||
@@ -1401,6 +1437,12 @@ func (schema *Schema) validate(ctx context.Context, stack []*Schema) ([]*Schema,
 	validationOpts := getValidationOptions(ctx)
 
 	stack = append(stack, schema)
+
+	// A boolean schema carries no other field, so there is nothing to check
+	// beyond the version gate its callers apply.
+	if schema.Boolean != nil {
+		return stack, nil
+	}
 
 	if schema.ReadOnly && schema.WriteOnly {
 		return stack, newSchemaReadOnlyWriteOnlyExclusive(schema.Origin)
@@ -1965,6 +2007,22 @@ func (schema *Schema) visitJSON(settings *schemaValidationSettings, value any) (
 		}
 	}
 
+	if x := schema.Boolean; x != nil {
+		if *x {
+			return
+		}
+		if settings.failfast {
+			return errSchema
+		}
+		return &SchemaError{
+			Value:                 value,
+			Schema:                schema,
+			SchemaField:           "boolean",
+			Reason:                "the false schema accepts no value",
+			customizeMessageError: settings.customizeMessageError,
+		}
+	}
+
 	if schema.IsEmpty() {
 		switch value.(type) {
 		case nil:
@@ -2365,6 +2423,80 @@ func (schema *Schema) visitJSONBoolean(settings *schemaValidationSettings, value
 	return
 }
 
+// multipleOfSlack bounds, as a negative power of two, how far a value may sit
+// from the nearest multiple and still count as one, measured relative to the
+// value itself. A float64 carries about 2^-53 of relative error, so this is a
+// couple of units in the last place: enough to absorb the error a caller's own
+// arithmetic introduced, small enough that a genuine remainder never fits.
+//
+// The window must be measured against the value and not against the quotient.
+// A quotient-relative window grows without bound, and once value/multipleOf
+// reaches 2^49 it exceeds one half, at which point every number validates.
+const multipleOfSlack = 51
+
+// multipleOfFailure reports whether value satisfies multipleOf, and the reason
+// when it does not.
+//
+// The comparison runs on exact rationals rather than on decimals formatted at a
+// fixed precision. A fixed precision is only correct inside a narrow magnitude
+// band: above it the formatting emits binary representation error and rejects
+// valid values, and below it every operand formats to zero, which both accepts
+// any value and divides by zero.
+func multipleOfFailure(value, multipleOf float64) (string, bool) {
+	// A non-finite multipleOf cannot be reported: SchemaError renders the whole
+	// schema as JSON and NaN has no JSON encoding, so building that error would
+	// panic instead of describing the problem. Treat it as no constraint, which
+	// at least replaces the division-by-zero panic the fixed-precision
+	// formatting produced here.
+	if math.IsNaN(multipleOf) || math.IsInf(multipleOf, 0) {
+		return "", true
+	}
+	// JSON Schema requires multipleOf to be strictly greater than zero. Without
+	// this guard a zero or negative value either divided by zero or accepted
+	// every number.
+	if multipleOf <= 0 {
+		return fmt.Sprintf("multipleOf must be greater than zero, got %g", multipleOf), false
+	}
+	// VisitJSON rejects a non-finite number before any keyword runs, but the
+	// exported VisitJSONNumber does not, so one can still reach this point.
+	// Reporting it here is out of scope: SchemaError marshals Value, and NaN has
+	// no JSON encoding, so the error would panic when rendered. Preserve the
+	// existing outcome and leave that entry point to a separate change.
+	if math.IsNaN(value) || math.IsInf(value, 0) {
+		return "", true
+	}
+	notAMultiple := fmt.Sprintf("number must be a multiple of %g", multipleOf)
+
+	exactValue := new(big.Rat).SetFloat64(value)
+	exactMultipleOf := new(big.Rat).SetFloat64(multipleOf)
+	quotient := new(big.Rat).Quo(exactValue, exactMultipleOf)
+	if quotient.IsInt() {
+		return "", true
+	}
+
+	// The quotient is not an integer, so floor and floor+1 bracket it. Both are
+	// computed through big.Int, which no quotient can overflow. Compare the two
+	// candidate multiples against the value itself rather than comparing the
+	// quotient against an integer, so the window stays tied to the value's own
+	// precision at every magnitude.
+	floor := new(big.Int).Div(quotient.Num(), quotient.Denom())
+	var distance *big.Rat
+	for _, k := range []*big.Int{floor, new(big.Int).Add(floor, big.NewInt(1))} {
+		gap := new(big.Rat).Sub(exactValue, new(big.Rat).Mul(new(big.Rat).SetInt(k), exactMultipleOf))
+		gap.Abs(gap)
+		if distance == nil || gap.Cmp(distance) < 0 {
+			distance = gap
+		}
+	}
+
+	slack := new(big.Rat).SetFrac(big.NewInt(1), new(big.Int).Lsh(big.NewInt(1), multipleOfSlack))
+	tolerance := new(big.Rat).Mul(new(big.Rat).Abs(exactValue), slack)
+	if distance.Cmp(tolerance) <= 0 {
+		return "", true
+	}
+	return notAMultiple, false
+}
+
 func (schema *Schema) VisitJSONNumber(value float64) error {
 	settings := newSchemaValidationSettings()
 	return schema.visitJSONNumber(settings, value)
@@ -2567,10 +2699,8 @@ func (schema *Schema) visitJSONNumber(settings *schemaValidationSettings, value 
 	if v := schema.MultipleOf; v != nil {
 		// "A numeric instance is valid only if division by this keyword's
 		//    value results in an integer."
-		numRat, denRat := &big.Rat{}, &big.Rat{}
-		numRat.SetString(fmt.Sprintf("%.10f", value))
-		denRat.SetString(fmt.Sprintf("%.10f", *v))
-		if !(&big.Rat{}).Quo(numRat, denRat).IsInt() {
+		reason, ok := multipleOfFailure(value, *v)
+		if !ok {
 			if settings.failfast {
 				return errSchema
 			}
@@ -2578,7 +2708,7 @@ func (schema *Schema) visitJSONNumber(settings *schemaValidationSettings, value 
 				Value:                 value,
 				Schema:                schema,
 				SchemaField:           "multipleOf",
-				Reason:                fmt.Sprintf("number must be a multiple of %g", *v),
+				Reason:                reason,
 				customizeMessageError: settings.customizeMessageError,
 			}
 			if !settings.multiError {
@@ -2667,7 +2797,7 @@ func (schema *Schema) visitJSONString(settings *schemaValidationSettings, value 
 				me = append(me, err)
 			}
 		}
-		if !cp.MatchString(value) {
+		if cp != nil && !cp.MatchString(value) {
 			err := &SchemaError{
 				Value:                 value,
 				Schema:                schema,

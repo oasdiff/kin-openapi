@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: encoded path route identity fixture
+  version: 1.0.0
+security:
+  - ApiKeyAuth: []
+paths:
+  /public/status:
+    get:
+      security: []
+      responses:
+        "204":
+          description: public route
+  /{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: protected route
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key

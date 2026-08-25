@@ -62,6 +62,11 @@ const (
 	// FormatOfStringForUUIDOfRFC4122 is an optional predefined format for UUID v1-v5 as specified by RFC4122
 	FormatOfStringForUUIDOfRFC4122 = `^(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$`
 
+	// FormatOfStringForUUIDOfRFC9562 is an optional predefined format for UUID v1-v8 as specified by RFC9562,
+	// which obsoletes RFC4122. In addition to the versioned layout it also accepts the special Nil UUID
+	// (all zeroes) and Max UUID (all ones) defined in sections 5.9 and 5.10 of the RFC.
+	FormatOfStringForUUIDOfRFC9562 = `^(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|[fF]{8}-[fF]{4}-[fF]{4}-[fF]{4}-[fF]{12})$`
+
 	// FormatOfStringForEmail pattern catches only some suspiciously wrong-looking email addresses.
 	// Use DefineStringFormat(...) if you need something stricter.
 	FormatOfStringForEmail = `^[^@]+@[^@<>",\s]+$`
@@ -205,6 +210,12 @@ func Int64Ptr(value int64) *int64
     Int64Ptr is a helper for defining OpenAPI schemas.
 
     Deprecated: Use Ptr instead.
+
+func PathItemMethods() []string
+    PathItemMethods returns the HTTP methods that have a dedicated Path Item
+    Object field, sorted. Any other method an operation is registered under
+    lives in AdditionalOperations, so a caller that treats the two groups
+    differently can tell them apart without listing the fixed methods itself.
 
 func Ptr[T any](value T) *T
     Ptr is a helper for defining OpenAPI schemas.
@@ -2856,6 +2867,15 @@ type Schema struct {
 	Else *SchemaRef `json:"else,omitempty" yaml:"else,omitempty"` // OpenAPI >=3.1
 
 	DependentRequired map[string][]string `json:"dependentRequired,omitempty" yaml:"dependentRequired,omitempty"` // OpenAPI >=3.1
+
+	// Boolean is set when the schema was written as a JSON Schema boolean
+	// schema rather than an object: `true` accepts every instance, `false`
+	// accepts none. It is nil for an ordinary object schema, and no other
+	// field is populated when it is set.
+	//
+	// Marshalling is handled by MarshalYAML, which emits the bare boolean, so
+	// this carries no struct tag of its own. OpenAPI >=3.1.
+	Boolean *bool `json:"-" yaml:"-"`
 
 	Defs          Schemas `json:"$defs,omitempty" yaml:"$defs,omitempty"`       // OpenAPI >=3.1
 	SchemaDialect string  `json:"$schema,omitempty" yaml:"$schema,omitempty"`   // OpenAPI >=3.1
