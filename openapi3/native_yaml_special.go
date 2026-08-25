@@ -106,6 +106,31 @@ func (bs *BoolSchema) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
+// Schema is `true`/`false` or a mapping. JSON Schema 2020-12, which OpenAPI 3.1
+// adopts, allows a boolean wherever a schema is expected.
+//
+// The mapping branch is what the generator emits for the other declared-field
+// types; only the scalar case is particular to Schema.
+func (schema *Schema) UnmarshalYAML(node *yaml.Node) error {
+	if node.Kind == yaml.ScalarNode && node.Tag == "!!bool" {
+		var b bool
+		if err := node.Decode(&b); err != nil {
+			return err
+		}
+		schema.Boolean, schema.Origin = &b, originFromNode(node, nativeOriginFile())
+		return nil
+	}
+
+	type bis Schema
+	ext, err := decodeMapping(node, (*bis)(schema))
+	if err != nil {
+		return err
+	}
+	schema.Extensions, schema.Origin = ext, originFromNode(node, nativeOriginFile())
+	setChildOriginKeys(node, schema, nativeOriginFile())
+	return nil
+}
+
 // ExclusiveBound is a bool in OAS 3.0, where it modifies minimum/maximum, or a
 // number in 3.1, where it is the bound itself.
 func (eb *ExclusiveBound) UnmarshalYAML(node *yaml.Node) error {

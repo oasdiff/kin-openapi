@@ -23,7 +23,8 @@ func main() {
 	// The types whose YAML form is a mapping of declared fields plus
 	// extensions. The $ref wrappers are generated from refs.tmpl instead.
 	// Hand-written in native_yaml_special.go: the maplike collections, the
-	// union-typed values, Operation, which has to tell an omitted responses
+	// union-typed values, Schema, which may be written as a boolean, Operation,
+	// which has to tell an omitted responses
 	// from an explicitly null one, and T, which has no parent to take its
 	// Key from.
 	types := []shadowType{
@@ -43,7 +44,6 @@ func main() {
 		{"PathItem", "pathItem"},
 		{"RequestBody", "requestBody"},
 		{"Response", "response"},
-		{"Schema", "schema"},
 		{"SecurityScheme", "ss"},
 		{"Server", "server"},
 		{"ServerVariable", "serverVariable"},

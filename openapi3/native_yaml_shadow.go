@@ -204,18 +204,6 @@ func (response *Response) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
-// UnmarshalYAML sets Schema from node.
-func (schema *Schema) UnmarshalYAML(node *yaml.Node) error {
-	type bis Schema
-	ext, err := decodeMapping(node, (*bis)(schema))
-	if err != nil {
-		return err
-	}
-	schema.Extensions, schema.Origin = ext, originFromNode(node, nativeOriginFile())
-	setChildOriginKeys(node, schema, nativeOriginFile())
-	return nil
-}
-
 // UnmarshalYAML sets SecurityScheme from node.
 func (ss *SecurityScheme) UnmarshalYAML(node *yaml.Node) error {
 	type bis SecurityScheme

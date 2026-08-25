@@ -2958,7 +2958,11 @@ func (schema *Schema) UnmarshalJSON(data []byte) error
     UnmarshalJSON sets Schema to a copy of data.
 
 func (schema *Schema) UnmarshalYAML(node *yaml.Node) error
-    UnmarshalYAML sets Schema from node.
+    Schema is `true`/`false` or a mapping. JSON Schema 2020-12, which OpenAPI
+    3.1 adopts, allows a boolean wherever a schema is expected.
+
+    The mapping branch is what the generator emits for the other declared-field
+    types; only the scalar case is particular to Schema.
 
 func (schema *Schema) Validate(ctx context.Context, opts ...ValidationOption) error
     Validate returns an error if Schema does not comply with the OpenAPI spec.
