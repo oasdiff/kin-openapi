@@ -8,9 +8,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// The empty schema matches every instance, so `not: {}` matches none. Judging
-// the `not` by whether its own value is empty dropped it from IsEmpty, and
-// visitJSON skips an empty schema, so the schema accepted every value instead.
+// The empty schema matches every instance, so `not: {}` matches none.
 func TestNot_EmptySubschemaRejectsEverything(t *testing.T) {
 	const spec = `
 openapi: 3.0.0
@@ -33,19 +31,19 @@ components:
 	require.NoError(t, doc.Validate(loader.Context))
 
 	nothing := doc.Components.Schemas["Nothing"].Value
-	require.False(t, nothing.IsEmpty(), "a not is a constraint whatever it holds")
+	require.False(t, nothing.IsEmpty(), "a not constrains the schema whatever it holds")
 
 	for _, value := range []any{"a string", float64(1), true, []any{}, map[string]any{}} {
 		require.Error(t, nothing.VisitJSON(value))
 	}
 
-	// The same through a property, so the fix is not limited to a root schema.
+	// The same through a property, not only on a root schema.
 	nested := doc.Components.Schemas["NothingNested"].Value
 	require.Error(t, nested.VisitJSON(map[string]any{"a": "anything"}))
 	require.NoError(t, nested.VisitJSON(map[string]any{}))
 }
 
-// A non-empty `not` was already rejected and stays rejected.
+// A `not` holding a schema rejects exactly the values that schema matches.
 func TestNot_NonEmptySubschemaUnchanged(t *testing.T) {
 	const spec = `
 openapi: 3.0.0

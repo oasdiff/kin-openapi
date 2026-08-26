@@ -1281,11 +1281,9 @@ func (schema *Schema) IsEmpty() bool {
 		schema.Const != nil {
 		return false
 	}
-	// A `not` is a constraint whatever it holds, and an empty one is the
-	// strongest of all: `not: {}` matches nothing, since the empty schema
-	// matches everything. Judging it by whether its own value is empty had the
-	// effect of dropping it, and visitJSON skips an empty schema entirely, so
-	// `not: {}` accepted every value instead of rejecting every value.
+	// A `not` constrains the schema whatever it holds, and an empty one is the
+	// strongest constraint of all: `not: {}` matches nothing, since the empty
+	// schema matches everything.
 	if schema.Not != nil {
 		return false
 	}
