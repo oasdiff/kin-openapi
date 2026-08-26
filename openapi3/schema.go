@@ -1281,9 +1281,8 @@ func (schema *Schema) IsEmpty() bool {
 		schema.Const != nil {
 		return false
 	}
-	// A `not` constrains the schema whatever it holds, and an empty one is the
-	// strongest constraint of all: `not: {}` matches nothing, since the empty
-	// schema matches everything.
+	// Any `not` makes the schema non-empty, an empty one included: `not: {}`
+	// matches nothing, since the empty schema matches everything.
 	if schema.Not != nil {
 		return false
 	}
