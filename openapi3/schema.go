@@ -1949,6 +1949,15 @@ func (schema *Schema) VisitJSON(value any, opts ...SchemaValidationOption) error
 }
 
 func (schema *Schema) visitJSON(settings *schemaValidationSettings, value any) (err error) {
+	if settings.visitedSchemas == nil {
+		settings.visitedSchemas = make(map[*Schema]struct{})
+	}
+	if _, visited := settings.visitedSchemas[schema]; visited {
+		return nil
+	}
+	settings.visitedSchemas[schema] = struct{}{}
+	defer delete(settings.visitedSchemas, schema)
+
 	switch value := value.(type) {
 	case nil:
 		// Don't use VisitJSONNull, as we still want to reach 'visitXOFOperations', since
