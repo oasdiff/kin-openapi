@@ -588,6 +588,9 @@ func (d *urlValuesDecoder) DecodeArray(param string, sm *openapi3.SerializationM
 // Every item is parsed as a primitive value.
 // The function returns an error when an error happened while parse array's items.
 func (d *urlValuesDecoder) parseArray(raw []string, schemaRef *openapi3.SchemaRef) ([]any, error) {
+	if schemaRef.Value.Items == nil || schemaRef.Value.Items.Value == nil {
+		return nil, errors.New("array items schema is required for decoding")
+	}
 	var value []any
 
 	for i, v := range raw {
@@ -1036,6 +1039,9 @@ func buildResObj(params map[string]any, parentKeys []string, key string, schema 
 
 	switch {
 	case schema.Value.Type.Is("array"):
+		if schema.Value.Items == nil || schema.Value.Items.Value == nil {
+			return nil, &ParseError{path: pathFromKeys(mapKeys), Kind: KindOther, Reason: "array items schema is required"}
+		}
 		paramArr, ok := deepGet(params, mapKeys...)
 		if !ok {
 			return nil, nil
