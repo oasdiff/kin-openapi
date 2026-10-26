@@ -20,7 +20,7 @@ import (
 	"strings"
 	"sync"
 
-	yaml "github.com/oasdiff/yaml3"
+	yaml "go.yaml.in/yaml/v3"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )
@@ -1259,6 +1259,12 @@ func parsePrimitiveCase(raw string, schema *openapi3.SchemaRef, typ string) (any
 		}
 		return v, nil
 	case "number":
+		// strconv.ParseFloat also accepts Go float literals that are not decimal
+		// numbers: hexadecimal (0x1p4), digits separated by underscores (1_000),
+		// infinities and NaN.
+		if strings.ContainsFunc(raw, func(r rune) bool { return !strings.ContainsRune("+-.0123456789eE", r) }) {
+			return nil, &ParseError{Kind: KindInvalidFormat, Value: raw, Reason: "an invalid " + typ, Cause: strconv.ErrSyntax}
+		}
 		v, err := strconv.ParseFloat(raw, 64)
 		if err != nil {
 			return nil, &ParseError{Kind: KindInvalidFormat, Value: raw, Reason: "an invalid " + typ, Cause: err.(*strconv.NumError).Err}

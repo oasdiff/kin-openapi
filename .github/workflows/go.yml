@@ -90,6 +90,9 @@ jobs:
     - run: go test -v -count=10 -run TestIssue741 -race ./...
       env:
         CGO_ENABLED: '1'
+    - run: go test -v -count=10 -run TestConcurrentDecodeDoesNotLeakOrigins -race ./...
+      env:
+        CGO_ENABLED: '1'
     - run: git --no-pager diff --exit-code
 
     - if: runner.os == 'Linux'
@@ -117,9 +120,9 @@ jobs:
         ! git grep -IErn '\s$'
 
     - if: runner.os == 'Linux'
-      name: Ensure use of unmarshal
+      name: Ensure yaml stays inside the decode layer
       run: |
-        [[ "$(git grep -F yaml. -- openapi3/ | grep -v _test.go | grep -v origin.go | wc -l)" = 2 ]]
+        [[ "$(git grep -F yaml. -- openapi3/ | grep -v _test.go | grep -vE 'openapi3/(origin|marsh|refs|loader|native_yaml.*|nativeyaml.*)[.](go|tmpl)' | wc -l)" -eq 0 ]]
 
     - if: runner.os == 'Linux'
       name: Use `loader := NewLoader(); loader.Load ...`
