@@ -506,8 +506,22 @@ func requireStringScalar(node *yaml.Node, key string) error {
 // prepareScalars walks the tree once, which is the one place every scalar is
 // seen before the decode reads it.
 func prepareScalars(n *yaml.Node) error {
+	var hasAlias bool
+	if err := prepareNode(n, &hasAlias); err != nil {
+		return err
+	}
+	if hasAlias {
+		return checkAliasCycles(n)
+	}
+	return nil
+}
+
+func prepareNode(n *yaml.Node, hasAlias *bool) error {
 	if n == nil {
 		return nil
+	}
+	if n.Kind == yaml.AliasNode {
+		*hasAlias = true
 	}
 	if n.Kind == yaml.ScalarNode {
 		stripTimestamp(n)
@@ -519,11 +533,53 @@ func prepareScalars(n *yaml.Node) error {
 		nameKeys(n)
 	}
 	for _, c := range n.Content {
-		if err := prepareScalars(c); err != nil {
+		if err := prepareNode(c, hasAlias); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// checkAliasCycles refuses a document in which an alias leads back to a node
+// it sits inside, such as e: &a {properties: {p: *a}}.
+//
+// go-yaml refuses one too, but only within a single decode: it records the
+// aliases it is expanding on the decoder. The native path decodes each typed
+// value with a Node.Decode of its own, so every step starts with nothing
+// recorded and the expansion recurses until the stack is exhausted, which is
+// fatal rather than a panic a caller could recover.
+//
+// A node is walked once whatever number of aliases reach it, so the check is
+// linear in the size of the tree even where expanding it would not be.
+func checkAliasCycles(root *yaml.Node) error {
+	const (
+		onPath = iota + 1
+		done
+	)
+	state := make(map[*yaml.Node]uint8)
+	var walk func(n *yaml.Node) error
+	walk = func(n *yaml.Node) error {
+		switch state[n] {
+		case onPath:
+			return fmt.Errorf("anchor '%s' value contains itself", n.Anchor)
+		case done:
+			return nil
+		}
+		state[n] = onPath
+		if n.Kind == yaml.AliasNode && n.Alias != nil {
+			if err := walk(n.Alias); err != nil {
+				return err
+			}
+		}
+		for _, c := range n.Content {
+			if err := walk(c); err != nil {
+				return err
+			}
+		}
+		state[n] = done
+		return nil
+	}
+	return walk(root)
 }
 
 // nameKeys retags a scalar mapping key as a string, so the name it is read
