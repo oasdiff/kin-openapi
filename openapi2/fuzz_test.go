@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	yaml "go.yaml.in/yaml/v3"
 
 	"github.com/getkin/kin-openapi/internal/fuzzing"
-	"github.com/getkin/kin-openapi/internal/yamlconv"
 )
 
 // maxFuzzInput bounds fuzzer inputs so the fuzzer spends its budget on
@@ -67,7 +67,9 @@ definitions:
 		if fuzzing.LosesInYAML(generic) {
 			return
 		}
-		y, err := yamlconv.Marshal(&doc)
+		// Emitted from the generic form, the bytes the JSON assertions above
+		// ran on, so a difference here is the YAML round trip and nothing else.
+		y, err := yaml.Marshal(generic)
 		require.NoError(t, err)
 		var fromYAML T
 		require.NoError(t, unmarshal(y, &fromYAML), "yaml:\n%s", y)

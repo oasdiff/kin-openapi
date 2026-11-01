@@ -711,7 +711,17 @@ func (schema Schema) MarshalYAML() (any, error) {
 		m["else"] = x
 	}
 	if x := schema.DependentRequired; len(x) != 0 {
-		m["dependentRequired"] = x
+		// A nil list of names is written null, as JSON writes it, rather
+		// than the "[]" YAML would make of it.
+		dr := make(map[string]any, len(x))
+		for name, names := range x {
+			if names == nil {
+				dr[name] = nil
+			} else {
+				dr[name] = names
+			}
+		}
+		m["dependentRequired"] = dr
 	}
 	if x := schema.Defs; len(x) != 0 {
 		m["$defs"] = x
@@ -774,7 +784,9 @@ func (schema *Schema) UnmarshalJSON(data []byte) error {
 	if err := unmarshalJSON(data, &x); err != nil {
 		return unmarshalError(err)
 	}
-	_ = unmarshalJSON(data, &x.Extensions)
+	if err := unmarshalJSON(data, &x.Extensions); err != nil {
+		return unmarshalError(err)
+	}
 
 	delete(x.Extensions, "oneOf")
 	delete(x.Extensions, "anyOf")
@@ -1379,6 +1391,19 @@ func (schema *Schema) permitsNull(settings *schemaValidationSettings) bool {
 
 // IsEmpty tells whether schema is equivalent to the empty schema `{}`.
 func (schema *Schema) IsEmpty() bool {
+	return schema.isEmpty(make(map[*Schema]struct{}))
+}
+
+// isEmpty is IsEmpty over a schema graph, which may be cyclic. A schema met
+// again on the way down is already being judged: it adds no constraint of its
+// own there, so it counts as empty and the others decide.
+func (schema *Schema) isEmpty(visiting map[*Schema]struct{}) bool {
+	if _, ok := visiting[schema]; ok {
+		return true
+	}
+	visiting[schema] = struct{}{}
+	defer delete(visiting, schema)
+
 	if schema.Type != nil || schema.Format != "" || len(schema.Enum) != 0 ||
 		schema.UniqueItems || schema.ExclusiveMin.IsSet() || schema.ExclusiveMax.IsSet() ||
 		schema.Nullable || schema.ReadOnly || schema.WriteOnly || schema.AllowEmptyValue ||
@@ -1390,54 +1415,54 @@ func (schema *Schema) IsEmpty() bool {
 		schema.Const != nil {
 		return false
 	}
-	if n := schema.Not; n != nil && n.Value != nil && !n.Value.IsEmpty() {
+	if n := schema.Not; n != nil && n.Value != nil && !n.Value.isEmpty(visiting) {
 		return false
 	}
-	if ap := schema.AdditionalProperties.Schema; ap != nil && ap.Value != nil && !ap.Value.IsEmpty() {
+	if ap := schema.AdditionalProperties.Schema; ap != nil && ap.Value != nil && !ap.Value.isEmpty(visiting) {
 		return false
 	}
 	if apa := schema.AdditionalProperties.Has; apa != nil && !*apa {
 		return false
 	}
-	if items := schema.Items; items != nil && items.Value != nil && !items.Value.IsEmpty() {
+	if items := schema.Items; items != nil && items.Value != nil && !items.Value.isEmpty(visiting) {
 		return false
 	}
 	for _, s := range schema.PrefixItems {
-		if ss := s.Value; ss != nil && !ss.IsEmpty() {
+		if ss := s.Value; ss != nil && !ss.isEmpty(visiting) {
 			return false
 		}
 	}
-	if c := schema.Contains; c != nil && c.Value != nil && !c.Value.IsEmpty() {
+	if c := schema.Contains; c != nil && c.Value != nil && !c.Value.isEmpty(visiting) {
 		return false
 	}
 	if schema.MinContains != nil || schema.MaxContains != nil {
 		return false
 	}
 	for _, s := range schema.Properties {
-		if ss := s.Value; ss != nil && !ss.IsEmpty() {
+		if ss := s.Value; ss != nil && !ss.isEmpty(visiting) {
 			return false
 		}
 	}
 	for _, s := range schema.PatternProperties {
-		if ss := s.Value; ss != nil && !ss.IsEmpty() {
+		if ss := s.Value; ss != nil && !ss.isEmpty(visiting) {
 			return false
 		}
 	}
 	for _, s := range schema.DependentSchemas {
-		if ss := s.Value; ss != nil && !ss.IsEmpty() {
+		if ss := s.Value; ss != nil && !ss.isEmpty(visiting) {
 			return false
 		}
 	}
-	if pn := schema.PropertyNames; pn != nil && pn.Value != nil && !pn.Value.IsEmpty() {
+	if pn := schema.PropertyNames; pn != nil && pn.Value != nil && !pn.Value.isEmpty(visiting) {
 		return false
 	}
-	if ui := schema.UnevaluatedItems.Schema; ui != nil && ui.Value != nil && !ui.Value.IsEmpty() {
+	if ui := schema.UnevaluatedItems.Schema; ui != nil && ui.Value != nil && !ui.Value.isEmpty(visiting) {
 		return false
 	}
 	if uih := schema.UnevaluatedItems.Has; uih != nil && !*uih {
 		return false
 	}
-	if up := schema.UnevaluatedProperties.Schema; up != nil && up.Value != nil && !up.Value.IsEmpty() {
+	if up := schema.UnevaluatedProperties.Schema; up != nil && up.Value != nil && !up.Value.isEmpty(visiting) {
 		return false
 	}
 	if uph := schema.UnevaluatedProperties.Has; uph != nil && !*uph {
@@ -1447,27 +1472,27 @@ func (schema *Schema) IsEmpty() bool {
 		return false
 	}
 	for _, s := range schema.OneOf {
-		if ss := s.Value; ss != nil && !ss.IsEmpty() {
+		if ss := s.Value; ss != nil && !ss.isEmpty(visiting) {
 			return false
 		}
 	}
 	for _, s := range schema.AnyOf {
-		if ss := s.Value; ss != nil && !ss.IsEmpty() {
+		if ss := s.Value; ss != nil && !ss.isEmpty(visiting) {
 			return false
 		}
 	}
 	for _, s := range schema.AllOf {
-		if ss := s.Value; ss != nil && !ss.IsEmpty() {
+		if ss := s.Value; ss != nil && !ss.isEmpty(visiting) {
 			return false
 		}
 	}
-	if f := schema.If; f != nil && f.Value != nil && !f.Value.IsEmpty() {
+	if f := schema.If; f != nil && f.Value != nil && !f.Value.isEmpty(visiting) {
 		return false
 	}
-	if t := schema.Then; t != nil && t.Value != nil && !t.Value.IsEmpty() {
+	if t := schema.Then; t != nil && t.Value != nil && !t.Value.isEmpty(visiting) {
 		return false
 	}
-	if e := schema.Else; e != nil && e.Value != nil && !e.Value.IsEmpty() {
+	if e := schema.Else; e != nil && e.Value != nil && !e.Value.isEmpty(visiting) {
 		return false
 	}
 	if len(schema.DependentRequired) != 0 {
@@ -1485,7 +1510,7 @@ func (schema *Schema) IsEmpty() bool {
 	if schema.ContentMediaType != "" || schema.ContentEncoding != "" {
 		return false
 	}
-	if cs := schema.ContentSchema; cs != nil && cs.Value != nil && !cs.Value.IsEmpty() {
+	if cs := schema.ContentSchema; cs != nil && cs.Value != nil && !cs.Value.isEmpty(visiting) {
 		return false
 	}
 	// Last, so a schema carrying both a boolean and other keywords is judged by
@@ -1754,6 +1779,20 @@ func (schema *Schema) validate(ctx context.Context, visited map[*Schema]struct{}
 		var err error
 		if visited, err = v.validate(ctx, visited); err != nil {
 			return visited, &SchemaCombinatorElementValidationError{Combinator: "allOf", Cause: err}
+		}
+	}
+
+	if d := schema.Discriminator; d != nil {
+		if err := d.Validate(ctx); err != nil {
+			return visited, err
+		}
+		for _, k := range componentNames(d.Mapping) {
+			if v := d.Mapping[k].Value; v != nil {
+				var err error
+				if visited, err = v.validate(ctx, visited); err != nil {
+					return visited, err
+				}
+			}
 		}
 	}
 

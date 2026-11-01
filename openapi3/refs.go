@@ -103,7 +103,9 @@ func (x *CallbackRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
@@ -277,7 +279,9 @@ func (x *ExampleRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
@@ -451,7 +455,9 @@ func (x *HeaderRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
@@ -625,7 +631,9 @@ func (x *LinkRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
@@ -799,7 +807,9 @@ func (x *ParameterRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
@@ -973,7 +983,9 @@ func (x *RequestBodyRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
@@ -1147,7 +1159,9 @@ func (x *ResponseRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
@@ -1360,7 +1374,9 @@ func (x *SchemaRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
@@ -1548,7 +1564,9 @@ func (x *SecuritySchemeRef) UnmarshalJSON(data []byte) error {
 	var refOnly Ref
 	if err := unmarshalJSON(data, &refOnly); err == nil && refOnly.Ref != "" {
 		extra := map[string]any{}
-		_ = unmarshalJSON(data, &extra)
+		if err := unmarshalJSON(data, &extra); err != nil {
+			return unmarshalError(err)
+		}
 		delete(extra, "$ref")
 		x.Ref = refOnly.Ref
 		x.Origin = refOnly.Origin
