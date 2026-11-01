@@ -524,6 +524,7 @@ func prepareNode(n *yaml.Node, hasAlias *bool) error {
 		*hasAlias = true
 	}
 	if n.Kind == yaml.ScalarNode {
+		stripLocalTag(n)
 		stripTimestamp(n)
 		if err := checkFinite(n); err != nil {
 			return err
@@ -614,6 +615,20 @@ func nameKeys(n *yaml.Node) {
 			continue
 		}
 		k.Tag = strTag
+	}
+}
+
+// stripLocalTag retags a scalar carrying an application's own tag, such as
+// !md in description: !md hello, as a string.
+//
+// go-yaml decodes such a scalar only into an any, so a document whose author
+// tagged a field for a tool of their own was refused. The json path read it
+// as the text it wrote, whatever that text looks like: description: !md hello
+// is "hello" and x-n: !n 42 is "42". A standard tag (!!int, !!str, ...)
+// starts with two marks and is left to the decoder.
+func stripLocalTag(n *yaml.Node) {
+	if strings.HasPrefix(n.Tag, "!") && !strings.HasPrefix(n.Tag, "!!") {
+		n.Tag = strTag
 	}
 }
 
