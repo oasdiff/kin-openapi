@@ -417,6 +417,19 @@ func stampRootOrigin(v any, node *yaml.Node) {
 	if rv.Kind() != reflect.Struct {
 		return
 	}
+	stampOriginKey(rv, node)
+
+	// A file holding a bare component decodes to a ref wrapper, so the object
+	// written at the root is the one the wrapper holds. A wrapper whose file
+	// holds a $ref has no value yet, and the value it later resolves to was
+	// written elsewhere.
+	if value := rv.FieldByName("Value"); value.IsValid() && value.Kind() == reflect.Pointer && !value.IsNil() {
+		stampRootOrigin(value.Interface(), node)
+	}
+}
+
+// stampOriginKey sets Origin.Key on rv from node, leaving one already set.
+func stampOriginKey(rv reflect.Value, node *yaml.Node) {
 	f := rv.FieldByName("Origin")
 	if !f.IsValid() || f.Type() != originPtrType || !f.CanSet() || f.IsNil() {
 		return
