@@ -160,11 +160,35 @@ func TestNativeScalars_NullKeyNamesNothing(t *testing.T) {
 	var extension, example Schema
 	require.ErrorContains(t, decodeNative(t, "x-k: {null: a}\n", &extension), "mapping key is null")
 	require.ErrorContains(t, decodeNative(t, "example: {null: a}\n", &example), "mapping key is null")
+}
 
-	// Every other scalar has a name.
+// A key names the text the document wrote it as, wherever it is read: the
+// components a $ref addresses by name, and a mapping decoded into an any.
+func TestNativeScalars_KeysAreTheirText(t *testing.T) {
 	var named Schema
 	require.NoError(t, decodeNative(t, "x-k: {1: a, true: b, 1.5: c, 0x2A: d}\n", &named))
-	require.Equal(t, map[string]any{"1": "a", "true": "b", "1.5": "c", "42": "d"}, named.Extensions["x-k"])
+	require.Equal(t, map[string]any{"1": "a", "true": "b", "1.5": "c", "0x2A": "d"}, named.Extensions["x-k"])
+
+	// Read as the value it resolves to instead, a key would name whatever
+	// another notation of the same number names, and the two would be one
+	// member with no telling which value it holds.
+	var same Schema
+	require.NoError(t, decodeNative(t, "x-k: {.0: a, 0: b, 18_24: c, 1824: d}\n", &same))
+	require.Equal(t, map[string]any{".0": "a", "0": "b", "18_24": "c", "1824": "d"}, same.Extensions["x-k"])
+
+	// A key written as an alias says what the anchored scalar says, while the
+	// anchor's own use keeps the value it resolves to.
+	var aliased Schema
+	require.NoError(t, decodeNative(t, "x-a: &a 0x2A\nx-k:\n  *a: v\n", &aliased))
+	require.Equal(t, map[string]any{"0x2A": "v"}, aliased.Extensions["x-k"])
+	require.Equal(t, float64(42), aliased.Extensions["x-a"])
+
+	// Two keys written the same text are the duplicate they are, through an
+	// alias as much as written out.
+	var dup, dupAlias Schema
+	require.ErrorContains(t, decodeNative(t, "x-k: {0: a, '0': b}\n", &dup), `mapping key "0" already defined`)
+	require.ErrorContains(t, decodeNative(t, "x-a: &a 18_24\nx-k:\n  *a: v\n  18_24: w\n", &dupAlias),
+		`mapping key "18_24" already defined`)
 }
 
 // A requirement written as an alias is the mapping it points at, so a null in

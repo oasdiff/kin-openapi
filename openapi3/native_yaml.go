@@ -95,9 +95,11 @@ func normalizeDecoded(v any) (any, error) {
 	return v, nil
 }
 
-// keyName is the name a non-string key is written under. YAML resolves a key
-// the way it resolves any scalar, and a document's names are strings, so a
-// scalar key is spelled out.
+// keyName is the name a key that is not a string is written under. A scalar
+// key reaches the decoder already retagged by nameKeys, so what is left here
+// is a key that is not a scalar at all -- a sequence or a mapping, which YAML
+// allows and a document's names, being strings, do not describe -- and the
+// null that nameKeys leaves to be refused.
 //
 // A null key spells nothing. It names no member of the document, and the json
 // path has no key to decode it into, so a document that uses one is refused
@@ -513,12 +515,50 @@ func prepareScalars(n *yaml.Node) error {
 			return err
 		}
 	}
+	if n.Kind == yaml.MappingNode {
+		nameKeys(n)
+	}
 	for _, c := range n.Content {
 		if err := prepareScalars(c); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// nameKeys retags a scalar mapping key as a string, so the name it is read
+// under is the text the document wrote.
+//
+// A document's names are strings, but YAML resolves a key like any other
+// scalar, so .0 and 0 both resolve to the number zero and name the same
+// member, as do 18_24 and 1824. Which of two such keys survives is then
+// whichever the decoder writes last. The typed decode already reads a key's
+// text; this gives a mapping decoded into an any the same reading, and leaves
+// two keys written the same text to the duplicate-key error they are.
+//
+// A merge key is left alone, being an instruction rather than a name, and so
+// is a null key, which names nothing and is reported as that.
+func nameKeys(n *yaml.Node) {
+	for i := 0; i+1 < len(n.Content); i += 2 {
+		k := n.Content[i]
+		if isMergeKey(k) {
+			continue
+		}
+		// A key written as an alias names what the anchored scalar says, read
+		// from a copy so the anchor's own use keeps the type it resolves to,
+		// and left at the line the alias is written on, where the member is
+		// declared.
+		if k.Kind == yaml.AliasNode && k.Alias != nil && k.Alias.Kind == yaml.ScalarNode {
+			named := *k.Alias
+			named.Anchor = ""
+			named.Line, named.Column = k.Line, k.Column
+			n.Content[i], k = &named, &named
+		}
+		if k.Kind != yaml.ScalarNode || k.Tag == strTag || k.Tag == nullTag {
+			continue
+		}
+		k.Tag = strTag
+	}
 }
 
 // stripTimestamp retags a date-shaped scalar as a string.
