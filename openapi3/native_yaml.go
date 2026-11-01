@@ -562,7 +562,7 @@ func checkAliasCycles(root *yaml.Node) error {
 	walk = func(n *yaml.Node) error {
 		switch state[n] {
 		case onPath:
-			return fmt.Errorf("anchor '%s' value contains itself", n.Anchor)
+			return fmt.Errorf("anchor %q value contains itself", n.Anchor)
 		case done:
 			return nil
 		}
