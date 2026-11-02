@@ -37,6 +37,15 @@ func TestKeysOnlyMatchFieldsOfTheSameCase(t *testing.T) {
 	loader = openapi3.NewLoader()
 	reloaded, err := loader.LoadFromData(once)
 	require.NoError(t, err)
+
+	require.Nil(t, reloaded.Components)
+	require.Equal(t, map[string]any{
+		"Components": map[string]any{
+			"schemas": nil,
+			"SChemAs": map[string]any{"0": nil},
+		},
+	}, reloaded.Extensions)
+
 	twice, err := reloaded.MarshalJSON()
 	require.NoError(t, err)
 	require.JSONEq(t, string(once), string(twice))
