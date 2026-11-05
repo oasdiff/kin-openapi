@@ -65,7 +65,8 @@ paths:
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := openapi3.NewLoader().LoadFromData([]byte(tt.spec[1:]))
+			loader := openapi3.NewLoader()
+			_, err := loader.LoadFromData([]byte(tt.spec[1:]))
 			require.ErrorContains(t, err, tt.want)
 		})
 	}
