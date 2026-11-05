@@ -66,7 +66,7 @@ func unmarshalYAML(data []byte, v any, includeOrigin bool, file string) (*origin
 	}
 
 	if err := root.Decode(v); err != nil {
-		return nil, err
+		return nil, nameFields(err, &root)
 	}
 	if !includeOrigin {
 		return nil, nil

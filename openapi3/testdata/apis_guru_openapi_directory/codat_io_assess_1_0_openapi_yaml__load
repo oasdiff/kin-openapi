@@ -1,1 +1,1 @@
-failed to unmarshal data: json error: jsontext: invalid character 'o' at start of value, yaml error: yaml: construct errors: line 4692: cannot construct !!map into []interface {}
+failed to unmarshal data: json error: jsontext: invalid character 'o' at start of value, yaml error: yaml: construct errors: line 4692: cannot construct !!map into []interface {} in /components/schemas/ExcelStatus/examples

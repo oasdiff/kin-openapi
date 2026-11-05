@@ -43,8 +43,9 @@ paths:
 
 		_, err := sl.LoadFromData(spec)
 		// The parser reports the line, having decoded the document itself
-		// rather than a json rendering of it. It does not name the field.
-		require.ErrorContains(t, err, `line 24: cannot construct !!map into openapi3.SchemaRefs`)
+		// rather than a json rendering of it, and the position names the field.
+		require.ErrorContains(t, err, "line 24: cannot construct !!map into openapi3.SchemaRefs"+
+			" in /paths/~1categories/get/responses/200/content/application~1json/schema/allOf")
 	}
 
 	spec := []byte(`
