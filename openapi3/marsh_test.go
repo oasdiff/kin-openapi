@@ -44,7 +44,7 @@ paths:
 		_, err := sl.LoadFromData(spec)
 		// The parser reports the line, having decoded the document itself
 		// rather than a json rendering of it. It does not name the field.
-		require.ErrorContains(t, err, `line 24: cannot unmarshal !!map into openapi3.SchemaRefs`)
+		require.ErrorContains(t, err, `line 24: cannot construct !!map into openapi3.SchemaRefs`)
 	}
 
 	spec := []byte(`

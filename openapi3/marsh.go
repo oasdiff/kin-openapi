@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	goyaml "go.yaml.in/yaml/v3"
+	goyaml "go.yaml.in/yaml/v4"
 
 	"github.com/getkin/kin-openapi/internal/nodeindex"
 )

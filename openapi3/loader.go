@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 
-	yaml "go.yaml.in/yaml/v3"
+	yaml "go.yaml.in/yaml/v4"
 )
 
 func failedToResolveRefFragmentPart(value, what string) error {

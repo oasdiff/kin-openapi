@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	yamlv3 "go.yaml.in/yaml/v3"
+	yamlv3 "go.yaml.in/yaml/v4"
 
 	"github.com/getkin/kin-openapi/internal/yamlconv"
 	"github.com/getkin/kin-openapi/openapi3"

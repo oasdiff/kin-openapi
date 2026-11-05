@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	yaml "go.yaml.in/yaml/v3"
+	yaml "go.yaml.in/yaml/v4"
 )
 
 var knownYAMLFieldsCache sync.Map // reflect.Type -> map[string]struct{}
@@ -329,11 +329,21 @@ func decodeMapping[T, S any](node *yaml.Node, shadow *S) (map[string]any, error)
 // targetTypeError names T where a decoder error names the shadow type S, which
 // exists only to stop the decode recursing and means nothing to a reader.
 func targetTypeError[T, S any](err error) error {
+	shadow, target := reflect.TypeFor[S]().String(), reflect.TypeFor[T]().String()
+	// Rename in place and hand back the error the decoder gave us. Returning a
+	// different type instead makes the decoder treat this as an error of its
+	// own and prefix it with the position again, once per nesting level.
+	var loadErrs *yaml.LoadErrors
+	if errors.As(err, &loadErrs) {
+		for _, e := range loadErrs.Errors {
+			e.Message = strings.ReplaceAll(e.Message, shadow, target)
+		}
+		return loadErrs
+	}
 	var typeErr *yaml.TypeError
 	if !errors.As(err, &typeErr) {
 		return err
 	}
-	shadow, target := reflect.TypeFor[S]().String(), reflect.TypeFor[T]().String()
 	for i, message := range typeErr.Errors {
 		typeErr.Errors[i] = strings.ReplaceAll(message, shadow, target)
 	}

@@ -14,7 +14,7 @@ package nodeindex
 import (
 	"bytes"
 
-	yaml "go.yaml.in/yaml/v3"
+	yaml "go.yaml.in/yaml/v4"
 )
 
 // Index answers where the block headed by a key ends.

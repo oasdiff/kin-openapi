@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"strings"
 
-	yaml "go.yaml.in/yaml/v3"
+	yaml "go.yaml.in/yaml/v4"
 )
 
 // unmarshalMaplikeYAML decodes a mapping whose x- keys are extensions and whose

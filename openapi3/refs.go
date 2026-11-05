@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-openapi/jsonpointer"
-	yaml "go.yaml.in/yaml/v3"
+	yaml "go.yaml.in/yaml/v4"
 )
 
 // CallbackRef represents either a Callback or a $ref to a Callback.
