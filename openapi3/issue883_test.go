@@ -40,7 +40,7 @@ paths:
 	require.NoError(t, err)
 	require.NotNil(t, doc.Paths)
 
-	t.Run("Roundtrip using yaml pkg", func(t *testing.T) {
+	t.Run("Roundtrip through yamlconv", func(t *testing.T) {
 		justPaths, err := yamlconv.Marshal(doc.Paths)
 		require.NoError(t, err)
 		require.NotNil(t, doc.Paths)
@@ -65,7 +65,7 @@ paths:
 		require.Equal(t, doc, &newDoc)
 	})
 
-	t.Run("Roundtrip yaml.v3", func(t *testing.T) {
+	t.Run("Roundtrip through the yaml pkg", func(t *testing.T) {
 		justPaths, err := doc.Paths.MarshalJSON()
 		require.NoError(t, err)
 		require.NotNil(t, doc.Paths)
