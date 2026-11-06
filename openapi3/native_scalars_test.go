@@ -188,7 +188,8 @@ func TestNativeScalars_NullKeyIsRefusedWhereverItIsWritten(t *testing.T) {
 		{"on its own line", head + "x-a:\n  : 1\n", "line 5: mapping key is null"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := NewLoader().LoadFromData([]byte(test.src))
+			loader := NewLoader()
+			_, err := loader.LoadFromData([]byte(test.src))
 			require.ErrorContains(t, err, test.want)
 		})
 	}
