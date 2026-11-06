@@ -14,11 +14,22 @@ import (
 
 // PrepareForJSON retags the scalars that would not survive the conversion.
 //
-// A date-shaped scalar resolves to a timestamp, which has no JSON form. A
-// non-string mapping key -- the unquoted 200: written in most specs for a
-// status code -- decodes to a map[any]any that json.Marshal rejects. Both
-// become strings. An explicitly tagged value is left alone, being a deliberate
-// request for that type.
+// A date-shaped scalar resolves to a timestamp, which has no JSON form, so it
+// is retagged and keeps the text the document gave it.
+//
+// A mapping key resolves too: the unquoted 200: written in most specs for a
+// status code is an integer, 18_24 is 1824 and .0 is the number zero.
+// Retagging the key names the member by the text that spells it, which is the
+// name the typed decode reads. JSON has no other name to offer: encoding/json
+// refuses a map[any]any, and encoding/json/v2 refuses one holding a float key
+// and renumbers an integer one, 18_24 to 1824 and 0x2A to 42.
+//
+// An explicitly tagged value is left alone, being a deliberate request for
+// that type.
+//
+// Interim: https://github.com/yaml/go-yaml/issues/452 asks for an option to
+// leave a timestamp-shaped scalar a string, which removes the first retag. The
+// second needs the same for a key's tag.
 func PrepareForJSON(n *yaml.Node) {
 	if n == nil {
 		return
