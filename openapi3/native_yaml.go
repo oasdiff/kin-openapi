@@ -98,12 +98,11 @@ func normalizeDecoded(v any) (any, error) {
 // keyName is the name a key that is not a string is written under. A scalar
 // key reaches the decoder already retagged by nameKeys, so what is left here
 // is a key that is not a scalar at all -- a sequence or a mapping, which YAML
-// allows and a document's names, being strings, do not describe -- and the
-// null that nameKeys leaves to be refused.
+// allows and a document's names, being strings, do not describe.
 //
-// A null key spells nothing. It names no member of the document, and the json
-// path has no key to decode it into, so a document that uses one is refused
-// rather than given a made-up name.
+// A null key spells nothing, and nameKeys refuses the document it appears in.
+// The guard here is what keeps a null reaching the decoder another way from
+// being given a made-up name.
 func keyName(k any) (string, error) {
 	if k == nil {
 		return "", errors.New("mapping key is null, so it names nothing")
@@ -510,7 +509,7 @@ func requireStringScalar(node *yaml.Node, key string) error {
 	case "", strTag, nullTag, timestampTag:
 		return nil
 	}
-	return fmt.Errorf("yaml: line %d: cannot unmarshal %s into string field %q", node.Line, node.Tag, key)
+	return fmt.Errorf("cannot unmarshal %s into string field %q", node.Tag, key)
 }
 
 // prepareScalars walks the tree once, which is the one place every scalar is
@@ -541,7 +540,9 @@ func prepareNode(n *yaml.Node, hasAlias *bool) error {
 		}
 	}
 	if n.Kind == yaml.MappingNode {
-		nameKeys(n)
+		if err := nameKeys(n); err != nil {
+			return err
+		}
 	}
 	for _, c := range n.Content {
 		if err := prepareNode(c, hasAlias); err != nil {
@@ -603,12 +604,14 @@ func checkAliasCycles(root *yaml.Node) error {
 // text; this gives a mapping decoded into an any the same reading, and leaves
 // two keys written the same text to the duplicate-key error they are.
 //
-// A merge key is left alone, being an instruction rather than a name, and so
-// is a null key, which names nothing and is reported as that.
+// A merge key is left alone, being an instruction rather than a name. A null
+// key is refused, there being no name to read a member under: a typed mapping
+// drops it, where decoding into an any reads the text that spelled the null,
+// so the same key would name different things depending on where it sits.
 //
 // Interim: https://github.com/yaml/go-yaml/issues/491 asks for an option to
-// read a mapping key as its text, which removes this.
-func nameKeys(n *yaml.Node) {
+// read a mapping key as its text, which removes the retag.
+func nameKeys(n *yaml.Node) error {
 	for i := 0; i+1 < len(n.Content); i += 2 {
 		k := n.Content[i]
 		if isMergeKey(k) {
@@ -624,11 +627,15 @@ func nameKeys(n *yaml.Node) {
 			named.Line, named.Column = k.Line, k.Column
 			n.Content[i], k = &named, &named
 		}
-		if k.Kind != yaml.ScalarNode || k.Tag == strTag || k.Tag == nullTag {
+		if k.Kind != yaml.ScalarNode || k.Tag == strTag {
 			continue
+		}
+		if k.Tag == nullTag {
+			return fmt.Errorf("line %d: mapping key is null, so it names nothing", k.Line)
 		}
 		k.Tag = strTag
 	}
+	return nil
 }
 
 // stripLocalTag retags a scalar carrying an application's own tag, such as

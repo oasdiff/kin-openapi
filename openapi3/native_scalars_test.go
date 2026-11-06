@@ -162,6 +162,46 @@ func TestNativeScalars_NullKeyNamesNothing(t *testing.T) {
 	require.ErrorContains(t, decodeNative(t, "example: {null: a}\n", &example), "mapping key is null")
 }
 
+// A null key is refused wherever it is written, not only where the mapping it
+// sits in is decoded into an any. A mapping decoded into a map[string]T drops
+// the member silently, which would let a document load holding less than it
+// says, and a struct's extensions would record the text that spells the null
+// as a name. The key's own line is what the error names.
+func TestNativeScalars_NullKeyIsRefusedWhereverItIsWritten(t *testing.T) {
+	const head = "openapi: 3.0.0\ninfo: {title: t, version: \"1\"}\npaths: {}\n"
+	for _, test := range []struct {
+		name, src, want string
+	}{
+		{"in an extension", head + "x-a: {null: 1}\n", "line 4: mapping key is null"},
+		{"at the top level", head + "null: 1\n", "line 4: mapping key is null"},
+		{
+			"under properties",
+			head + "components:\n  schemas:\n    A:\n      properties:\n        null: {}\n",
+			"line 8: mapping key is null",
+		},
+		{
+			"beside a property named null",
+			head + "components:\n  schemas:\n    A:\n      properties:\n        ~: {}\n        \"null\": {type: string}\n",
+			"line 8: mapping key is null",
+		},
+		{"written as a bare colon", ":", "line 1: mapping key is null"},
+		{"on its own line", head + "x-a:\n  : 1\n", "line 5: mapping key is null"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := NewLoader().LoadFromData([]byte(test.src))
+			require.ErrorContains(t, err, test.want)
+		})
+	}
+}
+
+// A field error says what is wrong and the decoder says where, so the message
+// carries the position once.
+func TestNativeScalars_StringFieldErrorCarriesOnePosition(t *testing.T) {
+	var s Schema
+	require.EqualError(t, decodeNative(t, "type: 7\n", &s),
+		`yaml: construct errors: line 1: cannot unmarshal !!int into string field "type"`)
+}
+
 // A key names the text the document wrote it as, wherever it is read: the
 // components a $ref addresses by name, and a mapping decoded into an any.
 func TestNativeScalars_KeysAreTheirText(t *testing.T) {
