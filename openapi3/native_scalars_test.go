@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	goyaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 )
 
 // YAML resolves more scalar forms than JSON does, so a value reaching an
@@ -22,8 +22,8 @@ x-nested: {n: 7, list: [1, 2]}
 example: 42
 default: 0x10
 `
-	var node goyaml.Node
-	require.NoError(t, goyaml.Unmarshal([]byte(src), &node))
+	var node yaml.Node
+	require.NoError(t, yaml.Unmarshal([]byte(src), &node))
 	require.NoError(t, prepareScalars(&node))
 
 	var s Schema
@@ -57,8 +57,8 @@ default: 0x10
 // did not.
 func TestNativeScalars_DeclaredIntegerFieldsKeepPrecision(t *testing.T) {
 	const src = "type: integer\nmaxLength: 9007199254740993\n"
-	var node goyaml.Node
-	require.NoError(t, goyaml.Unmarshal([]byte(src), &node))
+	var node yaml.Node
+	require.NoError(t, yaml.Unmarshal([]byte(src), &node))
 
 	var s Schema
 	require.NoError(t, node.Content[0].Decode(&s))
@@ -70,8 +70,8 @@ func TestNativeScalars_DeclaredIntegerFieldsKeepPrecision(t *testing.T) {
 // a time.Time would marshal to text that reads back as a string.
 func TestNativeScalars_Timestamps(t *testing.T) {
 	const src = "example: 2020-06-11T16:32:50Z\n"
-	var node goyaml.Node
-	require.NoError(t, goyaml.Unmarshal([]byte(src), &node))
+	var node yaml.Node
+	require.NoError(t, yaml.Unmarshal([]byte(src), &node))
 	require.NoError(t, prepareScalars(&node))
 
 	var s Schema
@@ -79,8 +79,8 @@ func TestNativeScalars_Timestamps(t *testing.T) {
 	require.IsType(t, "", s.Example, "a date-shaped example stays a string")
 
 	const tagged = "example: !!timestamp 2020-06-11T16:32:50Z\n"
-	var taggedNode goyaml.Node
-	require.NoError(t, goyaml.Unmarshal([]byte(tagged), &taggedNode))
+	var taggedNode yaml.Node
+	require.NoError(t, yaml.Unmarshal([]byte(tagged), &taggedNode))
 	require.NoError(t, prepareScalars(&taggedNode))
 
 	var ts Schema
@@ -92,8 +92,8 @@ func TestNativeScalars_Timestamps(t *testing.T) {
 func decodeNative(t *testing.T, src string, v any) error {
 	t.Helper()
 
-	var node goyaml.Node
-	require.NoError(t, goyaml.Unmarshal([]byte(src), &node))
+	var node yaml.Node
+	require.NoError(t, yaml.Unmarshal([]byte(src), &node))
 	if err := prepareScalars(&node); err != nil {
 		return err
 	}

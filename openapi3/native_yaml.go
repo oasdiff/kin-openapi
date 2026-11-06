@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	yaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 )
 
 var knownYAMLFieldsCache sync.Map // reflect.Type -> map[string]struct{}

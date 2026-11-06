@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	yamlv3 "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 
 	"github.com/getkin/kin-openapi/internal/yamlconv"
 	"github.com/getkin/kin-openapi/openapi3"
@@ -78,7 +78,7 @@ paths:
         description: OK
 `[1:], string(justPaths))
 
-		justPaths, err = yamlv3.Marshal(doc.Paths)
+		justPaths, err = yaml.Marshal(doc.Paths)
 		require.NoError(t, err)
 		require.NotNil(t, doc.Paths)
 		require.YAMLEq(t, `
@@ -90,13 +90,13 @@ paths:
         description: OK
 `[1:], string(justPaths))
 
-		marshalledYaml, err := yamlv3.Marshal(doc)
+		marshalledYaml, err := yaml.Marshal(doc)
 		require.NoError(t, err)
 		require.NotNil(t, doc.Paths)
 		require.YAMLEq(t, spec, string(marshalledYaml))
 
 		var newDoc openapi3.T
-		err = yamlv3.Unmarshal(marshalledYaml, &newDoc)
+		err = yaml.Unmarshal(marshalledYaml, &newDoc)
 		require.NoError(t, err)
 		require.NotNil(t, newDoc.Paths)
 		require.Equal(t, doc, &newDoc)

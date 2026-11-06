@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	goyaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 )
 
 // A complete document decoded through UnmarshalYAML must equal the same
@@ -29,7 +29,7 @@ func TestNativeE2E_WholeDocument(t *testing.T) {
 		t.Run(path, func(t *testing.T) {
 			// Reference: the JSON path, via a plain YAML->JSON conversion.
 			var asAny any
-			require.NoError(t, goyaml.Unmarshal(data, &asAny))
+			require.NoError(t, yaml.Unmarshal(data, &asAny))
 			jsonBytes, err := json.Marshal(asAny)
 			require.NoError(t, err)
 			var viaJSON T
@@ -37,7 +37,7 @@ func TestNativeE2E_WholeDocument(t *testing.T) {
 
 			// Native: straight from the node tree.
 			var viaYAML T
-			require.NoError(t, goyaml.Unmarshal(data, &viaYAML))
+			require.NoError(t, yaml.Unmarshal(data, &viaYAML))
 
 			want, err := json.Marshal(&viaJSON)
 			require.NoError(t, err)

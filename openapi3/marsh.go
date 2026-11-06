@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	goyaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 
 	"github.com/getkin/kin-openapi/internal/nodeindex"
 )
@@ -50,8 +50,8 @@ func unmarshal(data []byte, v any, includeOrigin bool, location *url.URL) (*orig
 // UnmarshalYAML, with origins read off the nodes. A JSON document gets origins
 // too, since JSON parses as YAML.
 func unmarshalYAML(data []byte, v any, includeOrigin bool, file string) (*originTree, error) {
-	var root goyaml.Node
-	if err := goyaml.Unmarshal(data, &root); err != nil {
+	var root yaml.Node
+	if err := yaml.Unmarshal(data, &root); err != nil {
 		return nil, err
 	}
 	if err := prepareScalars(&root); err != nil {
@@ -76,7 +76,7 @@ func unmarshalYAML(data []byte, v any, includeOrigin bool, file string) (*origin
 	// own node; that path resolves through plain data, which carries no
 	// positions.
 	node := &root
-	if root.Kind == goyaml.DocumentNode && len(root.Content) > 0 {
+	if root.Kind == yaml.DocumentNode && len(root.Content) > 0 {
 		node = root.Content[0]
 	}
 	stampRootOrigin(v, node)
@@ -93,7 +93,7 @@ func unmarshalYAML(data []byte, v any, includeOrigin bool, file string) (*origin
 // whole node tree, which leaving it set would pin until the next decode
 // replaced it, whether or not anything kept the tree. A caller that does need
 // it gets it on the returned originTree.
-func installOriginState(root *goyaml.Node, data []byte, file string) (*nodeindex.Index, func()) {
+func installOriginState(root *yaml.Node, data []byte, file string) (*nodeindex.Index, func()) {
 	originMu.Lock()
 	// Ends are derived from the tree, the parser reporting only starts.
 	ends := nodeindex.New(root, data)

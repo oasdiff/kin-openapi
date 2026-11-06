@@ -9,7 +9,7 @@ package yamlconv
 import (
 	"encoding/json"
 
-	yaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 )
 
 // PrepareForJSON retags the scalars that would not survive the conversion.

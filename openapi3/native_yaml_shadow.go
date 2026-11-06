@@ -2,7 +2,7 @@
 package openapi3
 
 import (
-	yaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 )
 
 // UnmarshalYAML for the types whose YAML form is a mapping of declared fields

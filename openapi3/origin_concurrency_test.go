@@ -4,7 +4,7 @@ import (
 	"sync"
 	"testing"
 
-	goyaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 )
 
 const concurrentSpec = `
@@ -49,7 +49,7 @@ func TestConcurrentDecodeDoesNotLeakOrigins(t *testing.T) {
 		defer wg.Done()
 		for range 50 {
 			var doc T
-			if err := goyaml.Unmarshal([]byte(concurrentSpec), &doc); err != nil {
+			if err := yaml.Unmarshal([]byte(concurrentSpec), &doc); err != nil {
 				t.Error(err)
 				return
 			}

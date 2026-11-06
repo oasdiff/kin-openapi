@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	goyaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 )
 
 // nameFields adds the path of the node each error is about to its message, so
@@ -14,8 +14,8 @@ import (
 //
 // An error whose position no node starts at, or which is about the document
 // itself, keeps the message it came with.
-func nameFields(err error, root *goyaml.Node) error {
-	var loadErrs *goyaml.LoadErrors
+func nameFields(err error, root *yaml.Node) error {
+	var loadErrs *yaml.LoadErrors
 	if !errors.As(err, &loadErrs) {
 		return err
 	}
@@ -31,13 +31,13 @@ func nameFields(err error, root *goyaml.Node) error {
 // nodePath returns the JSON pointer of the node starting at line and column,
 // and false when no node starts there or the node is the document's root,
 // which has no path to name.
-func nodePath(root *goyaml.Node, line, column int) (string, bool) {
+func nodePath(root *yaml.Node, line, column int) (string, bool) {
 	if root == nil || line == 0 || column == 0 {
 		return "", false
 	}
 
 	node := root
-	if node.Kind == goyaml.DocumentNode && len(node.Content) > 0 {
+	if node.Kind == yaml.DocumentNode && len(node.Content) > 0 {
 		node = node.Content[0]
 	}
 
@@ -52,7 +52,7 @@ func nodePath(root *goyaml.Node, line, column int) (string, bool) {
 // column, where path names node itself. The shallowest match wins: a mapping
 // and its first key start in the same place, and it is the mapping that an
 // error about the mapping's type is reported at.
-func searchNode(node *goyaml.Node, line, column int, path []string) (string, bool) {
+func searchNode(node *yaml.Node, line, column int, path []string) (string, bool) {
 	if node == nil {
 		return "", false
 	}
@@ -61,13 +61,13 @@ func searchNode(node *goyaml.Node, line, column int, path []string) (string, boo
 	}
 
 	switch node.Kind {
-	case goyaml.MappingNode:
+	case yaml.MappingNode:
 		for i := 0; i+1 < len(node.Content); i += 2 {
 			if found, ok := searchNode(node.Content[i+1], line, column, append(path, node.Content[i].Value)); ok {
 				return found, true
 			}
 		}
-	case goyaml.SequenceNode:
+	case yaml.SequenceNode:
 		for i, item := range node.Content {
 			if found, ok := searchNode(item, line, column, append(path, strconv.Itoa(i))); ok {
 				return found, true
