@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	yaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4"
 
 	"github.com/getkin/kin-openapi/openapi2"
 	"github.com/getkin/kin-openapi/openapi3"
