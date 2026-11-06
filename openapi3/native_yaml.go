@@ -605,6 +605,9 @@ func checkAliasCycles(root *yaml.Node) error {
 //
 // A merge key is left alone, being an instruction rather than a name, and so
 // is a null key, which names nothing and is reported as that.
+//
+// Interim: https://github.com/yaml/go-yaml/issues/491 asks for an option to
+// read a mapping key as its text, which removes this.
 func nameKeys(n *yaml.Node) {
 	for i := 0; i+1 < len(n.Content); i += 2 {
 		k := n.Content[i]
